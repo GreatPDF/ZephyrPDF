@@ -1,16 +1,29 @@
 import { PDFDocument, rgb, degrees, StandardFonts } from 'pdf-lib';
 import { AnnotationManager } from '../annotations/manager';
 import { PageManager } from '../organizer/page-manager';
+import { FormHandler } from '../core/form-handler';
 import { hexToPdfRgb } from '../utils/color';
 
 export class PdfExporter {
   public static async exportDocument(
     sourceBytes: Uint8Array,
     pageManager: PageManager,
-    annotationManager: AnnotationManager
+    annotationManager: AnnotationManager,
+    formHandler?: FormHandler,
+    mergedDocs?: Map<string, Uint8Array>
   ): Promise<Uint8Array> {
     const sourceDoc = await PDFDocument.load(sourceBytes, { ignoreEncryption: true });
+    if (formHandler) {
+      formHandler.applyToPdf(sourceDoc);
+    }
     const newDoc = await PDFDocument.create();
+
+    const loadedMergedDocs = new Map<string, PDFDocument>();
+    if (mergedDocs) {
+      for (const [id, bytes] of mergedDocs.entries()) {
+        loadedMergedDocs.set(id, await PDFDocument.load(bytes, { ignoreEncryption: true }));
+      }
+    }
 
     const fontHelvetica = await newDoc.embedFont(StandardFonts.Helvetica);
     const fontHelveticaBold = await newDoc.embedFont(StandardFonts.HelveticaBold);
@@ -24,7 +37,8 @@ export class PdfExporter {
       if (pageInfo.isBlank) {
         targetPage = newDoc.addPage([pageInfo.width || 595.28, pageInfo.height || 841.89]);
       } else {
-        const [copied] = await newDoc.copyPages(sourceDoc, [pageInfo.originalIndex]);
+        const fromDoc = (pageInfo.sourceDocId && loadedMergedDocs.get(pageInfo.sourceDocId)) || sourceDoc;
+        const [copied] = await newDoc.copyPages(fromDoc, [pageInfo.originalIndex]);
         targetPage = newDoc.addPage(copied);
       }
 
@@ -167,6 +181,24 @@ export class PdfExporter {
               });
             } catch (err) {
               console.warn('Failed to embed signature image:', err);
+            }
+          } else if (ann.type === 'redaction') {
+            targetPage.drawRectangle({
+              x: ann.x,
+              y: pageHeight - (ann.y + ann.height),
+              width: ann.width,
+              height: ann.height,
+              color: rgb(0, 0, 0),
+              opacity: 1
+            });
+            if (ann.width > 36 && ann.height > 12) {
+              targetPage.drawText(ann.overlayText || 'REDACTED', {
+                x: ann.x + 4,
+                y: pageHeight - (ann.y + ann.height / 2 + 3),
+                size: Math.min(8, ann.height * 0.5),
+                font: fontHelveticaBold,
+                color: rgb(1, 1, 1)
+              });
             }
           }
         } catch (e) {

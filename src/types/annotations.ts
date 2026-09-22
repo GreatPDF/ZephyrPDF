@@ -11,7 +11,8 @@ export type AnnotationType =
   | 'arrow'
   | 'stamp'
   | 'signature'
-  | 'sticky_note';
+  | 'sticky_note'
+  | 'redaction';
 
 export interface BaseAnnotation {
   id: string;
@@ -121,6 +122,15 @@ export interface StickyNoteAnnotation extends BaseAnnotation {
   isOpen?: boolean;
 }
 
+export interface RedactionAnnotation extends BaseAnnotation {
+  type: 'redaction';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  overlayText?: string;
+}
+
 export type Annotation =
   | HighlightAnnotation
   | MarkupAnnotation
@@ -130,7 +140,8 @@ export type Annotation =
   | LineAnnotation
   | StampAnnotation
   | SignatureAnnotation
-  | StickyNoteAnnotation;
+  | StickyNoteAnnotation
+  | RedactionAnnotation;
 
 export type ToolType =
   | 'select'
@@ -147,4 +158,5 @@ export type ToolType =
   | 'arrow'
   | 'stamp'
   | 'signature'
-  | 'sticky_note';
+  | 'sticky_note'
+  | 'redaction';

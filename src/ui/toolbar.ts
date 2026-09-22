@@ -203,6 +203,10 @@ export class AppToolbar {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </button>
 
+          <button class="icon-btn tool-btn" data-tool="redaction" title="Permanent Redaction / Blackout (x)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor"></rect><line x1="3" y1="3" x2="21" y2="21" stroke="#ef4444" stroke-width="2"></line></svg>
+          </button>
+
           <div class="toolbar-divider"></div>
 
           <button class="icon-btn tool-btn" data-tool="stamp" title="Place Stamp (m)">

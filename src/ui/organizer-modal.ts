@@ -4,6 +4,8 @@ import { PageItem } from '../types/organizer';
 export interface OrganizerEvents {
   onApply: () => void;
   onClose: () => void;
+  onMergeFile?: (file: File) => Promise<void>;
+  onExtractPages?: (indices: number[]) => Promise<void>;
 }
 
 export class OrganizerModal {
@@ -12,6 +14,7 @@ export class OrganizerModal {
   private thumbnails: Map<number, string>;
   private events: OrganizerEvents;
   private draggedPageIndex: number | null = null;
+  private selectedIndices: Set<number> = new Set();
 
   constructor(
     pageManager: PageManager,
@@ -47,11 +50,14 @@ export class OrganizerModal {
         </div>
         <div style="display: flex; gap: 8px;">
           <button class="btn" id="org-rotate-all-btn">Rotate All 90°</button>
-          <button class="btn" id="org-add-blank-btn">+ Add Blank Page</button>
+          <button class="btn" id="org-add-blank-btn">+ Blank Page</button>
+          <button class="btn" id="org-merge-btn">📎 Merge Another PDF</button>
+          <button class="btn" id="org-extract-btn" title="Extract selected pages into separate PDF">Extract Selected</button>
           <button class="btn btn-primary" id="org-apply-btn">Apply & Return to Reader</button>
         </div>
       </div>
       <div class="organizer-grid" id="org-grid"></div>
+      <input type="file" id="org-merge-input" accept="application/pdf" style="display: none;" />
     `;
 
     document.body.appendChild(this.overlay);
@@ -60,7 +66,7 @@ export class OrganizerModal {
     this.renderGrid();
   }
 
-  private renderGrid(): void {
+  public renderGrid(): void {
     const grid = this.overlay?.querySelector('#org-grid');
     if (!grid) return;
 
@@ -72,13 +78,21 @@ export class OrganizerModal {
 
     pages.forEach((page: PageItem, index: number) => {
       const card = document.createElement('div');
-      card.className = 'organizer-card';
+      const isSelected = this.selectedIndices.has(index);
+      card.className = `organizer-card ${isSelected ? 'active' : ''}`;
+      if (isSelected) {
+        card.style.borderColor = 'var(--accent-color)';
+        card.style.backgroundColor = 'var(--accent-light)';
+      }
       card.setAttribute('draggable', 'true');
       card.setAttribute('data-index', index.toString());
 
       const thumbUrl = this.thumbnails.get(page.originalIndex) || '';
 
       card.innerHTML = `
+        <div style="position: absolute; top: 10px; left: 10px; z-index: 2;">
+          <input type="checkbox" class="org-select-check" ${isSelected ? 'checked' : ''} style="cursor: pointer; width: 16px; height: 16px;" />
+        </div>
         <div style="width: 140px; height: 180px; display: flex; align-items: center; justify-content: center; background: white; border-radius: 4px; overflow: hidden; box-shadow: var(--shadow-sm); transform: rotate(${page.rotation}deg); transition: transform 0.2s ease;">
           ${page.isBlank ? '<div style="color: #999; font-size: 0.85rem;">[Blank Page]</div>' : `<img src="${thumbUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />`}
         </div>
@@ -89,6 +103,14 @@ export class OrganizerModal {
           <button class="icon-btn del-btn" title="Delete Page" style="width: 28px; height: 28px; color: var(--danger-color);">✕</button>
         </div>
       `;
+
+      // Select toggle
+      const check = card.querySelector('.org-select-check') as HTMLInputElement;
+      check?.addEventListener('change', () => {
+        if (check.checked) this.selectedIndices.add(index);
+        else this.selectedIndices.delete(index);
+        this.renderGrid();
+      });
 
       // Drag & Drop reordering
       card.addEventListener('dragstart', (e) => {
@@ -108,12 +130,16 @@ export class OrganizerModal {
       });
 
       card.addEventListener('dragleave', () => {
-        card.style.borderColor = 'var(--border-color)';
+        if (!this.selectedIndices.has(index)) {
+          card.style.borderColor = 'var(--border-color)';
+        }
       });
 
       card.addEventListener('drop', (e) => {
         e.preventDefault();
-        card.style.borderColor = 'var(--border-color)';
+        if (!this.selectedIndices.has(index)) {
+          card.style.borderColor = 'var(--border-color)';
+        }
         if (this.draggedPageIndex !== null && this.draggedPageIndex !== index) {
           this.pageManager.movePage(this.draggedPageIndex, index);
           this.renderGrid();
@@ -122,24 +148,28 @@ export class OrganizerModal {
 
       // Actions
       const rotLeft = card.querySelector('.rot-left-btn');
-      rotLeft?.addEventListener('click', () => {
+      rotLeft?.addEventListener('click', (e) => {
+        e.stopPropagation();
         this.pageManager.rotatePage(index, -90);
         this.renderGrid();
       });
 
       const rotRight = card.querySelector('.rot-right-btn');
-      rotRight?.addEventListener('click', () => {
+      rotRight?.addEventListener('click', (e) => {
+        e.stopPropagation();
         this.pageManager.rotatePage(index, 90);
         this.renderGrid();
       });
 
       const delBtn = card.querySelector('.del-btn');
-      delBtn?.addEventListener('click', () => {
+      delBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
         if (this.pageManager.getPages().length <= 1) {
           alert('Cannot delete the only page in the document.');
           return;
         }
         this.pageManager.deletePage(index);
+        this.selectedIndices.delete(index);
         this.renderGrid();
       });
 
@@ -165,6 +195,32 @@ export class OrganizerModal {
     rotateAllBtn?.addEventListener('click', () => {
       this.pageManager.rotateAll(90);
       this.renderGrid();
+    });
+
+    const mergeBtn = this.overlay?.querySelector('#org-merge-btn');
+    const mergeInput = this.overlay?.querySelector('#org-merge-input') as HTMLInputElement;
+
+    mergeBtn?.addEventListener('click', () => {
+      mergeInput?.click();
+    });
+
+    mergeInput?.addEventListener('change', async () => {
+      const file = mergeInput.files?.[0];
+      if (file && this.events.onMergeFile) {
+        await this.events.onMergeFile(file);
+        this.renderGrid();
+      }
+    });
+
+    const extractBtn = this.overlay?.querySelector('#org-extract-btn');
+    extractBtn?.addEventListener('click', async () => {
+      if (this.selectedIndices.size === 0) {
+        alert('Please select at least one page checkbox to extract.');
+        return;
+      }
+      if (this.events.onExtractPages) {
+        await this.events.onExtractPages(Array.from(this.selectedIndices));
+      }
     });
   }
 }

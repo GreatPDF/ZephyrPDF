@@ -144,6 +144,30 @@ export async function createSamplePdf(): Promise<Uint8Array> {
     color: rgb(0.8, 0.8, 0.8)
   });
 
+  // Interactive AcroForm fields
+  const form = pdfDoc.getForm();
+  const reviewerField = form.createTextField('reviewer_name');
+  reviewerField.setText('Alex Maintainer');
+  reviewerField.addToPage(page1, { x: 320, y: yPos - 35, width: 220, height: 24 });
+  page1.drawText('Reviewer Name (Fillable Form Field):', {
+    x: 320,
+    y: yPos - 8,
+    size: 9,
+    font: fontHelvetica,
+    color: rgb(0.3, 0.3, 0.3)
+  });
+
+  const agreeCheckbox = form.createCheckBox('terms_agree');
+  agreeCheckbox.check();
+  agreeCheckbox.addToPage(page1, { x: 320, y: yPos - 65, width: 16, height: 16 });
+  page1.drawText('I confirm this document is verified', {
+    x: 345,
+    y: yPos - 62,
+    size: 9,
+    font: fontHelvetica,
+    color: rgb(0.3, 0.3, 0.3)
+  });
+
   // Footer
   page1.drawText('Page 1 of 2 — GreatPDF Document Showcase', {
     x: 50,

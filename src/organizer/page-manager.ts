@@ -194,6 +194,49 @@ export class PageManager {
     }
   }
 
+  public appendDocumentPages(
+    sourceDocId: string,
+    pageCount: number,
+    dimensions: { width: number; height: number; rotation: number }[],
+    trackHistory: boolean = true
+  ): void {
+    const newItems: PageItem[] = [];
+    for (let i = 0; i < pageCount; i++) {
+      const dim = dimensions[i] || { width: 595.28, height: 841.89, rotation: 0 };
+      newItems.push({
+        id: `m_${sourceDocId}_${i}`,
+        originalIndex: i,
+        pageNumber: 0,
+        rotation: dim.rotation || 0,
+        isDeleted: false,
+        sourceDocId,
+        width: dim.width,
+        height: dim.height
+      });
+    }
+
+    const previousPages = [...this.pages];
+
+    const doAppend = () => {
+      this.pages.push(...newItems);
+      this.recomputePageNumbers();
+      this.notify();
+    };
+
+    if (trackHistory) {
+      this.history.execute({
+        description: `Append ${pageCount} pages from external document`,
+        execute: () => doAppend(),
+        undo: () => {
+          this.pages = previousPages;
+          this.notify();
+        }
+      });
+    } else {
+      doAppend();
+    }
+  }
+
   private recomputePageNumbers(): void {
     const active = this.getPages();
     active.forEach((p, idx) => {

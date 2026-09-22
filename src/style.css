@@ -412,6 +412,44 @@ button.btn.btn-primary:hover {
   background: rgba(33, 150, 243, 0.4);
 }
 
+/* Form Fields Layer */
+.form-fields-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.pdf-acro-input {
+  position: absolute;
+  pointer-events: all;
+  background-color: rgba(224, 242, 254, 0.45);
+  border: 1px solid #38bdf8;
+  border-radius: 2px;
+  color: #0f172a;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  padding: 2px 4px;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.pdf-acro-input:focus {
+  background-color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+}
+
+.pdf-acro-checkbox {
+  position: absolute;
+  pointer-events: all;
+  cursor: pointer;
+  accent-color: var(--accent-color);
+}
+
 /* Floating HUD Navigation */
 .floating-hud {
   position: absolute;

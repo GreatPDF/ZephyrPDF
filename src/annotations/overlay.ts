@@ -3,6 +3,7 @@ import {
   FreehandAnnotation,
   HighlightAnnotation,
   LineAnnotation,
+  RedactionAnnotation,
   ShapeAnnotation,
   SignatureAnnotation,
   StampAnnotation,
@@ -270,22 +271,33 @@ export class PageAnnotationOverlay {
       tool === 'rectangle' ||
       tool === 'ellipse' ||
       tool === 'line' ||
-      tool === 'arrow'
+      tool === 'arrow' ||
+      tool === 'redaction'
     ) {
       if (!this.previewElement) {
         const el = document.createElementNS(
           'http://www.w3.org/2000/svg',
           tool === 'ellipse' ? 'ellipse' : tool === 'line' || tool === 'arrow' ? 'line' : 'rect'
         );
-        el.setAttribute('stroke', this.getActiveColor());
+        el.setAttribute('stroke', tool === 'redaction' ? '#ef4444' : this.getActiveColor());
         el.setAttribute('stroke-width', (this.getActiveStrokeWidth() * scale).toString());
-        el.setAttribute('fill', tool === 'highlight' ? hexToRgbaCss(this.getActiveColor(), 0.35) : 'none');
+        el.setAttribute(
+          'fill',
+          tool === 'highlight'
+            ? hexToRgbaCss(this.getActiveColor(), 0.35)
+            : tool === 'redaction'
+            ? 'rgba(0, 0, 0, 0.75)'
+            : 'none'
+        );
+        if (tool === 'redaction') {
+          el.setAttribute('stroke-dasharray', '4,2');
+        }
         this.svgLayer.appendChild(el);
         this.previewElement = el;
       }
 
       const rect = normalizeRect(this.startPoint, coords);
-      if (tool === 'rectangle' || tool === 'highlight') {
+      if (tool === 'rectangle' || tool === 'highlight' || tool === 'redaction') {
         this.previewElement.setAttribute('x', (rect.x * scale).toString());
         this.previewElement.setAttribute('y', (rect.y * scale).toString());
         this.previewElement.setAttribute('width', (rect.width * scale).toString());
@@ -369,6 +381,23 @@ export class PageAnnotationOverlay {
         };
         this.manager.addAnnotation(ann);
       }
+    } else if (tool === 'redaction') {
+      const rect = normalizeRect(this.startPoint, coords);
+      if (rect.width > 4 && rect.height > 4) {
+        const ann: RedactionAnnotation = {
+          id,
+          type: 'redaction',
+          pageIndex: this.pageIndex,
+          x: rect.x,
+          y: rect.y,
+          width: rect.width,
+          height: rect.height,
+          overlayText: 'REDACTED',
+          createdAt: now,
+          updatedAt: now
+        };
+        this.manager.addAnnotation(ann);
+      }
     } else if (tool === 'line' || tool === 'arrow') {
       const dist = Math.hypot(coords.x - this.startPoint.x, coords.y - this.startPoint.y);
       if (dist > 5) {
@@ -399,7 +428,14 @@ export class PageAnnotationOverlay {
     if (ann.type === 'highlight') {
       return ann.rects.some(r => pointInRect(p, r));
     }
-    if (ann.type === 'rectangle' || ann.type === 'ellipse' || ann.type === 'text' || ann.type === 'stamp' || ann.type === 'signature') {
+    if (
+      ann.type === 'rectangle' ||
+      ann.type === 'ellipse' ||
+      ann.type === 'text' ||
+      ann.type === 'stamp' ||
+      ann.type === 'signature' ||
+      ann.type === 'redaction'
+    ) {
       const rect: Rect = { x: ann.x, y: ann.y, width: ann.width, height: ann.height };
       return pointInRect(p, rect);
     }
@@ -626,6 +662,31 @@ export class PageAnnotationOverlay {
 
         g.appendChild(circle);
         g.appendChild(icon);
+        this.svgLayer.appendChild(g);
+      } else if (ann.type === 'redaction') {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', (ann.x * scale).toString());
+        rect.setAttribute('y', (ann.y * scale).toString());
+        rect.setAttribute('width', (ann.width * scale).toString());
+        rect.setAttribute('height', (ann.height * scale).toString());
+        rect.setAttribute('fill', '#000000');
+        rect.setAttribute('stroke', isSelected ? '#1976d2' : '#000000');
+        rect.setAttribute('stroke-width', (2 * scale).toString());
+        g.appendChild(rect);
+
+        if (ann.width > 36 && ann.height > 12) {
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', ((ann.x + ann.width / 2) * scale).toString());
+          text.setAttribute('y', ((ann.y + ann.height / 2 + 3) * scale).toString());
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute('font-size', `${Math.min(9, ann.height * 0.6) * scale}px`);
+          text.setAttribute('font-family', 'monospace');
+          text.setAttribute('font-weight', 'bold');
+          text.setAttribute('fill', '#ffffff');
+          text.textContent = ann.overlayText || 'REDACTED';
+          g.appendChild(text);
+        }
         this.svgLayer.appendChild(g);
       }
     }

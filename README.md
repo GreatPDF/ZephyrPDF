@@ -19,11 +19,16 @@
   - **Sticky Notes**: Threaded comments and annotations.
 - **📑 Visual Page Organizer**:
   - Interactive grid view with live page previews.
+  - Multi-document merge: Combine pages from multiple PDFs into a single unified file.
+  - Page extraction / split: Select specific pages and export them into a separate document.
   - Drag-and-drop page reordering.
   - 90° Clockwise and Counter-Clockwise page rotations.
   - Page deletion and blank page insertion.
+- **🛡️ Permanent Redaction**: Irreversibly black out confidential data, numbers, or text before distribution.
+- **📝 Interactive Form Filling**: In-browser AcroForm support—fill text inputs, check boxes, select dropdowns, and save valid filled PDF forms.
 - **🔍 Full-Text Search**: Instantaneous search across all pages with matching text bounds and rapid previous/next keyboard navigation.
 - **🌓 Reading Modes**: Sleek Modern Dark Mode (with smart document contrast inversion), Clean Light Mode, and warm Sepia paper mode.
+- **📱 Offline PWA Ready**: Install as a standalone native app on desktop or mobile with 100% offline functionality.
 - **💾 Standard Compliant PDF Export**: Edits, annotations, and page reorganizations are baked directly into valid ISO 32000-1 standard PDF objects, fully compatible with Adobe Acrobat, Apple Preview, Chrome, Firefox, SumatraPDF, and Okular.
 - **⌨️ Keyboard Productivity**: Full hotkey support (`j`/`k` page navigation, `+`/`-` zoom, `v` select, `p` pen, `l` highlight, `Ctrl+Z` undo, `Ctrl+Y` redo, `Ctrl+S` save, `?` shortcut cheat sheet).
 

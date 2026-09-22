@@ -3,6 +3,7 @@ import { AnnotationManager } from './annotations/manager';
 import { PageManager } from './organizer/page-manager';
 import { PageRenderer } from './core/renderer';
 import { TextSearchEngine } from './core/text-search';
+import { FormHandler } from './core/form-handler';
 import { PdfLoader, LoadedDocument } from './core/pdf-loader';
 import { PdfExporter } from './export/pdf-exporter';
 import { AppToolbar } from './ui/toolbar';
@@ -37,6 +38,7 @@ class GreatPDFApp {
   private pageManager: PageManager;
   private renderer: PageRenderer;
   private searchEngine: TextSearchEngine;
+  private formHandler: FormHandler;
 
   private toolbar!: AppToolbar;
   private sidebar!: AppSidebar;
@@ -44,6 +46,7 @@ class GreatPDFApp {
   private currentDoc: LoadedDocument | null = null;
   private pageOverlays: Map<number, PageAnnotationOverlay> = new Map();
   private pageThumbnails: Map<number, string> = new Map();
+  private mergedDocs: Map<string, Uint8Array> = new Map();
 
   // State
   private activeTool: ToolType = 'select';
@@ -61,6 +64,7 @@ class GreatPDFApp {
     this.pageManager = new PageManager(this.history);
     this.renderer = new PageRenderer();
     this.searchEngine = new TextSearchEngine();
+    this.formHandler = new FormHandler();
 
     this.initUI();
     this.initDropzone();
@@ -273,6 +277,9 @@ class GreatPDFApp {
       } else if (e.key.toLowerCase() === 'a') {
         this.toolbar.setActiveTool('arrow');
         this.activeTool = 'arrow';
+      } else if (e.key.toLowerCase() === 'x') {
+        this.toolbar.setActiveTool('redaction');
+        this.activeTool = 'redaction';
       } else if (e.key.toLowerCase() === 'g') {
         this.openSignatureDialog();
       } else if (e.key === '?') {
@@ -359,6 +366,9 @@ class GreatPDFApp {
     // Initialize Text Search Engine
     await this.searchEngine.setDocument(doc.pdfjsDoc);
 
+    // Initialize Interactive Forms
+    this.formHandler.loadFromPdf(doc.pdfLibDoc);
+
     // Hide empty state, show HUD
     document.getElementById('empty-state')!.style.display = 'none';
     document.getElementById('pages-wrapper')!.style.display = 'flex';
@@ -444,6 +454,50 @@ class GreatPDFApp {
         });
         overlay.updateSize(viewport.width, viewport.height);
         this.pageOverlays.set(pageItem.originalIndex, overlay);
+
+        // Render interactive AcroForm fields if present
+        const fields = this.formHandler.getFieldsForPage(pageItem.originalIndex);
+        if (fields.length > 0) {
+          const formLayer = document.createElement('div');
+          formLayer.className = 'form-fields-layer';
+          const pageHeight = viewport.height / this.currentScale;
+
+          for (const f of fields) {
+            const topPx = (pageHeight - (f.bounds.y + f.bounds.height)) * this.currentScale;
+            const leftPx = f.bounds.x * this.currentScale;
+            const widthPx = f.bounds.width * this.currentScale;
+            const heightPx = f.bounds.height * this.currentScale;
+
+            if (f.type === 'checkbox') {
+              const cb = document.createElement('input');
+              cb.type = 'checkbox';
+              cb.className = 'pdf-acro-checkbox';
+              cb.checked = Boolean(f.value);
+              cb.style.left = `${leftPx}px`;
+              cb.style.top = `${topPx}px`;
+              cb.style.width = `${Math.max(16, widthPx)}px`;
+              cb.style.height = `${Math.max(16, heightPx)}px`;
+              cb.addEventListener('change', () => {
+                this.formHandler.setValue(f.name, cb.checked);
+              });
+              formLayer.appendChild(cb);
+            } else {
+              const input = document.createElement('input');
+              input.type = 'text';
+              input.className = 'pdf-acro-input';
+              input.value = typeof f.value === 'string' ? f.value : '';
+              input.style.left = `${leftPx}px`;
+              input.style.top = `${topPx}px`;
+              input.style.width = `${widthPx}px`;
+              input.style.height = `${heightPx}px`;
+              input.addEventListener('input', () => {
+                this.formHandler.setValue(f.name, input.value);
+              });
+              formLayer.appendChild(input);
+            }
+          }
+          pageContainer.appendChild(formLayer);
+        }
       }
     }
   }
@@ -515,7 +569,54 @@ class GreatPDFApp {
         this.updatePageHUD();
         NotificationService.show('Page changes applied!');
       },
-      onClose: () => {}
+      onClose: () => {},
+      onMergeFile: async (file: File) => {
+        NotificationService.show(`Merging ${file.name}...`);
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        const docId = 'merged_' + Math.random().toString(36).substring(2, 9);
+        this.mergedDocs.set(docId, bytes);
+
+        const loaded = await PdfLoader.loadFromBytes(bytes, file.name);
+        this.pageManager.appendDocumentPages(
+          docId,
+          loaded.metadata.pageCount,
+          loaded.pageDimensions
+        );
+
+        // Render thumbnails for merged pages
+        for (let i = 1; i <= loaded.pdfjsDoc.numPages; i++) {
+          const page = await loaded.pdfjsDoc.getPage(i);
+          const url = await this.renderer.renderThumbnail(page, 140);
+          this.pageThumbnails.set(i - 1, url);
+        }
+
+        NotificationService.show(`Merged ${file.name} successfully!`);
+      },
+      onExtractPages: async (indices: number[]) => {
+        if (!this.currentDoc) return;
+        NotificationService.show(`Extracting ${indices.length} pages...`);
+        const tempManager = new PageManager(new HistoryManager());
+        const activePages = this.pageManager.getPages();
+        const extractedItems = indices.map(idx => activePages[idx]).filter(Boolean);
+
+        tempManager.initFromDocument(extractedItems.length, extractedItems.map(p => ({
+          width: p.width,
+          height: p.height,
+          rotation: p.rotation
+        })));
+
+        const extractedBytes = await PdfExporter.exportDocument(
+          this.currentDoc.data,
+          tempManager,
+          this.annotationManager,
+          this.formHandler,
+          this.mergedDocs
+        );
+
+        const baseName = this.currentDoc.metadata.fileName.replace(/\.pdf$/i, '');
+        PdfExporter.downloadBlob(extractedBytes, `${baseName}_extracted.pdf`);
+        NotificationService.show('Extracted pages downloaded successfully!');
+      }
     }).open();
   }
 
@@ -530,7 +631,9 @@ class GreatPDFApp {
       const exportedBytes = await PdfExporter.exportDocument(
         this.currentDoc.data,
         this.pageManager,
-        this.annotationManager
+        this.annotationManager,
+        this.formHandler,
+        this.mergedDocs
       );
 
       const baseName = this.currentDoc.metadata.fileName.replace(/\.pdf$/i, '');

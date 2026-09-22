@@ -43,6 +43,7 @@ export class ShortcutsDialog {
         <div class="shortcut-row"><span>Rectangle Shape</span><span class="shortcut-kbd">r</span></div>
         <div class="shortcut-row"><span>Ellipse Shape</span><span class="shortcut-kbd">o</span></div>
         <div class="shortcut-row"><span>Arrow / Line</span><span class="shortcut-kbd">a</span></div>
+        <div class="shortcut-row"><span>Permanent Redaction</span><span class="shortcut-kbd">x</span></div>
         <div class="shortcut-row"><span>Place Signature</span><span class="shortcut-kbd">g</span></div>
 
         <h4 style="margin: 20px 0 12px; color: var(--accent-color); font-size: 0.95rem;">Document Actions</h4>
