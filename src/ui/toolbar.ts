@@ -1,0 +1,319 @@
+import { ToolType } from '../types/annotations';
+import { ThemeMode, ViewMode } from '../types/document';
+import { PRESET_COLORS } from '../utils/color';
+
+export interface ToolbarEvents {
+  onOpenFile: () => void;
+  onOpenSample: () => void;
+  onSaveExport: () => void;
+  onPrint: () => void;
+  onToggleOrganizer: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onZoomFitWidth: () => void;
+  onZoomFitPage: () => void;
+  onToolSelect: (tool: ToolType) => void;
+  onColorChange: (color: string) => void;
+  onStrokeWidthChange: (width: number) => void;
+  onStampChange: (stamp: string) => void;
+  onSignatureClick: () => void;
+  onThemeToggle: (theme: ThemeMode) => void;
+  onViewModeChange: (mode: ViewMode) => void;
+  onShowShortcuts: () => void;
+  onShowMetadata: () => void;
+}
+
+export class AppToolbar {
+  private container: HTMLElement;
+  private events: ToolbarEvents;
+  private activeTool: ToolType = 'select';
+  private activeColor: string = PRESET_COLORS.highlighterYellow;
+  private activeStrokeWidth: number = 2;
+  private activeStamp: string = 'APPROVED';
+  private activeTheme: ThemeMode = 'dark';
+  private activeZoom: number = 1.0;
+
+  constructor(container: HTMLElement, events: ToolbarEvents) {
+    this.container = container;
+    this.events = events;
+    this.render();
+  }
+
+  public getActiveTool(): ToolType { return this.activeTool; }
+  public getActiveColor(): string { return this.activeColor; }
+  public getActiveStrokeWidth(): number { return this.activeStrokeWidth; }
+  public getActiveStamp(): string { return this.activeStamp; }
+  public getActiveTheme(): ThemeMode { return this.activeTheme; }
+  public getActiveZoom(): number { return this.activeZoom; }
+
+  public setActiveTool(tool: ToolType): void {
+    this.activeTool = tool;
+    this.container.querySelectorAll('.tool-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-tool') === tool);
+    });
+  }
+
+  public setActiveColor(color: string): void {
+    this.activeColor = color;
+    this.container.querySelectorAll('.color-swatch').forEach(swatch => {
+      swatch.classList.toggle('active', swatch.getAttribute('data-color') === color);
+    });
+  }
+
+  public setZoom(zoom: number): void {
+    this.activeZoom = zoom;
+    const zoomText = this.container.querySelector('#zoom-label');
+    if (zoomText) {
+      zoomText.textContent = `${Math.round(zoom * 100)}%`;
+    }
+  }
+
+  public setHistoryState(canUndo: boolean, canRedo: boolean): void {
+    const undoBtn = this.container.querySelector('#undo-btn') as HTMLButtonElement;
+    const redoBtn = this.container.querySelector('#redo-btn') as HTMLButtonElement;
+    if (undoBtn) undoBtn.disabled = !canUndo;
+    if (redoBtn) redoBtn.disabled = !canRedo;
+  }
+
+  private render(): void {
+    this.container.innerHTML = `
+      <div class="primary-toolbar">
+        <div class="toolbar-group">
+          <div class="brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            <span>GreatPDF</span>
+            <span class="brand-badge">PRO OSS</span>
+          </div>
+
+          <div class="toolbar-divider"></div>
+
+          <button class="btn" id="open-file-btn" title="Open PDF File (Ctrl+O)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            <span>Open</span>
+          </button>
+
+          <button class="btn" id="sample-file-btn" title="Load Showcase Document">
+            <span>Sample Doc</span>
+          </button>
+
+          <button class="btn btn-primary" id="save-file-btn" title="Export & Save Standard PDF (Ctrl+S)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            <span>Save PDF</span>
+          </button>
+
+          <button class="icon-btn" id="print-btn" title="Print (Ctrl+P)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          </button>
+
+          <div class="toolbar-divider"></div>
+
+          <button class="btn" id="organizer-btn" title="Manage & Reorder Pages">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>Organize Pages</span>
+          </button>
+        </div>
+
+        <!-- Center Undo/Redo & Zoom Controls -->
+        <div class="toolbar-group">
+          <button class="icon-btn" id="undo-btn" title="Undo (Ctrl+Z)" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path></svg>
+          </button>
+          <button class="icon-btn" id="redo-btn" title="Redo (Ctrl+Y)" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"></path><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path></svg>
+          </button>
+
+          <div class="toolbar-divider"></div>
+
+          <button class="icon-btn" id="zoom-out-btn" title="Zoom Out (-)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+          </button>
+          <span id="zoom-label" style="font-size: 0.85rem; font-weight: 600; min-width: 48px; text-align: center;">100%</span>
+          <button class="icon-btn" id="zoom-in-btn" title="Zoom In (+)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+          </button>
+          <button class="icon-btn" id="zoom-fit-width-btn" title="Fit to Width (9)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 9 4 4 9 4"></polyline><polyline points="20 9 20 4 15 4"></polyline><polyline points="4 15 4 20 9 20"></polyline><polyline points="20 15 20 20 15 20"></polyline></svg>
+          </button>
+          <button class="icon-btn" id="zoom-fit-page-btn" title="Fit to Page (0)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+          </button>
+        </div>
+
+        <!-- Right Side Settings & Dialogs -->
+        <div class="toolbar-group">
+          <button class="icon-btn" id="theme-toggle-btn" title="Toggle Reading Theme (Dark/Light/Sepia)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          </button>
+
+          <button class="icon-btn" id="meta-btn" title="Document Properties">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          </button>
+
+          <button class="icon-btn" id="shortcuts-btn" title="Keyboard Shortcuts (?)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Secondary Toolbar for Editing & Markup Tools -->
+      <div class="annotation-toolbar">
+        <div class="toolbar-group">
+          <button class="icon-btn tool-btn active" data-tool="select" title="Select / Move (v)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 3 7 18 3-7 7-3L3 3z"></path></svg>
+          </button>
+          <button class="icon-btn tool-btn" data-tool="hand" title="Hand / Pan (h)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-4 0v5"></path><path d="M14 10V4a2 2 0 0 0-4 0v6"></path><path d="M10 10.5V6a2 2 0 0 0-4 0v8"></path><path d="M18 8a2 2 0 0 1 4 4v4a8 8 0 0 1-16 0v-2"></path></svg>
+          </button>
+
+          <div class="toolbar-divider"></div>
+
+          <button class="icon-btn tool-btn" data-tool="highlight" title="Text Highlighter (l)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11-6 6v3h3l6-6"></path><path d="m22 2-2.7 2.7a2.5 2.5 0 0 0 0 3.5l1.5 1.5a2.5 2.5 0 0 0 3.5 0L27 7"></path><path d="m14 4 6 6"></path></svg>
+          </button>
+
+          <button class="icon-btn tool-btn" data-tool="freehand" title="Pen / Freehand Draw (p)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
+          </button>
+
+          <button class="icon-btn tool-btn" data-tool="eraser" title="Eraser (e)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"></path><path d="M22 21H7"></path><path d="m5 11 9 9"></path></svg>
+          </button>
+
+          <button class="icon-btn tool-btn" data-tool="text" title="Add Text Box (t)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+          </button>
+
+          <button class="icon-btn tool-btn" data-tool="rectangle" title="Rectangle (r)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
+          </button>
+
+          <button class="icon-btn tool-btn" data-tool="ellipse" title="Ellipse (o)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle></svg>
+          </button>
+
+          <button class="icon-btn tool-btn" data-tool="arrow" title="Arrow / Line (a)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+
+          <div class="toolbar-divider"></div>
+
+          <button class="icon-btn tool-btn" data-tool="stamp" title="Place Stamp (m)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="12" rx="2"></rect><path d="M7 8V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3"></path></svg>
+          </button>
+
+          <select id="stamp-select" style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; padding: 4px 6px; font-size: 0.8rem;">
+            <option value="APPROVED">APPROVED</option>
+            <option value="DRAFT">DRAFT</option>
+            <option value="CONFIDENTIAL">CONFIDENTIAL</option>
+            <option value="FINAL">FINAL</option>
+            <option value="REJECTED">REJECTED</option>
+          </select>
+
+          <button class="btn" id="sig-btn" title="Create or Place Signature (g)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 2s-6 7-6 10 3 4 5 4 4-2 4-5-3-9-3-9z"></path></svg>
+            <span>Signature</span>
+          </button>
+
+          <button class="icon-btn tool-btn" data-tool="sticky_note" title="Add Sticky Comment">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path><path d="M15 3v6h6"></path></svg>
+          </button>
+        </div>
+
+        <!-- Color & Stroke Selector -->
+        <div class="tool-options">
+          <span style="font-size: 0.75rem; color: var(--text-secondary);">Color:</span>
+          <div class="color-swatch active" data-color="#ffeb3b" style="background-color: #ffeb3b;" title="Highlighter Yellow"></div>
+          <div class="color-swatch" data-color="#69f0ae" style="background-color: #69f0ae;" title="Neon Green"></div>
+          <div class="color-swatch" data-color="#40c4ff" style="background-color: #40c4ff;" title="Electric Blue"></div>
+          <div class="color-swatch" data-color="#ff80ab" style="background-color: #ff80ab;" title="Pink"></div>
+          <div class="color-swatch" data-color="#d32f2f" style="background-color: #d32f2f;" title="Crimson Red"></div>
+          <div class="color-swatch" data-color="#212121" style="background-color: #212121;" title="Solid Black"></div>
+
+          <div class="toolbar-divider"></div>
+
+          <span style="font-size: 0.75rem; color: var(--text-secondary);">Stroke:</span>
+          <select id="stroke-width-select" style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; padding: 2px 6px; font-size: 0.8rem;">
+            <option value="1">1 px</option>
+            <option value="2" selected>2 px</option>
+            <option value="4">4 px</option>
+            <option value="8">8 px</option>
+          </select>
+        </div>
+      </div>
+    `;
+
+    this.attachEventListeners();
+  }
+
+  private attachEventListeners(): void {
+    const byId = (id: string) => this.container.querySelector('#' + id);
+
+    byId('open-file-btn')?.addEventListener('click', () => this.events.onOpenFile());
+    byId('sample-file-btn')?.addEventListener('click', () => this.events.onOpenSample());
+    byId('save-file-btn')?.addEventListener('click', () => this.events.onSaveExport());
+    byId('print-btn')?.addEventListener('click', () => this.events.onPrint());
+    byId('organizer-btn')?.addEventListener('click', () => this.events.onToggleOrganizer());
+    byId('undo-btn')?.addEventListener('click', () => this.events.onUndo());
+    byId('redo-btn')?.addEventListener('click', () => this.events.onRedo());
+
+    byId('zoom-in-btn')?.addEventListener('click', () => this.events.onZoomIn());
+    byId('zoom-out-btn')?.addEventListener('click', () => this.events.onZoomOut());
+    byId('zoom-fit-width-btn')?.addEventListener('click', () => this.events.onZoomFitWidth());
+    byId('zoom-fit-page-btn')?.addEventListener('click', () => this.events.onZoomFitPage());
+
+    byId('theme-toggle-btn')?.addEventListener('click', () => {
+      const nextTheme = this.activeTheme === 'dark' ? 'light' : this.activeTheme === 'light' ? 'sepia' : 'dark';
+      this.activeTheme = nextTheme;
+      this.events.onThemeToggle(nextTheme);
+    });
+
+    byId('meta-btn')?.addEventListener('click', () => this.events.onShowMetadata());
+    byId('shortcuts-btn')?.addEventListener('click', () => this.events.onShowShortcuts());
+    byId('sig-btn')?.addEventListener('click', () => this.events.onSignatureClick());
+
+    // Tools
+    this.container.querySelectorAll('.tool-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tool = btn.getAttribute('data-tool') as ToolType;
+        if (tool) {
+          this.setActiveTool(tool);
+          this.events.onToolSelect(tool);
+        }
+      });
+    });
+
+    // Colors
+    this.container.querySelectorAll('.color-swatch').forEach(swatch => {
+      swatch.addEventListener('click', () => {
+        const color = swatch.getAttribute('data-color');
+        if (color) {
+          this.setActiveColor(color);
+          this.events.onColorChange(color);
+        }
+      });
+    });
+
+    // Stroke width
+    const strokeSelect = byId('stroke-width-select') as HTMLSelectElement;
+    strokeSelect?.addEventListener('change', () => {
+      const width = parseInt(strokeSelect.value, 10);
+      this.activeStrokeWidth = width;
+      this.events.onStrokeWidthChange(width);
+    });
+
+    // Stamp select
+    const stampSelect = byId('stamp-select') as HTMLSelectElement;
+    stampSelect?.addEventListener('change', () => {
+      this.activeStamp = stampSelect.value;
+      this.events.onStampChange(stampSelect.value);
+    });
+  }
+}
