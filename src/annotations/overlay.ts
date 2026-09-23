@@ -759,7 +759,7 @@ export class PageAnnotationOverlay {
 
   public render(): void {
     const tool = this.getActiveTool();
-    this.svgLayer.style.pointerEvents = tool === 'hand' ? 'none' : 'all';
+    this.svgLayer.style.pointerEvents = (tool === 'hand' || tool === 'select') ? 'none' : 'all';
 
     // Clear existing SVG children and floating sticky note cards
     while (this.svgLayer.firstChild) {
@@ -782,7 +782,7 @@ export class PageAnnotationOverlay {
           r.setAttribute('width', (rect.width * scale).toString());
           r.setAttribute('height', (rect.height * scale).toString());
           r.setAttribute('fill', hexToRgbaCss(ann.color, ann.opacity));
-          r.setAttribute('style', 'mix-blend-mode: multiply;');
+          r.setAttribute('style', 'mix-blend-mode: multiply; pointer-events: all; cursor: pointer;');
           if (isSelected) {
             r.setAttribute('stroke', '#1976d2');
             r.setAttribute('stroke-width', '1.5');
@@ -802,8 +802,10 @@ export class PageAnnotationOverlay {
         path.setAttribute('stroke-linecap', ann.isHighlighter ? 'square' : 'round');
         path.setAttribute('stroke-linejoin', 'round');
         path.setAttribute('fill', 'none');
+        path.style.pointerEvents = 'all';
+        path.style.cursor = 'pointer';
         if (ann.isHighlighter) {
-          path.setAttribute('style', 'mix-blend-mode: multiply;');
+          path.setAttribute('style', 'mix-blend-mode: multiply; pointer-events: all; cursor: pointer;');
           path.setAttribute('opacity', (ann.opacity || 0.4).toString());
         }
         if (isSelected) {
@@ -819,6 +821,8 @@ export class PageAnnotationOverlay {
         r.setAttribute('stroke', ann.strokeColor);
         r.setAttribute('stroke-width', (ann.strokeWidth * scale).toString());
         r.setAttribute('fill', ann.fillColor || 'none');
+        r.style.pointerEvents = 'all';
+        r.style.cursor = 'pointer';
         if (isSelected) {
           r.setAttribute('stroke-dasharray', '4,2');
           r.setAttribute('stroke', '#1976d2');
@@ -833,12 +837,18 @@ export class PageAnnotationOverlay {
         el.setAttribute('stroke', ann.strokeColor);
         el.setAttribute('stroke-width', (ann.strokeWidth * scale).toString());
         el.setAttribute('fill', ann.fillColor || 'none');
+        el.style.pointerEvents = 'all';
+        el.style.cursor = 'pointer';
         if (isSelected) {
           el.setAttribute('stroke-dasharray', '4,2');
           el.setAttribute('stroke', '#1976d2');
         }
         this.svgLayer.appendChild(el);
       } else if (ann.type === 'line' || ann.type === 'arrow') {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.style.pointerEvents = 'all';
+        g.style.cursor = 'pointer';
+
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         line.setAttribute('x1', (ann.x1 * scale).toString());
         line.setAttribute('y1', (ann.y1 * scale).toString());
@@ -847,7 +857,7 @@ export class PageAnnotationOverlay {
         line.setAttribute('stroke', ann.strokeColor);
         line.setAttribute('stroke-width', (ann.strokeWidth * scale).toString());
         line.setAttribute('stroke-linecap', 'round');
-        this.svgLayer.appendChild(line);
+        g.appendChild(line);
 
         if (ann.arrowHead) {
           // Draw arrowhead triangle
@@ -862,10 +872,13 @@ export class PageAnnotationOverlay {
           const head = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
           head.setAttribute('points', `${ann.x2 * scale},${ann.y2 * scale} ${p1x},${p1y} ${p2x},${p2y}`);
           head.setAttribute('fill', ann.strokeColor);
-          this.svgLayer.appendChild(head);
+          g.appendChild(head);
         }
+        this.svgLayer.appendChild(g);
       } else if (ann.type === 'text') {
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.style.pointerEvents = 'all';
+        g.style.cursor = 'pointer';
         const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         text.setAttribute('x', (ann.x * scale).toString());
         text.setAttribute('y', ((ann.y + ann.fontSize) * scale).toString());
@@ -893,6 +906,8 @@ export class PageAnnotationOverlay {
         this.svgLayer.appendChild(g);
       } else if (ann.type === 'stamp') {
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.style.pointerEvents = 'all';
+        g.style.cursor = 'pointer';
         const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         rect.setAttribute('x', (ann.x * scale).toString());
         rect.setAttribute('y', (ann.y * scale).toString());
@@ -922,6 +937,8 @@ export class PageAnnotationOverlay {
         this.svgLayer.appendChild(g);
       } else if (ann.type === 'signature') {
         const img = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+        img.style.pointerEvents = 'all';
+        img.style.cursor = 'pointer';
         img.setAttribute('x', (ann.x * scale).toString());
         img.setAttribute('y', (ann.y * scale).toString());
         img.setAttribute('width', (ann.width * scale).toString());
@@ -943,6 +960,8 @@ export class PageAnnotationOverlay {
         this.svgLayer.appendChild(img);
       } else if (ann.type === 'image') {
         const img = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+        img.style.pointerEvents = 'all';
+        img.style.cursor = 'pointer';
         img.setAttribute('x', (ann.x * scale).toString());
         img.setAttribute('y', (ann.y * scale).toString());
         img.setAttribute('width', (ann.width * scale).toString());
@@ -1048,6 +1067,8 @@ export class PageAnnotationOverlay {
         this.svgLayer.appendChild(g);
       } else if (ann.type === 'redaction') {
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.style.pointerEvents = 'all';
+        g.style.cursor = 'pointer';
         const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         rect.setAttribute('x', (ann.x * scale).toString());
         rect.setAttribute('y', (ann.y * scale).toString());
@@ -1073,6 +1094,8 @@ export class PageAnnotationOverlay {
         this.svgLayer.appendChild(g);
       } else if (ann.type === 'measure') {
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.style.pointerEvents = 'all';
+        g.style.cursor = 'pointer';
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         line.setAttribute('x1', (ann.x1 * scale).toString());
         line.setAttribute('y1', (ann.y1 * scale).toString());

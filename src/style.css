@@ -616,8 +616,35 @@ button.btn.btn-primary:hover {
   pointer-events: none;
 }
 
-.text-layer ::selection {
-  background: rgba(33, 150, 243, 0.4);
+/* Transparent PDF.js Text Selection Layer */
+.textLayer {
+  position: absolute;
+  text-align: initial;
+  inset: 0;
+  overflow: clip;
+  opacity: 1;
+  line-height: 1;
+  -webkit-text-size-adjust: none;
+  -moz-text-size-adjust: none;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  caret-color: CanvasText;
+  z-index: 2;
+  user-select: text;
+}
+
+.textLayer :is(span, br) {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+}
+
+.textLayer ::selection {
+  background: rgba(56, 189, 248, 0.45);
+  color: transparent;
 }
 
 /* Form Fields Layer */

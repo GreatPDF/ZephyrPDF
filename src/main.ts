@@ -1,3 +1,4 @@
+import 'pdfjs-dist/web/pdf_viewer.css';
 import { HistoryManager } from './core/history';
 import { AnnotationManager } from './annotations/manager';
 import { PageManager } from './organizer/page-manager';
@@ -1069,6 +1070,14 @@ class ZephyrPDFApp {
           rotation: pageItem.rotation,
           theme: this.currentTheme
         });
+
+        // Create transparent PDF.js text layer for native text selection and markup
+        const textLayerDiv = document.createElement('div');
+        textLayerDiv.className = 'textLayer';
+        textLayerDiv.style.width = `${Math.floor(viewport.width)}px`;
+        textLayerDiv.style.height = `${Math.floor(viewport.height)}px`;
+        pageContainer.appendChild(textLayerDiv);
+        this.renderer.renderTextLayer(pageProxy, textLayerDiv, viewport).catch(() => {});
 
         const overlay = new PageAnnotationOverlay(pageContainer, pageItem.originalIndex, this.annotationManager, {
           getScale: () => this.currentScale,

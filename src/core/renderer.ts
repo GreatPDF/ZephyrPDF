@@ -112,6 +112,30 @@ export class PageRenderer {
     return canvas.toDataURL('image/jpeg', 0.85);
   }
 
+  /**
+   * Render transparent text selection layer over the page canvas.
+   */
+  public async renderTextLayer(
+    page: pdfjsLib.PDFPageProxy,
+    container: HTMLElement,
+    viewport: pdfjsLib.PageViewport
+  ): Promise<void> {
+    try {
+      container.innerHTML = '';
+      const textContent = await page.getTextContent();
+      const textLayer = new pdfjsLib.TextLayer({
+        textContentSource: textContent,
+        container,
+        viewport
+      });
+      await textLayer.render();
+    } catch (e: any) {
+      if (e?.name !== 'RenderingCancelledException') {
+        console.warn('Text layer render failed:', e);
+      }
+    }
+  }
+
   public cancelAll(): void {
     for (const [, task] of this.activeRenderTasks) {
       try {
