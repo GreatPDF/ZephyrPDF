@@ -37,7 +37,7 @@ export class PdfExporter {
         if (metadata.subject) newDoc.setSubject(metadata.subject);
         if (metadata.keywords) newDoc.setKeywords(metadata.keywords.split(',').map(k => k.trim()).filter(Boolean));
         if (metadata.creator) newDoc.setCreator(metadata.creator);
-        newDoc.setProducer('GreatPDF (https://github.com/GreatPDF/GreatPDF)');
+        newDoc.setProducer('ZephyrPDF (https://github.com/GreatPDF/GreatPDF)');
         newDoc.setModificationDate(new Date());
       } catch {
         // Ignore metadata setting errors

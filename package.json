@@ -1,7 +1,7 @@
 {
-  "name": "greatpdf",
-  "version": "2.1.0",
-  "description": "The premier open-source PDF viewing, editing, annotation, and manipulation software.",
+  "name": "zephyrpdf",
+  "version": "2.2.0",
+  "description": "The featherlight, full-featured open-source PDF viewing, editing, annotation, and manipulation software.",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -22,7 +22,7 @@
     "pdf-tools",
     "open-source"
   ],
-  "author": "GreatPDF Team <greatpdf@niels.bond>",
+  "author": "ZephyrPDF Team <greatpdf@ik.me>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/GreatPDF/GreatPDF/issues"

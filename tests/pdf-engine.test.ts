@@ -55,7 +55,7 @@ describe('PDF Engine End-to-End', () => {
       y: 150,
       width: 150,
       height: 30,
-      text: 'Verified by GreatPDF Maintainer',
+      text: 'Verified by ZephyrPDF Maintainer',
       fontSize: 14,
       fontFamily: 'Helvetica',
       color: '#1565c0',

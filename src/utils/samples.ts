@@ -1,7 +1,7 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
 /**
- * Creates an exquisite sample PDF document to demonstrate GreatPDF's viewing and editing prowess.
+ * Creates an exquisite sample PDF document to demonstrate ZephyrPDF's viewing and editing prowess.
  */
 export async function createSamplePdf(): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
@@ -23,7 +23,7 @@ export async function createSamplePdf(): Promise<Uint8Array> {
   });
 
   // Title
-  page1.drawText('GreatPDF', {
+  page1.drawText('ZephyrPDF', {
     x: 50,
     y: height - 60,
     size: 28,
@@ -41,7 +41,7 @@ export async function createSamplePdf(): Promise<Uint8Array> {
 
   // Section 1
   let yPos = height - 160;
-  page1.drawText('Welcome to GreatPDF!', {
+  page1.drawText('Welcome to ZephyrPDF!', {
     x: 50,
     y: yPos,
     size: 18,
@@ -50,7 +50,7 @@ export async function createSamplePdf(): Promise<Uint8Array> {
   });
 
   yPos -= 25;
-  const p1 = 'GreatPDF is designed from the ground up for speed, elegance, and complete user freedom.';
+  const p1 = 'ZephyrPDF is designed from the ground up for speed, elegance, and complete user freedom.';
   const p2 = 'Everything happens directly in your browser or desktop container with 100% privacy:';
   const p3 = 'your documents never leave your machine.';
 
@@ -169,7 +169,7 @@ export async function createSamplePdf(): Promise<Uint8Array> {
   });
 
   // Footer
-  page1.drawText('Page 1 of 2 — GreatPDF Document Showcase', {
+  page1.drawText('Page 1 of 2 — ZephyrPDF Document Showcase', {
     x: 50,
     y: 35,
     size: 9,
@@ -188,7 +188,7 @@ export async function createSamplePdf(): Promise<Uint8Array> {
     height: 70,
     color: rgb(0.12, 0.18, 0.28)
   });
-  page2.drawText('GreatPDF Technical Specification & Features', {
+  page2.drawText('ZephyrPDF Technical Specification & Features', {
     x: 50,
     y: height - 45,
     size: 16,
@@ -257,7 +257,7 @@ export async function createSamplePdf(): Promise<Uint8Array> {
     color: rgb(0.15, 0.6, 0.3)
   });
 
-  page2.drawText('Page 2 of 2 — GreatPDF Document Showcase', {
+  page2.drawText('Page 2 of 2 — ZephyrPDF Document Showcase', {
     x: 50,
     y: 35,
     size: 9,

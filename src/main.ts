@@ -41,7 +41,7 @@ if (typeof (Promise as any).withResolvers !== 'function') {
   };
 }
 
-class GreatPDFApp {
+class ZephyrPDFApp {
   private history: HistoryManager;
   private annotationManager: AnnotationManager;
   private pageManager: PageManager;
@@ -161,7 +161,7 @@ class GreatPDFApp {
             onSave: (updated) => {
               this.currentDoc!.metadata = updated;
               if (updated.title) {
-                document.title = `${updated.title} · GreatPDF`;
+                document.title = `${updated.title} · ZephyrPDF`;
               }
               NotificationService.show('Document properties & metadata saved!');
             }
@@ -336,7 +336,7 @@ class GreatPDFApp {
         }
 
         const fileName = this.currentDoc?.metadata.fileName || 'document.pdf';
-        let md = `# GreatPDF Annotation Report\n`;
+        let md = `# ZephyrPDF Annotation Report\n`;
         md += `**Document:** ${fileName}\n`;
         md += `**Export Date:** ${new Date().toLocaleString()}\n`;
         md += `**Total Annotations:** ${annotations.length}\n\n`;
@@ -643,11 +643,11 @@ class GreatPDFApp {
 
   public async loadSample(): Promise<void> {
     try {
-      NotificationService.show('Generating GreatPDF showcase document...');
+      NotificationService.show('Generating ZephyrPDF showcase document...');
       const sampleBytes = await createSamplePdf();
-      const loaded = await PdfLoader.loadFromBytes(sampleBytes, 'GreatPDF_Showcase.pdf');
+      const loaded = await PdfLoader.loadFromBytes(sampleBytes, 'ZephyrPDF_Showcase.pdf');
       await this.setDocument(loaded);
-      NotificationService.show('Welcome to GreatPDF!');
+      NotificationService.show('Welcome to ZephyrPDF!');
     } catch (e: any) {
       console.error(e);
       alert('Failed to generate sample PDF: ' + e.message);
@@ -686,7 +686,7 @@ class GreatPDFApp {
     document.getElementById('floating-hud')!.style.display = 'flex';
 
     // Update document title
-    document.title = `${session.doc.metadata.fileName} · GreatPDF`;
+    document.title = `${session.doc.metadata.fileName} · ZephyrPDF`;
 
     // Render outline and annotations in sidebar
     this.sidebar.setOutline(session.doc.outline);
@@ -710,7 +710,7 @@ class GreatPDFApp {
     this.sidebar.setOutline([]);
     this.sidebar.setAnnotations([]);
     this.sidebar.setThumbnails([]);
-    document.title = 'GreatPDF · The Best Open-Source PDF Viewer & Editor';
+    document.title = 'ZephyrPDF · The Featherlight Open-Source PDF Viewer & Editor';
   }
 
   private async generateThumbnails(doc: LoadedDocument): Promise<void> {
@@ -981,5 +981,5 @@ class GreatPDFApp {
 
 // Bootstrap application on DOM ready
 window.addEventListener('DOMContentLoaded', () => {
-  new GreatPDFApp();
+  new ZephyrPDFApp();
 });

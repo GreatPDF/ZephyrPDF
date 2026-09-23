@@ -11,8 +11,8 @@ describe('Text Search Engine Options', () => {
       getPage: async () => ({
         getTextContent: async () => ({
           items: [
-            { str: 'GreatPDF is an amazing OpenSource software tool.', transform: [1, 0, 0, 1, 0, 0], width: 100, height: 12 },
-            { str: 'greatpdf runs everywhere.', transform: [1, 0, 0, 1, 0, 10], width: 100, height: 12 }
+            { str: 'ZephyrPDF is an amazing OpenSource software tool.', transform: [1, 0, 0, 1, 0, 0], width: 100, height: 12 },
+            { str: 'zephyrpdf runs everywhere.', transform: [1, 0, 0, 1, 0, 10], width: 100, height: 12 }
           ]
         })
       })
@@ -21,13 +21,13 @@ describe('Text Search Engine Options', () => {
     await searchEngine.setDocument(mockDoc);
 
     // Case-insensitive search
-    const matchesAll = searchEngine.search('greatpdf', false, false);
+    const matchesAll = searchEngine.search('zephyrpdf', false, false);
     expect(matchesAll.length).toBe(2);
 
     // Case-sensitive search
-    const matchesCase = searchEngine.search('GreatPDF', true, false);
+    const matchesCase = searchEngine.search('ZephyrPDF', true, false);
     expect(matchesCase.length).toBe(1);
-    expect(matchesCase[0].text).toBe('GreatPDF');
+    expect(matchesCase[0].text).toBe('ZephyrPDF');
   });
 
   it('should support match whole words search', async () => {

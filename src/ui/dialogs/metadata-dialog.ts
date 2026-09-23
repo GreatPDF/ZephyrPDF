@@ -123,7 +123,7 @@ export class MetadataDialog {
 
     sanitizeBtn?.addEventListener('click', () => {
       if (authorInput) authorInput.value = '';
-      if (creatorInput) creatorInput.value = 'GreatPDF';
+      if (creatorInput) creatorInput.value = 'ZephyrPDF';
       if (keywordsInput) keywordsInput.value = '';
       if (subjectInput) subjectInput.value = '';
     });

@@ -1,6 +1,6 @@
-# GreatPDF
+# ZephyrPDF
 
-> **The Premier Open-Source PDF Viewing, Editing, and Annotation Software.**  
+> **The Featherlight, Full-Featured Open-Source PDF Viewer & Editor.**  
 > Built for uncompromising speed, flawless user experience, and 100% privacy.
 
 ---
@@ -94,7 +94,7 @@ npm test
 
 ## Architecture
 
-GreatPDF is built with a decoupled, high-performance architecture:
+ZephyrPDF is built with a decoupled, high-performance architecture:
 - **Rendering Pipeline**: Powered by `pdfjs-dist` with Web Workers for non-blocking canvas rendering.
 - **Document Manipulation**: `pdf-lib` for lossless page tree modifications, copying, rotation, and vector baking.
 - **Overlay System**: Scalable SVG/Canvas hybrid layer for 60fps interactive drawing and drag manipulation.
@@ -104,4 +104,4 @@ GreatPDF is built with a decoupled, high-performance architecture:
 
 ## License
 
-MIT © GreatPDF Team
+MIT © ZephyrPDF Team

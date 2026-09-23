@@ -25,7 +25,7 @@ describe('Document Metadata and Annotation Backup', () => {
       author: 'Security Officer',
       subject: 'Quarterly Compliance',
       keywords: 'security, compliance, audit',
-      creator: 'GreatPDF Enterprise',
+      creator: 'ZephyrPDF Enterprise',
       pageCount: 2,
       fileSize: sourceBytes.length,
       fileName: 'Summary.pdf'
@@ -49,7 +49,7 @@ describe('Document Metadata and Annotation Backup', () => {
     expect(doc.getAuthor()).toBe('Security Officer');
     expect(doc.getSubject()).toBe('Quarterly Compliance');
     expect(doc.getKeywords()).toContain('compliance');
-    expect(doc.getCreator()).toBe('GreatPDF Enterprise');
+    expect(doc.getCreator()).toBe('ZephyrPDF Enterprise');
   });
 
   it('should export and re-import full annotation collections with exact fidelity', () => {

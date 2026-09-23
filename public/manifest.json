@@ -1,7 +1,7 @@
 {
-  "name": "GreatPDF · The Best Open-Source PDF Viewer & Editor",
-  "short_name": "GreatPDF",
-  "description": "Flawless, private, and lightning fast PDF viewing, editing, annotation, and manipulation software.",
+  "name": "ZephyrPDF · The Featherlight Open-Source PDF Viewer & Editor",
+  "short_name": "ZephyrPDF",
+  "description": "Flawless, private, and featherlight PDF viewing, editing, annotation, and manipulation software.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
