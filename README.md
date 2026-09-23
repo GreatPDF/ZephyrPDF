@@ -17,6 +17,9 @@
   - **Pre-set & Custom Stamps**: `APPROVED`, `CONFIDENTIAL`, `DRAFT`, `FINAL`, `REJECTED`, or customized text.
   - **Digital Signatures**: Draw, type cursive, or upload transparent PNG signatures with instant one-click placement.
   - **Sticky Notes**: Threaded comments and annotations.
+- **🗂️ Multi-Document Tab Bar**: Work with multiple opened PDFs simultaneously in a browser-style tab bar with instant session switching and isolation.
+- **🔎 Advanced Search Filtering**: Instant full-text search with dedicated Match Case (`Aa`) and Whole Words (`\b`) filters.
+- **🔄 Quick Page Rotation Shortcuts**: Rotate current page on the fly with `Ctrl+[` (CCW) and `Ctrl+]` (CW).
 - **📸 Marquee Snapshot Tool**: Capture and copy any arbitrary rectangular region of a PDF directly to your clipboard as high-res PNG (`c`).
 - **📄 Full Document Text & Markdown Extractor**: Export all text into structured Markdown or plain text with word and character metrics.
 - **📉 In-Browser PDF Compressor & Optimizer**: Compress bulky documents client-side with High, Balanced, and Maximum compression presets (saving up to 80% file size) without cloud uploads.

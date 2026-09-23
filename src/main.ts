@@ -19,6 +19,8 @@ import { DocumentComparator } from './core/comparator';
 import { TextSelectionMenu } from './ui/text-selection-menu';
 import { DocumentLoupe } from './ui/loupe';
 import { TextExtractor } from './core/text-extractor';
+import { SessionManager, DocumentSession } from './core/document-session';
+import { DocumentTabBar } from './ui/tab-bar';
 import { OrganizerModal } from './ui/organizer-modal';
 import { NotificationService } from './ui/notification';
 import { createSamplePdf } from './utils/samples';
@@ -47,9 +49,11 @@ class GreatPDFApp {
   private searchEngine: TextSearchEngine;
   private formHandler: FormHandler;
   private loupe: DocumentLoupe;
+  private sessionManager: SessionManager;
 
   private toolbar!: AppToolbar;
   private sidebar!: AppSidebar;
+  private tabBar!: DocumentTabBar;
 
   private currentDoc: LoadedDocument | null = null;
   private pageOverlays: Map<number, PageAnnotationOverlay> = new Map();
@@ -93,6 +97,7 @@ class GreatPDFApp {
     this.searchEngine = new TextSearchEngine();
     this.formHandler = new FormHandler();
     this.loupe = new DocumentLoupe();
+    this.sessionManager = new SessionManager();
 
     this.initUI();
     this.initDropzone();
@@ -225,6 +230,28 @@ class GreatPDFApp {
         TextExtractor.downloadTextFile(result.markdownText, `${base}_extracted.md`, 'text/markdown');
         navigator.clipboard?.writeText(result.plainText);
         NotificationService.show(`Extracted ${result.totalWords.toLocaleString()} words to Markdown file & clipboard!`);
+      }
+    });
+
+    const tabBarEl = document.getElementById('app-tab-bar')!;
+    this.tabBar = new DocumentTabBar(tabBarEl, {
+      onSelectTab: async (sessionId) => {
+        const session = this.sessionManager.switchSession(sessionId);
+        if (session) {
+          await this.applySession(session);
+        }
+      },
+      onCloseTab: async (sessionId) => {
+        const nextSession = this.sessionManager.closeSession(sessionId);
+        this.tabBar.update(this.sessionManager.getAllSessions(), nextSession ? nextSession.id : null);
+        if (nextSession) {
+          await this.applySession(nextSession);
+        } else {
+          this.closeAllSessions();
+        }
+      },
+      onNewTab: () => {
+        this.triggerFilePicker();
       }
     });
 
@@ -437,6 +464,16 @@ class GreatPDFApp {
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
         e.preventDefault();
         window.print();
+      } else if ((e.ctrlKey || e.metaKey) && e.key === '[') {
+        e.preventDefault();
+        this.pageManager.rotatePage(this.currentPageNumber - 1, -90);
+        this.renderDocument();
+        NotificationService.show(`Page ${this.currentPageNumber} rotated 90° CCW`);
+      } else if ((e.ctrlKey || e.metaKey) && e.key === ']') {
+        e.preventDefault();
+        this.pageManager.rotatePage(this.currentPageNumber - 1, 90);
+        this.renderDocument();
+        NotificationService.show(`Page ${this.currentPageNumber} rotated 90° CW`);
       } else if (e.key === '=' || e.key === '+') {
         this.setZoom(this.currentScale * 1.15);
       } else if (e.key === '-') {
@@ -562,21 +599,30 @@ class GreatPDFApp {
   }
 
   public async setDocument(doc: LoadedDocument): Promise<void> {
-    this.currentDoc = doc;
-    this.history.clear();
-    this.annotationManager.clearAll(false);
+    const session = this.sessionManager.createSession(doc);
+    this.tabBar.update(this.sessionManager.getAllSessions(), session.id);
+    await this.applySession(session);
+  }
 
-    // Initialize Page Manager
-    this.pageManager.initFromDocument(
-      doc.metadata.pageCount,
-      doc.pageDimensions
-    );
+  public async applySession(session: DocumentSession): Promise<void> {
+    this.currentDoc = session.doc;
+    this.history = session.history;
+    this.annotationManager = session.annotationManager;
+    this.pageManager = session.pageManager;
+    this.formHandler = session.formHandler;
+    this.currentScale = session.scale;
+    this.currentPageNumber = session.currentPageNumber;
+
+    this.history.subscribe(() => {
+      this.toolbar.setHistoryState(this.history.canUndo(), this.history.canRedo());
+      this.sidebar.setAnnotations(this.annotationManager.getAllAnnotations());
+    });
+    this.annotationManager.subscribe(() => {
+      this.sidebar.setAnnotations(this.annotationManager.getAllAnnotations());
+    });
 
     // Initialize Text Search Engine
-    await this.searchEngine.setDocument(doc.pdfjsDoc);
-
-    // Initialize Interactive Forms
-    this.formHandler.loadFromPdf(doc.pdfLibDoc);
+    await this.searchEngine.setDocument(session.doc.pdfjsDoc);
 
     // Hide empty state, show HUD
     document.getElementById('empty-state')!.style.display = 'none';
@@ -584,17 +630,31 @@ class GreatPDFApp {
     document.getElementById('floating-hud')!.style.display = 'flex';
 
     // Update document title
-    document.title = `${doc.metadata.fileName} · GreatPDF`;
+    document.title = `${session.doc.metadata.fileName} · GreatPDF`;
 
-    // Render outline in sidebar
-    this.sidebar.setOutline(doc.outline);
+    // Render outline and annotations in sidebar
+    this.sidebar.setOutline(session.doc.outline);
+    this.sidebar.setAnnotations(this.annotationManager.getAllAnnotations());
+    this.toolbar.setHistoryState(this.history.canUndo(), this.history.canRedo());
+    this.toolbar.setZoom(this.currentScale);
 
     // Generate thumbnails in background
-    this.generateThumbnails(doc);
+    this.generateThumbnails(session.doc);
 
     // Initial render
     await this.renderDocument();
     this.updatePageHUD();
+  }
+
+  public closeAllSessions(): void {
+    this.currentDoc = null;
+    document.getElementById('empty-state')!.style.display = 'flex';
+    document.getElementById('pages-wrapper')!.style.display = 'none';
+    document.getElementById('floating-hud')!.style.display = 'none';
+    this.sidebar.setOutline([]);
+    this.sidebar.setAnnotations([]);
+    this.sidebar.setThumbnails([]);
+    document.title = 'GreatPDF · The Best Open-Source PDF Viewer & Editor';
   }
 
   private async generateThumbnails(doc: LoadedDocument): Promise<void> {

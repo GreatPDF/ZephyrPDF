@@ -17,6 +17,8 @@ export class AppSidebar {
   private events: SidebarEvents;
   private activeTab: 'thumbnails' | 'outline' | 'annotations' | 'search' = 'thumbnails';
   private currentPage: number = 1;
+  private matchCase: boolean = false;
+  private matchWords: boolean = false;
 
   constructor(container: HTMLElement, events: SidebarEvents) {
     this.container = container;
@@ -191,8 +193,10 @@ export class AppSidebar {
         <!-- Search Tab -->
         <div id="tab-pane-search" style="display: none;">
           <div style="display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: flex; gap: 6px;">
+            <div style="display: flex; gap: 6px; align-items: center;">
               <input type="text" id="sidebar-search-input" class="search-input" placeholder="Search document..." style="flex: 1; width: 100%;" />
+              <button class="icon-btn" id="search-case-btn" title="Match Case" style="width: 28px; height: 28px; font-size: 0.75rem; font-weight: bold;">Aa</button>
+              <button class="icon-btn" id="search-word-btn" title="Match Whole Words" style="width: 28px; height: 28px; font-size: 0.75rem; font-family: monospace;">\\b</button>
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between;">
               <span id="search-count-label" style="font-size: 0.75rem; color: var(--text-muted);">0 matches</span>
@@ -231,8 +235,25 @@ export class AppSidebar {
     });
 
     const searchInput = this.container.querySelector('#sidebar-search-input') as HTMLInputElement;
-    searchInput?.addEventListener('input', () => {
-      this.events.onSearch(searchInput.value, false, false);
+    const caseBtn = this.container.querySelector('#search-case-btn');
+    const wordBtn = this.container.querySelector('#search-word-btn');
+
+    const triggerSearch = () => {
+      this.events.onSearch(searchInput?.value || '', this.matchCase, this.matchWords);
+    };
+
+    searchInput?.addEventListener('input', triggerSearch);
+
+    caseBtn?.addEventListener('click', () => {
+      this.matchCase = !this.matchCase;
+      caseBtn.classList.toggle('active', this.matchCase);
+      triggerSearch();
+    });
+
+    wordBtn?.addEventListener('click', () => {
+      this.matchWords = !this.matchWords;
+      wordBtn.classList.toggle('active', this.matchWords);
+      triggerSearch();
     });
 
     const prevBtn = this.container.querySelector('#search-prev-btn');

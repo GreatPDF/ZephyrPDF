@@ -87,7 +87,12 @@ export class AppToolbar {
   }
 
   private render(): void {
-    this.container.innerHTML = `
+    const existing = this.container.querySelector('.toolbars-wrapper');
+    if (existing) existing.remove();
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'toolbars-wrapper';
+    wrapper.innerHTML = `
       <div class="primary-toolbar">
         <div class="toolbar-group">
           <div class="brand">
@@ -326,6 +331,8 @@ export class AppToolbar {
         </div>
       </div>
     `;
+
+    this.container.appendChild(wrapper);
 
     this.attachEventListeners();
   }
