@@ -28,6 +28,7 @@ export interface ToolbarEvents {
   onCompareFile?: (file: File) => Promise<void>;
   onInsertImage?: (file: File) => void;
   onWatermarkClick?: () => void;
+  onOptimizeClick?: () => void;
 }
 
 export class AppToolbar {
@@ -141,6 +142,11 @@ export class AppToolbar {
           <button class="btn" id="watermark-btn" title="Watermark & Page Numbering">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
             <span>Watermark</span>
+          </button>
+
+          <button class="btn" id="optimize-btn" title="Compress & Optimize PDF File Size">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="M12 12v9"></path><path d="m8 17 4 4 4-4"></path></svg>
+            <span>Compress</span>
           </button>
         </div>
 
@@ -341,6 +347,13 @@ export class AppToolbar {
     watermarkBtn?.addEventListener('click', () => {
       if (this.events.onWatermarkClick) {
         this.events.onWatermarkClick();
+      }
+    });
+
+    const optimizeBtn = byId('optimize-btn');
+    optimizeBtn?.addEventListener('click', () => {
+      if (this.events.onOptimizeClick) {
+        this.events.onOptimizeClick();
       }
     });
 

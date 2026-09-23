@@ -14,6 +14,7 @@ import { ShortcutsDialog } from './ui/dialogs/shortcuts-dialog';
 import { MetadataDialog } from './ui/dialogs/metadata-dialog';
 import { CompareDialog } from './ui/dialogs/compare-dialog';
 import { WatermarkDialog } from './ui/dialogs/watermark-dialog';
+import { OptimizerDialog } from './ui/dialogs/optimizer-dialog';
 import { DocumentComparator } from './core/comparator';
 import { TextSelectionMenu } from './ui/text-selection-menu';
 import { DocumentLoupe } from './ui/loupe';
@@ -197,6 +198,17 @@ class GreatPDFApp {
             NotificationService.show('Watermark & page numbering updated!');
           }
         }).open();
+      },
+      onOptimizeClick: () => {
+        if (!this.currentDoc) {
+          NotificationService.show('Open a PDF document first before compressing.');
+          return;
+        }
+        new OptimizerDialog({
+          pdfjsDoc: this.currentDoc.pdfjsDoc,
+          fileName: this.currentDoc.metadata.fileName,
+          originalSizeBytes: this.currentDoc.metadata.fileSize
+        }).open();
       }
     });
 
@@ -263,6 +275,57 @@ class GreatPDFApp {
         setTimeout(() => URL.revokeObjectURL(url), 2000);
 
         NotificationService.show('Citations copied to clipboard & downloaded!');
+      },
+      onExportAnnotationReport: () => {
+        const annotations = this.annotationManager.getAllAnnotations();
+        if (annotations.length === 0) {
+          NotificationService.show('No annotations in document to export.');
+          return;
+        }
+
+        const fileName = this.currentDoc?.metadata.fileName || 'document.pdf';
+        let md = `# GreatPDF Annotation Report\n`;
+        md += `**Document:** ${fileName}\n`;
+        md += `**Export Date:** ${new Date().toLocaleString()}\n`;
+        md += `**Total Annotations:** ${annotations.length}\n\n`;
+
+        // Group by page
+        const byPage = new Map<number, any[]>();
+        for (const ann of annotations) {
+          const p = ann.pageIndex + 1;
+          if (!byPage.has(p)) byPage.set(p, []);
+          byPage.get(p)!.push(ann);
+        }
+
+        const sortedPages = Array.from(byPage.keys()).sort((a, b) => a - b);
+        for (const p of sortedPages) {
+          md += `## Page ${p}\n`;
+          for (const ann of byPage.get(p)!) {
+            let desc = '';
+            if (ann.type === 'text') desc = `"${ann.text}"`;
+            else if (ann.type === 'measure') desc = `Distance: ${ann.formattedValue}`;
+            else if (ann.type === 'stamp') desc = `Stamp: ${ann.stampType}`;
+            else if (ann.type === 'sticky_note') desc = `Comment: "${ann.content}"`;
+            else if (ann.type === 'redaction') desc = `Redaction: [${ann.overlayText || 'REDACTED'}]`;
+            else desc = `Color ${ann.color || ann.strokeColor || ''}`;
+
+            md += `- **[${ann.type.toUpperCase()}]** ${desc}\n`;
+          }
+          md += `\n`;
+        }
+
+        navigator.clipboard?.writeText(md);
+        const blob = new Blob([md], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${fileName.replace(/\.pdf$/i, '')}_annotation_report.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+
+        NotificationService.show('Annotation report copied & downloaded!');
       }
     });
 

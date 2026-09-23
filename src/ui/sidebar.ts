@@ -9,6 +9,7 @@ export interface SidebarEvents {
   onSearchNext: () => void;
   onSearchPrevious: () => void;
   onExportCitations?: () => void;
+  onExportAnnotationReport?: () => void;
 }
 
 export class AppSidebar {
@@ -179,6 +180,9 @@ export class AppSidebar {
 
         <!-- Annotations Tab -->
         <div id="tab-pane-annotations" style="display: none;">
+          <button class="btn" id="export-annotation-report-btn" style="height: 28px; font-size: 0.75rem; width: 100%; margin-bottom: 8px;">
+            📋 Export Summary Report (.md)
+          </button>
           <div class="annotations-list" id="sidebar-annotations-list">
             <div style="color: var(--text-muted); font-size: 0.8rem; padding: 20px;">No annotations</div>
           </div>
@@ -239,6 +243,11 @@ export class AppSidebar {
     nextBtn?.addEventListener('click', () => this.events.onSearchNext());
     exportCitationsBtn?.addEventListener('click', () => {
       if (this.events.onExportCitations) this.events.onExportCitations();
+    });
+
+    const exportReportBtn = this.container.querySelector('#export-annotation-report-btn');
+    exportReportBtn?.addEventListener('click', () => {
+      if (this.events.onExportAnnotationReport) this.events.onExportAnnotationReport();
     });
   }
 }
