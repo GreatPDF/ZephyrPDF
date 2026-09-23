@@ -1168,3 +1168,66 @@ mark.search-highlight.active {
     padding: 12px;
   }
 }
+
+/* ==========================================================================
+   Print Stylesheet
+   ========================================================================== */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Hide Application Chrome */
+  .app-header,
+  .sidebar,
+  .sidebar-backdrop,
+  .floating-hud,
+  .toast-container,
+  .doc-tab-strip,
+  .modal-backdrop,
+  .annotation-context-menu,
+  .text-selection-popup,
+  .document-loupe-lens {
+    display: none !important;
+  }
+
+  .app-layout {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .viewer-container {
+    overflow: visible !important;
+    height: auto !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+  }
+
+  .pages-wrapper {
+    display: block !important;
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+
+  .page-container {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0 auto !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    background: #ffffff !important;
+  }
+
+  .page-canvas {
+    filter: none !important; /* Ensure true colors on physical print */
+  }
+
+  /* Hide Interactive Editor Handles */
+  [data-handle],
+  [data-action="delete-annotation"],
+  .annotation-selected-box {
+    display: none !important;
+  }
+}
