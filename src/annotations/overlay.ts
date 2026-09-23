@@ -24,6 +24,7 @@ import {
 } from '../utils/geometry';
 import { hexToRgbaCss } from '../utils/color';
 import { NotificationService } from '../ui/notification';
+import { AnnotationContextMenu } from '../ui/context-menu';
 
 export class PageAnnotationOverlay {
   private container: HTMLElement;
@@ -38,6 +39,7 @@ export class PageAnnotationOverlay {
   private getActiveSignature: () => string | null;
   private getActiveMeasureUnit?: () => MeasureUnit;
   private getActiveImage?: () => string | null;
+  private contextMenu?: AnnotationContextMenu;
 
   // Active interaction state
   private isDrawing: boolean = false;
@@ -60,6 +62,7 @@ export class PageAnnotationOverlay {
       getActiveSignature: () => string | null;
       getActiveMeasureUnit?: () => MeasureUnit;
       getActiveImage?: () => string | null;
+      contextMenu?: AnnotationContextMenu;
     }
   ) {
     this.container = container;
@@ -73,6 +76,7 @@ export class PageAnnotationOverlay {
     this.getActiveSignature = options.getActiveSignature;
     this.getActiveMeasureUnit = options.getActiveMeasureUnit;
     this.getActiveImage = options.getActiveImage;
+    this.contextMenu = options.contextMenu;
 
     this.svgLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     this.svgLayer.classList.add('annotation-layer');
@@ -104,6 +108,28 @@ export class PageAnnotationOverlay {
     this.svgLayer.addEventListener('pointerdown', this.onPointerDown.bind(this));
     window.addEventListener('pointermove', this.onPointerMove.bind(this));
     window.addEventListener('pointerup', this.onPointerUp.bind(this));
+
+    this.svgLayer.addEventListener('contextmenu', (e: MouseEvent) => {
+      e.preventDefault();
+      const coords = this.getEventCoords(e as any);
+      const annotations = this.manager.getAnnotationsForPage(this.pageIndex);
+      for (let i = annotations.length - 1; i >= 0; i--) {
+        const ann = annotations[i];
+        if (this.hitTestAnnotation(ann, coords)) {
+          if (this.contextMenu) {
+            this.contextMenu.show(ann, e.clientX, e.clientY);
+          }
+          return;
+        }
+      }
+    });
+
+    this.svgLayer.addEventListener('pointerleave', () => {
+      if (this.previewElement && this.previewElement.id === 'image-placement-preview') {
+        this.previewElement.remove();
+        this.previewElement = null;
+      }
+    });
   }
 
   private getEventCoords(e: PointerEvent): { x: number; y: number } {
@@ -118,6 +144,11 @@ export class PageAnnotationOverlay {
   private onPointerDown(e: PointerEvent): void {
     const tool = this.getActiveTool();
     if (tool === 'hand') return;
+
+    if (this.previewElement && this.previewElement.id === 'image-placement-preview') {
+      this.previewElement.remove();
+      this.previewElement = null;
+    }
 
     const coords = this.getEventCoords(e);
     const scale = this.getScale();
@@ -292,10 +323,56 @@ export class PageAnnotationOverlay {
       return;
     }
 
+    const tool = this.getActiveTool();
+
+    // Live placement preview for image tool before clicking
+    if (tool === 'image' && !this.isDrawing) {
+      const imgData = this.getActiveImage ? this.getActiveImage() : null;
+      if (imgData) {
+        if (!this.previewElement || this.previewElement.id !== 'image-placement-preview') {
+          if (this.previewElement) this.previewElement.remove();
+          const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          g.setAttribute('id', 'image-placement-preview');
+          const img = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+          img.setAttribute('href', imgData);
+          img.setAttribute('opacity', '0.65');
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('fill', 'none');
+          rect.setAttribute('stroke', '#38bdf8');
+          rect.setAttribute('stroke-width', '1.5');
+          rect.setAttribute('stroke-dasharray', '4,3');
+          g.appendChild(img);
+          g.appendChild(rect);
+          this.svgLayer.appendChild(g);
+          this.previewElement = g;
+        }
+
+        const coords = this.getEventCoords(e);
+        const w = 150 * scale;
+        const h = 100 * scale;
+        const x = coords.x * scale - w / 2;
+        const y = coords.y * scale - h / 2;
+
+        const img = this.previewElement.querySelector('image');
+        const rect = this.previewElement.querySelector('rect');
+        img?.setAttribute('x', x.toString());
+        img?.setAttribute('y', y.toString());
+        img?.setAttribute('width', w.toString());
+        img?.setAttribute('height', h.toString());
+        rect?.setAttribute('x', x.toString());
+        rect?.setAttribute('y', y.toString());
+        rect?.setAttribute('width', w.toString());
+        rect?.setAttribute('height', h.toString());
+        return;
+      }
+    } else if (this.previewElement && this.previewElement.id === 'image-placement-preview') {
+      this.previewElement.remove();
+      this.previewElement = null;
+    }
+
     if (!this.isDrawing || !this.startPoint) return;
 
     const coords = this.getEventCoords(e);
-    const tool = this.getActiveTool();
 
     if (tool === 'freehand' || tool === 'freehand_highlight') {
       this.currentPoints.push(coords);

@@ -18,6 +18,7 @@ import { OptimizerDialog } from './ui/dialogs/optimizer-dialog';
 import { DocumentComparator } from './core/comparator';
 import { TextSelectionMenu } from './ui/text-selection-menu';
 import { DocumentLoupe } from './ui/loupe';
+import { AnnotationContextMenu } from './ui/context-menu';
 import { TextExtractor } from './core/text-extractor';
 import { SessionManager, DocumentSession } from './core/document-session';
 import { DocumentTabBar } from './ui/tab-bar';
@@ -50,6 +51,7 @@ class ZephyrPDFApp {
   private formHandler: FormHandler;
   private loupe: DocumentLoupe;
   private sessionManager: SessionManager;
+  private contextMenu!: AnnotationContextMenu;
 
   private toolbar!: AppToolbar;
   private sidebar!: AppSidebar;
@@ -267,6 +269,10 @@ class ZephyrPDFApp {
     new TextSelectionMenu({
       annotationManager: this.annotationManager,
       getScale: () => this.currentScale
+    });
+
+    this.contextMenu = new AnnotationContextMenu({
+      annotationManager: this.annotationManager
     });
 
     this.sidebar = new AppSidebar(sidebarEl, {
@@ -777,7 +783,8 @@ class ZephyrPDFApp {
           getActiveStamp: () => this.activeStamp,
           getActiveSignature: () => this.activeSignature,
           getActiveMeasureUnit: () => this.activeMeasureUnit,
-          getActiveImage: () => this.activeImage
+          getActiveImage: () => this.activeImage,
+          contextMenu: this.contextMenu
         });
         overlay.updateSize(viewport.width, viewport.height);
         this.pageOverlays.set(pageItem.originalIndex, overlay);
