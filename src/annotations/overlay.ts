@@ -652,6 +652,8 @@ export class PageAnnotationOverlay {
           updatedAt: now
         };
         this.manager.addAnnotation(ann);
+        this.manager.selectAnnotation(ann.id);
+        this.onResetTool?.();
       }
     } else if (tool === 'line' || tool === 'arrow') {
       const dist = Math.hypot(coords.x - this.startPoint.x, coords.y - this.startPoint.y);
@@ -730,6 +732,7 @@ export class PageAnnotationOverlay {
           }
         }
       }
+      this.onResetTool?.();
     }
 
     this.isDrawing = false;
