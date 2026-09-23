@@ -15,7 +15,7 @@ import { MetadataDialog } from './ui/dialogs/metadata-dialog';
 import { OrganizerModal } from './ui/organizer-modal';
 import { NotificationService } from './ui/notification';
 import { createSamplePdf } from './utils/samples';
-import { ToolType } from './types/annotations';
+import { MeasureUnit, ToolType } from './types/annotations';
 import { ThemeMode } from './types/document';
 import { PRESET_COLORS } from './utils/color';
 
@@ -54,6 +54,7 @@ class GreatPDFApp {
   private activeStrokeWidth: number = 2;
   private activeStamp: string = 'APPROVED';
   private activeSignature: string | null = null;
+  private activeMeasureUnit: MeasureUnit = 'mm';
   private currentScale: number = 1.0;
   private currentTheme: ThemeMode = 'dark';
   private currentPageNumber: number = 1;
@@ -79,7 +80,8 @@ class GreatPDFApp {
     this.toolbar = new AppToolbar(headerEl, {
       onOpenFile: () => this.triggerFilePicker(),
       onOpenSample: () => this.loadSample(),
-      onSaveExport: () => this.exportPdf(),
+      onSaveExport: () => this.exportPdf(false),
+      onSaveFlatten: () => this.exportPdf(true),
       onPrint: () => window.print(),
       onToggleOrganizer: () => this.openOrganizer(),
       onUndo: () => this.history.undo(),
@@ -111,6 +113,9 @@ class GreatPDFApp {
         if (this.currentDoc) {
           new MetadataDialog(this.currentDoc.metadata).open();
         }
+      },
+      onMeasureUnitChange: (unit) => {
+        this.activeMeasureUnit = unit;
       }
     });
 
@@ -280,6 +285,9 @@ class GreatPDFApp {
       } else if (e.key.toLowerCase() === 'x') {
         this.toolbar.setActiveTool('redaction');
         this.activeTool = 'redaction';
+      } else if (e.key.toLowerCase() === 'u') {
+        this.toolbar.setActiveTool('measure');
+        this.activeTool = 'measure';
       } else if (e.key.toLowerCase() === 'g') {
         this.openSignatureDialog();
       } else if (e.key === '?') {
@@ -450,7 +458,8 @@ class GreatPDFApp {
           getActiveColor: () => this.activeColor,
           getActiveStrokeWidth: () => this.activeStrokeWidth,
           getActiveStamp: () => this.activeStamp,
-          getActiveSignature: () => this.activeSignature
+          getActiveSignature: () => this.activeSignature,
+          getActiveMeasureUnit: () => this.activeMeasureUnit
         });
         overlay.updateSize(viewport.width, viewport.height);
         this.pageOverlays.set(pageItem.originalIndex, overlay);
@@ -620,24 +629,25 @@ class GreatPDFApp {
     }).open();
   }
 
-  public async exportPdf(): Promise<void> {
+  public async exportPdf(flattenForm: boolean = false): Promise<void> {
     if (!this.currentDoc) {
       NotificationService.show('No document open to save.');
       return;
     }
 
     try {
-      NotificationService.show('Baking annotations and exporting PDF...');
+      NotificationService.show(flattenForm ? 'Flattening forms & exporting PDF...' : 'Baking annotations and exporting PDF...');
       const exportedBytes = await PdfExporter.exportDocument(
         this.currentDoc.data,
         this.pageManager,
         this.annotationManager,
         this.formHandler,
-        this.mergedDocs
+        this.mergedDocs,
+        flattenForm
       );
 
       const baseName = this.currentDoc.metadata.fileName.replace(/\.pdf$/i, '');
-      const exportName = `${baseName}_edited.pdf`;
+      const exportName = `${baseName}_${flattenForm ? 'flattened' : 'edited'}.pdf`;
       PdfExporter.downloadBlob(exportedBytes, exportName);
 
       NotificationService.show(`Saved ${exportName} successfully!`);

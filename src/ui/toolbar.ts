@@ -1,4 +1,4 @@
-import { ToolType } from '../types/annotations';
+import { MeasureUnit, ToolType } from '../types/annotations';
 import { ThemeMode, ViewMode } from '../types/document';
 import { PRESET_COLORS } from '../utils/color';
 
@@ -6,6 +6,7 @@ export interface ToolbarEvents {
   onOpenFile: () => void;
   onOpenSample: () => void;
   onSaveExport: () => void;
+  onSaveFlatten?: () => void;
   onPrint: () => void;
   onToggleOrganizer: () => void;
   onUndo: () => void;
@@ -23,6 +24,7 @@ export interface ToolbarEvents {
   onViewModeChange: (mode: ViewMode) => void;
   onShowShortcuts: () => void;
   onShowMetadata: () => void;
+  onMeasureUnitChange?: (unit: MeasureUnit) => void;
 }
 
 export class AppToolbar {
@@ -32,6 +34,7 @@ export class AppToolbar {
   private activeColor: string = PRESET_COLORS.highlighterYellow;
   private activeStrokeWidth: number = 2;
   private activeStamp: string = 'APPROVED';
+  private activeMeasureUnit: MeasureUnit = 'mm';
   private activeTheme: ThemeMode = 'dark';
   private activeZoom: number = 1.0;
 
@@ -45,6 +48,7 @@ export class AppToolbar {
   public getActiveColor(): string { return this.activeColor; }
   public getActiveStrokeWidth(): number { return this.activeStrokeWidth; }
   public getActiveStamp(): string { return this.activeStamp; }
+  public getActiveMeasureUnit(): MeasureUnit { return this.activeMeasureUnit; }
   public getActiveTheme(): ThemeMode { return this.activeTheme; }
   public getActiveZoom(): number { return this.activeZoom; }
 
@@ -107,6 +111,11 @@ export class AppToolbar {
           <button class="btn btn-primary" id="save-file-btn" title="Export & Save Standard PDF (Ctrl+S)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
             <span>Save PDF</span>
+          </button>
+
+          <button class="btn" id="save-flatten-btn" title="Flatten & Lock Form Fields upon Save">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Flatten</span>
           </button>
 
           <button class="icon-btn" id="print-btn" title="Print (Ctrl+P)">
@@ -207,6 +216,10 @@ export class AppToolbar {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor"></rect><line x1="3" y1="3" x2="21" y2="21" stroke="#ef4444" stroke-width="2"></line></svg>
           </button>
 
+          <button class="icon-btn tool-btn" data-tool="measure" title="Calibrated Ruler / Measure (u)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.3 8.7 8.7 21.3a1 1 0 0 1-1.4 0l-6-6a1 1 0 0 1 0-1.4L13.9 1.3a1 1 0 0 1 1.4 0l6 6a1 1 0 0 1 0 1.4Z"></path><path d="m14.5 4.5 2 2"></path><path d="m11.5 7.5 2 2"></path><path d="m8.5 10.5 2 2"></path><path d="m5.5 13.5 2 2"></path></svg>
+          </button>
+
           <div class="toolbar-divider"></div>
 
           <button class="icon-btn tool-btn" data-tool="stamp" title="Place Stamp (m)">
@@ -250,6 +263,16 @@ export class AppToolbar {
             <option value="4">4 px</option>
             <option value="8">8 px</option>
           </select>
+
+          <div class="toolbar-divider"></div>
+
+          <span style="font-size: 0.75rem; color: var(--text-secondary);">Unit:</span>
+          <select id="measure-unit-select" style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; padding: 2px 6px; font-size: 0.8rem;">
+            <option value="mm" selected>mm</option>
+            <option value="cm">cm</option>
+            <option value="in">in</option>
+            <option value="pt">pt</option>
+          </select>
         </div>
       </div>
     `;
@@ -263,6 +286,9 @@ export class AppToolbar {
     byId('open-file-btn')?.addEventListener('click', () => this.events.onOpenFile());
     byId('sample-file-btn')?.addEventListener('click', () => this.events.onOpenSample());
     byId('save-file-btn')?.addEventListener('click', () => this.events.onSaveExport());
+    byId('save-flatten-btn')?.addEventListener('click', () => {
+      if (this.events.onSaveFlatten) this.events.onSaveFlatten();
+    });
     byId('print-btn')?.addEventListener('click', () => this.events.onPrint());
     byId('organizer-btn')?.addEventListener('click', () => this.events.onToggleOrganizer());
     byId('undo-btn')?.addEventListener('click', () => this.events.onUndo());
@@ -318,6 +344,15 @@ export class AppToolbar {
     stampSelect?.addEventListener('change', () => {
       this.activeStamp = stampSelect.value;
       this.events.onStampChange(stampSelect.value);
+    });
+
+    // Measure unit select
+    const unitSelect = byId('measure-unit-select') as HTMLSelectElement;
+    unitSelect?.addEventListener('change', () => {
+      this.activeMeasureUnit = unitSelect.value as MeasureUnit;
+      if (this.events.onMeasureUnitChange) {
+        this.events.onMeasureUnitChange(this.activeMeasureUnit);
+      }
     });
   }
 }

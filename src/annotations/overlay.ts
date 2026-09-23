@@ -3,6 +3,8 @@ import {
   FreehandAnnotation,
   HighlightAnnotation,
   LineAnnotation,
+  MeasureAnnotation,
+  MeasureUnit,
   RedactionAnnotation,
   ShapeAnnotation,
   SignatureAnnotation,
@@ -12,7 +14,13 @@ import {
   ToolType
 } from '../types/annotations';
 import { AnnotationManager } from './manager';
-import { getSvgPathFromPoints, normalizeRect, pointInRect, Rect } from '../utils/geometry';
+import {
+  formatMeasurement,
+  getSvgPathFromPoints,
+  normalizeRect,
+  pointInRect,
+  Rect
+} from '../utils/geometry';
 import { hexToRgbaCss } from '../utils/color';
 
 export class PageAnnotationOverlay {
@@ -26,6 +34,7 @@ export class PageAnnotationOverlay {
   private getActiveStrokeWidth: () => number;
   private getActiveStamp: () => string;
   private getActiveSignature: () => string | null;
+  private getActiveMeasureUnit?: () => MeasureUnit;
 
   // Active interaction state
   private isDrawing: boolean = false;
@@ -46,6 +55,7 @@ export class PageAnnotationOverlay {
       getActiveStrokeWidth: () => number;
       getActiveStamp: () => string;
       getActiveSignature: () => string | null;
+      getActiveMeasureUnit?: () => MeasureUnit;
     }
   ) {
     this.container = container;
@@ -57,6 +67,7 @@ export class PageAnnotationOverlay {
     this.getActiveStrokeWidth = options.getActiveStrokeWidth;
     this.getActiveStamp = options.getActiveStamp;
     this.getActiveSignature = options.getActiveSignature;
+    this.getActiveMeasureUnit = options.getActiveMeasureUnit;
 
     this.svgLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     this.svgLayer.classList.add('annotation-layer');
@@ -272,12 +283,17 @@ export class PageAnnotationOverlay {
       tool === 'ellipse' ||
       tool === 'line' ||
       tool === 'arrow' ||
-      tool === 'redaction'
+      tool === 'redaction' ||
+      tool === 'measure'
     ) {
       if (!this.previewElement) {
         const el = document.createElementNS(
           'http://www.w3.org/2000/svg',
-          tool === 'ellipse' ? 'ellipse' : tool === 'line' || tool === 'arrow' ? 'line' : 'rect'
+          tool === 'ellipse'
+            ? 'ellipse'
+            : tool === 'line' || tool === 'arrow' || tool === 'measure'
+            ? 'line'
+            : 'rect'
         );
         el.setAttribute('stroke', tool === 'redaction' ? '#ef4444' : this.getActiveColor());
         el.setAttribute('stroke-width', (this.getActiveStrokeWidth() * scale).toString());
@@ -307,7 +323,7 @@ export class PageAnnotationOverlay {
         this.previewElement.setAttribute('cy', ((rect.y + rect.height / 2) * scale).toString());
         this.previewElement.setAttribute('rx', ((rect.width / 2) * scale).toString());
         this.previewElement.setAttribute('ry', ((rect.height / 2) * scale).toString());
-      } else if (tool === 'line' || tool === 'arrow') {
+      } else if (tool === 'line' || tool === 'arrow' || tool === 'measure') {
         this.previewElement.setAttribute('x1', (this.startPoint.x * scale).toString());
         this.previewElement.setAttribute('y1', (this.startPoint.y * scale).toString());
         this.previewElement.setAttribute('x2', (coords.x * scale).toString());
@@ -417,6 +433,28 @@ export class PageAnnotationOverlay {
         };
         this.manager.addAnnotation(ann);
       }
+    } else if (tool === 'measure') {
+      const dist = Math.hypot(coords.x - this.startPoint.x, coords.y - this.startPoint.y);
+      if (dist > 5) {
+        const unit = this.getActiveMeasureUnit ? this.getActiveMeasureUnit() : 'mm';
+        const formattedValue = formatMeasurement(dist, unit);
+        const ann: MeasureAnnotation = {
+          id,
+          type: 'measure',
+          pageIndex: this.pageIndex,
+          x1: this.startPoint.x,
+          y1: this.startPoint.y,
+          x2: coords.x,
+          y2: coords.y,
+          distancePt: dist,
+          unit,
+          formattedValue,
+          color: this.getActiveColor(),
+          createdAt: now,
+          updatedAt: now
+        };
+        this.manager.addAnnotation(ann);
+      }
     }
 
     this.isDrawing = false;
@@ -442,7 +480,7 @@ export class PageAnnotationOverlay {
     if (ann.type === 'sticky_note') {
       return Math.hypot(p.x - ann.x, p.y - ann.y) < 18;
     }
-    if (ann.type === 'line' || ann.type === 'arrow') {
+    if (ann.type === 'line' || ann.type === 'arrow' || ann.type === 'measure') {
       // Check distance to segment
       const l2 = (ann.x2 - ann.x1) ** 2 + (ann.y2 - ann.y1) ** 2;
       let t = ((p.x - ann.x1) * (ann.x2 - ann.x1) + (p.y - ann.y1) * (ann.y2 - ann.y1)) / (l2 || 1);
@@ -687,6 +725,70 @@ export class PageAnnotationOverlay {
           text.textContent = ann.overlayText || 'REDACTED';
           g.appendChild(text);
         }
+        this.svgLayer.appendChild(g);
+      } else if (ann.type === 'measure') {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', (ann.x1 * scale).toString());
+        line.setAttribute('y1', (ann.y1 * scale).toString());
+        line.setAttribute('x2', (ann.x2 * scale).toString());
+        line.setAttribute('y2', (ann.y2 * scale).toString());
+        line.setAttribute('stroke', ann.color);
+        line.setAttribute('stroke-width', (2 * scale).toString());
+        g.appendChild(line);
+
+        // Perpendicular end ticks
+        const angle = Math.atan2(ann.y2 - ann.y1, ann.x2 - ann.x1);
+        const tickLen = 7 * scale;
+        const perpX = Math.sin(angle) * tickLen;
+        const perpY = -Math.cos(angle) * tickLen;
+
+        const tick1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        tick1.setAttribute('x1', (ann.x1 * scale - perpX).toString());
+        tick1.setAttribute('y1', (ann.y1 * scale - perpY).toString());
+        tick1.setAttribute('x2', (ann.x1 * scale + perpX).toString());
+        tick1.setAttribute('y2', (ann.y1 * scale + perpY).toString());
+        tick1.setAttribute('stroke', ann.color);
+        tick1.setAttribute('stroke-width', (2 * scale).toString());
+        g.appendChild(tick1);
+
+        const tick2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        tick2.setAttribute('x1', (ann.x2 * scale - perpX).toString());
+        tick2.setAttribute('y1', (ann.y2 * scale - perpY).toString());
+        tick2.setAttribute('x2', (ann.x2 * scale + perpX).toString());
+        tick2.setAttribute('y2', (ann.y2 * scale + perpY).toString());
+        tick2.setAttribute('stroke', ann.color);
+        tick2.setAttribute('stroke-width', (2 * scale).toString());
+        g.appendChild(tick2);
+
+        // Centered badge with measurement text
+        const midX = ((ann.x1 + ann.x2) / 2) * scale;
+        const midY = ((ann.y1 + ann.y2) / 2) * scale;
+        const badgeWidth = 64 * scale;
+        const badgeHeight = 20 * scale;
+
+        const badgeRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        badgeRect.setAttribute('x', (midX - badgeWidth / 2).toString());
+        badgeRect.setAttribute('y', (midY - badgeHeight / 2).toString());
+        badgeRect.setAttribute('width', badgeWidth.toString());
+        badgeRect.setAttribute('height', badgeHeight.toString());
+        badgeRect.setAttribute('rx', (4 * scale).toString());
+        badgeRect.setAttribute('fill', '#1e293b');
+        badgeRect.setAttribute('stroke', isSelected ? '#1976d2' : ann.color);
+        badgeRect.setAttribute('stroke-width', '1.5');
+        g.appendChild(badgeRect);
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', midX.toString());
+        label.setAttribute('y', (midY + 4 * scale).toString());
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('font-size', `${10 * scale}px`);
+        label.setAttribute('font-family', 'sans-serif');
+        label.setAttribute('font-weight', '600');
+        label.setAttribute('fill', '#ffffff');
+        label.textContent = ann.formattedValue;
+        g.appendChild(label);
+
         this.svgLayer.appendChild(g);
       }
     }

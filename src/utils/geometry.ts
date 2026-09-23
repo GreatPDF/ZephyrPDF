@@ -91,3 +91,23 @@ export function pdfToScreenCoords(
     y: (pdfPageHeight - point.y) * scale
   };
 }
+
+/**
+ * Format PDF point distance into calibrated real-world measurement units.
+ */
+export function formatMeasurement(
+  distancePt: number,
+  unit: 'pt' | 'mm' | 'cm' | 'in' = 'mm'
+): string {
+  switch (unit) {
+    case 'mm':
+      return `${(distancePt * (25.4 / 72)).toFixed(1)} mm`;
+    case 'cm':
+      return `${(distancePt * (2.54 / 72)).toFixed(2)} cm`;
+    case 'in':
+      return `${(distancePt / 72).toFixed(2)} in`;
+    case 'pt':
+    default:
+      return `${distancePt.toFixed(1)} pt`;
+  }
+}

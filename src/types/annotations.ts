@@ -12,7 +12,8 @@ export type AnnotationType =
   | 'stamp'
   | 'signature'
   | 'sticky_note'
-  | 'redaction';
+  | 'redaction'
+  | 'measure';
 
 export interface BaseAnnotation {
   id: string;
@@ -131,6 +132,20 @@ export interface RedactionAnnotation extends BaseAnnotation {
   overlayText?: string;
 }
 
+export type MeasureUnit = 'mm' | 'cm' | 'in' | 'pt';
+
+export interface MeasureAnnotation extends BaseAnnotation {
+  type: 'measure';
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  distancePt: number;
+  unit: MeasureUnit;
+  formattedValue: string;
+  color: string;
+}
+
 export type Annotation =
   | HighlightAnnotation
   | MarkupAnnotation
@@ -141,7 +156,8 @@ export type Annotation =
   | StampAnnotation
   | SignatureAnnotation
   | StickyNoteAnnotation
-  | RedactionAnnotation;
+  | RedactionAnnotation
+  | MeasureAnnotation;
 
 export type ToolType =
   | 'select'
@@ -159,4 +175,5 @@ export type ToolType =
   | 'stamp'
   | 'signature'
   | 'sticky_note'
-  | 'redaction';
+  | 'redaction'
+  | 'measure';

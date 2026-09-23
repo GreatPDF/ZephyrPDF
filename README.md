@@ -24,8 +24,9 @@
   - Drag-and-drop page reordering.
   - 90° Clockwise and Counter-Clockwise page rotations.
   - Page deletion and blank page insertion.
+- **📏 Calibrated Measurement Tool**: Real-world distance measurement with dimension lines, tick marks, and customizable units (`mm`, `cm`, `in`, `pt`), ideal for architectural plans and blueprints.
 - **🛡️ Permanent Redaction**: Irreversibly black out confidential data, numbers, or text before distribution.
-- **📝 Interactive Form Filling**: In-browser AcroForm support—fill text inputs, check boxes, select dropdowns, and save valid filled PDF forms.
+- **📝 Interactive Form Filling & Flattening**: In-browser AcroForm support—fill text inputs, check boxes, select dropdowns, and optionally flatten forms upon export to permanently lock submissions.
 - **🔍 Full-Text Search**: Instantaneous search across all pages with matching text bounds and rapid previous/next keyboard navigation.
 - **🌓 Reading Modes**: Sleek Modern Dark Mode (with smart document contrast inversion), Clean Light Mode, and warm Sepia paper mode.
 - **📱 Offline PWA Ready**: Install as a standalone native app on desktop or mobile with 100% offline functionality.

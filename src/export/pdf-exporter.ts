@@ -10,11 +10,19 @@ export class PdfExporter {
     pageManager: PageManager,
     annotationManager: AnnotationManager,
     formHandler?: FormHandler,
-    mergedDocs?: Map<string, Uint8Array>
+    mergedDocs?: Map<string, Uint8Array>,
+    flattenForm: boolean = false
   ): Promise<Uint8Array> {
     const sourceDoc = await PDFDocument.load(sourceBytes, { ignoreEncryption: true });
     if (formHandler) {
       formHandler.applyToPdf(sourceDoc);
+      if (flattenForm) {
+        try {
+          sourceDoc.getForm().flatten();
+        } catch {
+          // Ignore if no form
+        }
+      }
     }
     const newDoc = await PDFDocument.create();
 
@@ -200,6 +208,25 @@ export class PdfExporter {
                 color: rgb(1, 1, 1)
               });
             }
+          } else if (ann.type === 'measure') {
+            const strokeColor = hexToPdfRgb(ann.color);
+            targetPage.drawLine({
+              start: { x: ann.x1, y: pageHeight - ann.y1 },
+              end: { x: ann.x2, y: pageHeight - ann.y2 },
+              thickness: 1.5,
+              color: rgb(strokeColor.r, strokeColor.g, strokeColor.b)
+            });
+
+            // Draw label at midpoint
+            const midX = (ann.x1 + ann.x2) / 2;
+            const midY = (ann.y1 + ann.y2) / 2;
+            targetPage.drawText(ann.formattedValue, {
+              x: midX - 16,
+              y: pageHeight - (midY + 3),
+              size: 8,
+              font: fontHelveticaBold,
+              color: rgb(strokeColor.r, strokeColor.g, strokeColor.b)
+            });
           }
         } catch (e) {
           console.error('Failed to bake annotation into exported PDF:', e);
