@@ -17,6 +17,10 @@
   - **Pre-set & Custom Stamps**: `APPROVED`, `CONFIDENTIAL`, `DRAFT`, `FINAL`, `REJECTED`, or customized text.
   - **Digital Signatures**: Draw, type cursive, or upload transparent PNG signatures with instant one-click placement.
   - **Sticky Notes**: Threaded comments and annotations.
+- **⚡ Quick Text Selection Menu**: Effortless floating action menu on text selection for instant 1-click highlighting, underlining, strikethrough, and copying.
+- **🖼️ Image & Logo Insertion**: Insert PNG/JPEG images or logos onto any page with interactive drag and scale handles.
+- **📖 Two-Page Book & Presentation Modes**: Dual-page spread viewing and distraction-free fullscreen presentation mode.
+- **📋 Search Citation Export**: Export full-text search occurrences and snippet context into clean Markdown reports.
 - **📑 Visual Page Organizer**:
   - Interactive grid view with live page previews.
   - Multi-document merge: Combine pages from multiple PDFs into a single unified file.

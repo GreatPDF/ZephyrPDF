@@ -14,11 +14,12 @@ import { ShortcutsDialog } from './ui/dialogs/shortcuts-dialog';
 import { MetadataDialog } from './ui/dialogs/metadata-dialog';
 import { CompareDialog } from './ui/dialogs/compare-dialog';
 import { DocumentComparator } from './core/comparator';
+import { TextSelectionMenu } from './ui/text-selection-menu';
 import { OrganizerModal } from './ui/organizer-modal';
 import { NotificationService } from './ui/notification';
 import { createSamplePdf } from './utils/samples';
 import { MeasureUnit, ToolType } from './types/annotations';
-import { ThemeMode } from './types/document';
+import { ThemeMode, ViewMode } from './types/document';
 import { PRESET_COLORS } from './utils/color';
 
 // Global polyfill for environments missing Promise.withResolvers
@@ -56,6 +57,7 @@ class GreatPDFApp {
   private activeStrokeWidth: number = 2;
   private activeStamp: string = 'APPROVED';
   private activeSignature: string | null = null;
+  private activeImage: string | null = null;
   private activeMeasureUnit: MeasureUnit = 'mm';
   private currentScale: number = 1.0;
   private currentTheme: ThemeMode = 'dark';
@@ -109,7 +111,19 @@ class GreatPDFApp {
       },
       onSignatureClick: () => this.openSignatureDialog(),
       onThemeToggle: (theme) => this.setTheme(theme),
-      onViewModeChange: () => {},
+      onViewModeChange: (mode: ViewMode) => {
+        const viewerContainer = document.getElementById('viewer-container');
+        if (mode === 'two-page') {
+          viewerContainer?.classList.add('mode-two-page');
+          NotificationService.show('Two-Page Spread View enabled');
+        } else if (mode === 'presentation') {
+          document.documentElement.requestFullscreen?.();
+          NotificationService.show('Presentation Mode enabled');
+        } else {
+          viewerContainer?.classList.remove('mode-two-page');
+          NotificationService.show('Continuous Scroll View enabled');
+        }
+      },
       onShowShortcuts: () => new ShortcutsDialog().open(),
       onShowMetadata: () => {
         if (this.currentDoc) {
@@ -140,7 +154,24 @@ class GreatPDFApp {
           console.error(e);
           alert('Failed to compare documents: ' + e.message);
         }
+      },
+      onInsertImage: (file: File) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            this.activeImage = e.target.result as string;
+            this.activeTool = 'image';
+            this.toolbar.setActiveTool('image');
+            NotificationService.show('Image ready! Click on any page to place it.');
+          }
+        };
+        reader.readAsDataURL(file);
       }
+    });
+
+    new TextSelectionMenu({
+      annotationManager: this.annotationManager,
+      getScale: () => this.currentScale
     });
 
     this.sidebar = new AppSidebar(sidebarEl, {
@@ -172,6 +203,35 @@ class GreatPDFApp {
           const state = this.searchEngine.getState();
           this.sidebar.setSearchResults(state.matches, state.currentMatchIndex);
         }
+      },
+      onExportCitations: () => {
+        const state = this.searchEngine.getState();
+        if (!state.query || state.matches.length === 0) {
+          NotificationService.show('Perform a search first to export citations.');
+          return;
+        }
+
+        const fileName = this.currentDoc?.metadata.fileName || 'document.pdf';
+        let md = `# Search Citations for "${state.query}"\n`;
+        md += `**Document:** ${fileName}\n`;
+        md += `**Total Matches:** ${state.matches.length}\n\n`;
+        md += `## Occurrences\n`;
+        for (const m of state.matches) {
+          md += `- **Page ${m.pageIndex + 1}**: "...${m.text}..."\n`;
+        }
+
+        navigator.clipboard?.writeText(md);
+        const blob = new Blob([md], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${fileName.replace(/\.pdf$/i, '')}_search_citations.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+
+        NotificationService.show('Citations copied to clipboard & downloaded!');
       }
     });
 
@@ -483,7 +543,8 @@ class GreatPDFApp {
           getActiveStrokeWidth: () => this.activeStrokeWidth,
           getActiveStamp: () => this.activeStamp,
           getActiveSignature: () => this.activeSignature,
-          getActiveMeasureUnit: () => this.activeMeasureUnit
+          getActiveMeasureUnit: () => this.activeMeasureUnit,
+          getActiveImage: () => this.activeImage
         });
         overlay.updateSize(viewport.width, viewport.height);
         this.pageOverlays.set(pageItem.originalIndex, overlay);

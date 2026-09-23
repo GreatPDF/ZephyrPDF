@@ -8,6 +8,7 @@ export interface SidebarEvents {
   onSearch: (query: string, caseSensitive: boolean, matchWholeWords: boolean) => void;
   onSearchNext: () => void;
   onSearchPrevious: () => void;
+  onExportCitations?: () => void;
 }
 
 export class AppSidebar {
@@ -196,6 +197,9 @@ export class AppSidebar {
                 <button class="icon-btn" id="search-next-btn" style="width: 28px; height: 28px;" title="Next Match">▼</button>
               </div>
             </div>
+            <button class="btn" id="export-search-citations-btn" style="height: 28px; font-size: 0.75rem; width: 100%; margin-top: 4px;">
+              📋 Export Citations (.md)
+            </button>
           </div>
         </div>
       </div>
@@ -229,8 +233,12 @@ export class AppSidebar {
 
     const prevBtn = this.container.querySelector('#search-prev-btn');
     const nextBtn = this.container.querySelector('#search-next-btn');
+    const exportCitationsBtn = this.container.querySelector('#export-search-citations-btn');
 
     prevBtn?.addEventListener('click', () => this.events.onSearchPrevious());
     nextBtn?.addEventListener('click', () => this.events.onSearchNext());
+    exportCitationsBtn?.addEventListener('click', () => {
+      if (this.events.onExportCitations) this.events.onExportCitations();
+    });
   }
 }

@@ -13,7 +13,8 @@ export type AnnotationType =
   | 'signature'
   | 'sticky_note'
   | 'redaction'
-  | 'measure';
+  | 'measure'
+  | 'image';
 
 export interface BaseAnnotation {
   id: string;
@@ -146,6 +147,16 @@ export interface MeasureAnnotation extends BaseAnnotation {
   color: string;
 }
 
+export interface ImageAnnotation extends BaseAnnotation {
+  type: 'image';
+  dataUrl: string;
+  format?: 'png' | 'jpeg';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export type Annotation =
   | HighlightAnnotation
   | MarkupAnnotation
@@ -157,7 +168,8 @@ export type Annotation =
   | SignatureAnnotation
   | StickyNoteAnnotation
   | RedactionAnnotation
-  | MeasureAnnotation;
+  | MeasureAnnotation
+  | ImageAnnotation;
 
 export type ToolType =
   | 'select'
@@ -176,4 +188,5 @@ export type ToolType =
   | 'signature'
   | 'sticky_note'
   | 'redaction'
-  | 'measure';
+  | 'measure'
+  | 'image';

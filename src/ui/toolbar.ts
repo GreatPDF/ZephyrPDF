@@ -26,6 +26,7 @@ export interface ToolbarEvents {
   onShowMetadata: () => void;
   onMeasureUnitChange?: (unit: MeasureUnit) => void;
   onCompareFile?: (file: File) => Promise<void>;
+  onInsertImage?: (file: File) => void;
 }
 
 export class AppToolbar {
@@ -161,6 +162,14 @@ export class AppToolbar {
           <button class="icon-btn" id="zoom-fit-page-btn" title="Fit to Page (0)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
           </button>
+
+          <div class="toolbar-divider"></div>
+
+          <select id="view-mode-select" title="Document View Mode" style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; padding: 2px 6px; font-size: 0.8rem;">
+            <option value="continuous" selected>Continuous</option>
+            <option value="two-page">Two-Page</option>
+            <option value="presentation">Presentation</option>
+          </select>
         </div>
 
         <!-- Right Side Settings & Dialogs -->
@@ -246,6 +255,12 @@ export class AppToolbar {
             <span>Signature</span>
           </button>
 
+          <button class="btn" id="image-insert-btn" title="Insert Image / Logo (i)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <span>Image</span>
+          </button>
+          <input type="file" id="image-insert-input" accept="image/png, image/jpeg" style="display: none;" />
+
           <button class="icon-btn tool-btn" data-tool="sticky_note" title="Add Sticky Comment">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path><path d="M15 3v6h6"></path></svg>
           </button>
@@ -317,6 +332,11 @@ export class AppToolbar {
     byId('zoom-fit-width-btn')?.addEventListener('click', () => this.events.onZoomFitWidth());
     byId('zoom-fit-page-btn')?.addEventListener('click', () => this.events.onZoomFitPage());
 
+    const viewModeSelect = byId('view-mode-select') as HTMLSelectElement;
+    viewModeSelect?.addEventListener('change', () => {
+      this.events.onViewModeChange(viewModeSelect.value as ViewMode);
+    });
+
     byId('theme-toggle-btn')?.addEventListener('click', () => {
       const nextTheme = this.activeTheme === 'dark' ? 'light' : this.activeTheme === 'light' ? 'sepia' : 'dark';
       this.activeTheme = nextTheme;
@@ -326,6 +346,16 @@ export class AppToolbar {
     byId('meta-btn')?.addEventListener('click', () => this.events.onShowMetadata());
     byId('shortcuts-btn')?.addEventListener('click', () => this.events.onShowShortcuts());
     byId('sig-btn')?.addEventListener('click', () => this.events.onSignatureClick());
+
+    const imgBtn = byId('image-insert-btn');
+    const imgInput = byId('image-insert-input') as HTMLInputElement;
+    imgBtn?.addEventListener('click', () => imgInput?.click());
+    imgInput?.addEventListener('change', () => {
+      const file = imgInput.files?.[0];
+      if (file && this.events.onInsertImage) {
+        this.events.onInsertImage(file);
+      }
+    });
 
     // Tools
     this.container.querySelectorAll('.tool-btn').forEach(btn => {

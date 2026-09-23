@@ -383,6 +383,14 @@ button.btn.btn-primary:hover {
   gap: 24px;
 }
 
+.viewer-viewport.mode-two-page #pages-wrapper {
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  gap: 20px !important;
+}
+
 .page-container {
   position: relative;
   box-shadow: var(--shadow-lg);

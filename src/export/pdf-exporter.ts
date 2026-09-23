@@ -172,15 +172,19 @@ export class PdfExporter {
               font: fontHelveticaBold,
               color: rgb(stampColor.r, stampColor.g, stampColor.b)
             });
-          } else if (ann.type === 'signature') {
+          } else if (ann.type === 'signature' || ann.type === 'image') {
             try {
-              const base64Data = ann.dataUrl.split(',')[1];
+              const [header, base64Data] = ann.dataUrl.split(',');
               const binaryStr = atob(base64Data);
               const bytes = new Uint8Array(binaryStr.length);
               for (let i = 0; i < binaryStr.length; i++) {
                 bytes[i] = binaryStr.charCodeAt(i);
               }
-              const image = await newDoc.embedPng(bytes);
+              const isJpg = header && (header.includes('jpeg') || header.includes('jpg'));
+              const image = isJpg
+                ? await newDoc.embedJpg(bytes)
+                : await newDoc.embedPng(bytes);
+
               targetPage.drawImage(image, {
                 x: ann.x,
                 y: pageHeight - (ann.y + ann.height),
@@ -188,7 +192,7 @@ export class PdfExporter {
                 height: ann.height
               });
             } catch (err) {
-              console.warn('Failed to embed signature image:', err);
+              console.warn('Failed to embed image:', err);
             }
           } else if (ann.type === 'redaction') {
             targetPage.drawRectangle({

@@ -2,6 +2,7 @@ import {
   Annotation,
   FreehandAnnotation,
   HighlightAnnotation,
+  ImageAnnotation,
   LineAnnotation,
   MeasureAnnotation,
   MeasureUnit,
@@ -35,6 +36,7 @@ export class PageAnnotationOverlay {
   private getActiveStamp: () => string;
   private getActiveSignature: () => string | null;
   private getActiveMeasureUnit?: () => MeasureUnit;
+  private getActiveImage?: () => string | null;
 
   // Active interaction state
   private isDrawing: boolean = false;
@@ -56,6 +58,7 @@ export class PageAnnotationOverlay {
       getActiveStamp: () => string;
       getActiveSignature: () => string | null;
       getActiveMeasureUnit?: () => MeasureUnit;
+      getActiveImage?: () => string | null;
     }
   ) {
     this.container = container;
@@ -68,6 +71,7 @@ export class PageAnnotationOverlay {
     this.getActiveStamp = options.getActiveStamp;
     this.getActiveSignature = options.getActiveSignature;
     this.getActiveMeasureUnit = options.getActiveMeasureUnit;
+    this.getActiveImage = options.getActiveImage;
 
     this.svgLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     this.svgLayer.classList.add('annotation-layer');
@@ -181,6 +185,26 @@ export class PageAnnotationOverlay {
           updatedAt: Date.now()
         };
         this.manager.addAnnotation(sigAnn);
+      }
+      return;
+    }
+
+    if (tool === 'image') {
+      const imgData = this.getActiveImage ? this.getActiveImage() : null;
+      if (imgData) {
+        const imgAnn: ImageAnnotation = {
+          id: 'img_' + Math.random().toString(36).substring(2, 9),
+          type: 'image',
+          pageIndex: this.pageIndex,
+          dataUrl: imgData,
+          x: coords.x - 75,
+          y: coords.y - 50,
+          width: 150,
+          height: 100,
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        };
+        this.manager.addAnnotation(imgAnn);
       }
       return;
     }
@@ -472,7 +496,8 @@ export class PageAnnotationOverlay {
       ann.type === 'text' ||
       ann.type === 'stamp' ||
       ann.type === 'signature' ||
-      ann.type === 'redaction'
+      ann.type === 'redaction' ||
+      ann.type === 'image'
     ) {
       const rect: Rect = { x: ann.x, y: ann.y, width: ann.width, height: ann.height };
       return pointInRect(p, rect);
@@ -659,6 +684,27 @@ export class PageAnnotationOverlay {
         }
         this.svgLayer.appendChild(g);
       } else if (ann.type === 'signature') {
+        const img = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+        img.setAttribute('x', (ann.x * scale).toString());
+        img.setAttribute('y', (ann.y * scale).toString());
+        img.setAttribute('width', (ann.width * scale).toString());
+        img.setAttribute('height', (ann.height * scale).toString());
+        img.setAttribute('href', ann.dataUrl);
+
+        if (isSelected) {
+          const box = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          box.setAttribute('x', (ann.x * scale).toString());
+          box.setAttribute('y', (ann.y * scale).toString());
+          box.setAttribute('width', (ann.width * scale).toString());
+          box.setAttribute('height', (ann.height * scale).toString());
+          box.setAttribute('fill', 'none');
+          box.setAttribute('stroke', '#1976d2');
+          box.setAttribute('stroke-width', '1.5');
+          box.setAttribute('stroke-dasharray', '3,3');
+          this.svgLayer.appendChild(box);
+        }
+        this.svgLayer.appendChild(img);
+      } else if (ann.type === 'image') {
         const img = document.createElementNS('http://www.w3.org/2000/svg', 'image');
         img.setAttribute('x', (ann.x * scale).toString());
         img.setAttribute('y', (ann.y * scale).toString());
