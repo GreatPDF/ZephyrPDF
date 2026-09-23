@@ -1,0 +1,99 @@
+import { describe, it, expect } from 'vitest';
+import { PDFDocument } from 'pdf-lib';
+import { createSamplePdf } from '../src/utils/samples';
+import { PageManager } from '../src/organizer/page-manager';
+import { AnnotationManager } from '../src/annotations/manager';
+import { HistoryManager } from '../src/core/history';
+import { PdfExporter } from '../src/export/pdf-exporter';
+import { DocumentMetadata } from '../src/types/document';
+import { HighlightAnnotation, TextAnnotation } from '../src/types/annotations';
+
+describe('Document Metadata and Annotation Backup', () => {
+  it('should embed custom metadata into exported PDF info dictionary', async () => {
+    const sourceBytes = await createSamplePdf();
+    const history = new HistoryManager();
+    const pageManager = new PageManager(history);
+    const annotationManager = new AnnotationManager(history);
+
+    pageManager.initFromDocument(2, [
+      { width: 595.28, height: 841.89, rotation: 0 },
+      { width: 595.28, height: 841.89, rotation: 0 }
+    ]);
+
+    const metadata: DocumentMetadata = {
+      title: 'Official Executive Summary',
+      author: 'Security Officer',
+      subject: 'Quarterly Compliance',
+      keywords: 'security, compliance, audit',
+      creator: 'GreatPDF Enterprise',
+      pageCount: 2,
+      fileSize: sourceBytes.length,
+      fileName: 'Summary.pdf'
+    };
+
+    const exportedBytes = await PdfExporter.exportDocument(
+      sourceBytes,
+      pageManager,
+      annotationManager,
+      undefined,
+      undefined,
+      false,
+      undefined,
+      undefined,
+      metadata
+    );
+
+    expect(exportedBytes).toBeInstanceOf(Uint8Array);
+    const doc = await PDFDocument.load(exportedBytes);
+    expect(doc.getTitle()).toBe('Official Executive Summary');
+    expect(doc.getAuthor()).toBe('Security Officer');
+    expect(doc.getSubject()).toBe('Quarterly Compliance');
+    expect(doc.getKeywords()).toContain('compliance');
+    expect(doc.getCreator()).toBe('GreatPDF Enterprise');
+  });
+
+  it('should export and re-import full annotation collections with exact fidelity', () => {
+    const history = new HistoryManager();
+    const manager = new AnnotationManager(history);
+
+    const highlight: HighlightAnnotation = {
+      id: 'h_bak_1',
+      type: 'highlight',
+      pageIndex: 0,
+      rects: [{ x: 50, y: 100, width: 200, height: 20 }],
+      color: '#ffeb3b',
+      opacity: 0.4,
+      createdAt: 1000,
+      updatedAt: 1000
+    };
+
+    const textAnn: TextAnnotation = {
+      id: 't_bak_1',
+      type: 'text',
+      pageIndex: 1,
+      x: 100,
+      y: 200,
+      width: 150,
+      height: 30,
+      text: 'Backup Test Note',
+      fontSize: 14,
+      fontFamily: 'Helvetica',
+      color: '#000000',
+      createdAt: 2000,
+      updatedAt: 2000
+    };
+
+    manager.addAnnotation(highlight);
+    manager.addAnnotation(textAnn);
+
+    const json = manager.exportJson();
+    expect(json).toContain('Backup Test Note');
+
+    const restoreManager = new AnnotationManager(new HistoryManager());
+    restoreManager.importJson(json);
+
+    expect(restoreManager.getAllAnnotations().length).toBe(2);
+    expect(restoreManager.getAnnotation('t_bak_1')?.type).toBe('text');
+    expect(restoreManager.getAnnotation('h_bak_1')?.type).toBe('highlight');
+  });
+});

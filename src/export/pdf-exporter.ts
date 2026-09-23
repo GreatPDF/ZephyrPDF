@@ -3,7 +3,7 @@ import { AnnotationManager } from '../annotations/manager';
 import { PageManager } from '../organizer/page-manager';
 import { FormHandler } from '../core/form-handler';
 import { hexToPdfRgb } from '../utils/color';
-import { WatermarkOptions, PageNumberOptions } from '../types/document';
+import { WatermarkOptions, PageNumberOptions, DocumentMetadata } from '../types/document';
 
 export class PdfExporter {
   public static async exportDocument(
@@ -14,7 +14,8 @@ export class PdfExporter {
     mergedDocs?: Map<string, Uint8Array>,
     flattenForm: boolean = false,
     watermarkOptions?: WatermarkOptions,
-    pageNumberOptions?: PageNumberOptions
+    pageNumberOptions?: PageNumberOptions,
+    metadata?: DocumentMetadata
   ): Promise<Uint8Array> {
     const sourceDoc = await PDFDocument.load(sourceBytes, { ignoreEncryption: true });
     if (formHandler) {
@@ -28,6 +29,20 @@ export class PdfExporter {
       }
     }
     const newDoc = await PDFDocument.create();
+
+    if (metadata) {
+      try {
+        if (metadata.title) newDoc.setTitle(metadata.title);
+        if (metadata.author) newDoc.setAuthor(metadata.author);
+        if (metadata.subject) newDoc.setSubject(metadata.subject);
+        if (metadata.keywords) newDoc.setKeywords(metadata.keywords.split(',').map(k => k.trim()).filter(Boolean));
+        if (metadata.creator) newDoc.setCreator(metadata.creator);
+        newDoc.setProducer('GreatPDF (https://github.com/GreatPDF/GreatPDF)');
+        newDoc.setModificationDate(new Date());
+      } catch {
+        // Ignore metadata setting errors
+      }
+    }
 
     const loadedMergedDocs = new Map<string, PDFDocument>();
     if (mergedDocs) {

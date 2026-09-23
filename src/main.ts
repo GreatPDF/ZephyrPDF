@@ -157,7 +157,15 @@ class GreatPDFApp {
       onShowShortcuts: () => new ShortcutsDialog().open(),
       onShowMetadata: () => {
         if (this.currentDoc) {
-          new MetadataDialog(this.currentDoc.metadata).open();
+          new MetadataDialog(this.currentDoc.metadata, {
+            onSave: (updated) => {
+              this.currentDoc!.metadata = updated;
+              if (updated.title) {
+                document.title = `${updated.title} · GreatPDF`;
+              }
+              NotificationService.show('Document properties & metadata saved!');
+            }
+          }).open();
         }
       },
       onMeasureUnitChange: (unit) => {
@@ -370,6 +378,31 @@ class GreatPDFApp {
         setTimeout(() => URL.revokeObjectURL(url), 2000);
 
         NotificationService.show('Annotation report copied & downloaded!');
+      },
+      onExportAnnotationJson: () => {
+        const jsonStr = this.annotationManager.exportJson();
+        const fileName = this.currentDoc?.metadata.fileName || 'document.pdf';
+        const base = fileName.replace(/\.pdf$/i, '');
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${base}_annotations.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        NotificationService.show('Annotations exported to JSON!');
+      },
+      onImportAnnotationJson: async (file: File) => {
+        try {
+          const text = await file.text();
+          this.annotationManager.importJson(text);
+          await this.renderDocument();
+          NotificationService.show(`Imported annotations from ${file.name}!`);
+        } catch (e: any) {
+          alert('Failed to import annotations: ' + e.message);
+        }
       }
     });
 
@@ -930,7 +963,8 @@ class GreatPDFApp {
         this.mergedDocs,
         flattenForm,
         this.watermarkOptions,
-        this.pageNumberOptions
+        this.pageNumberOptions,
+        this.currentDoc.metadata
       );
 
       const baseName = this.currentDoc.metadata.fileName.replace(/\.pdf$/i, '');

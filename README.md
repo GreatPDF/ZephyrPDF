@@ -17,6 +17,8 @@
   - **Pre-set & Custom Stamps**: `APPROVED`, `CONFIDENTIAL`, `DRAFT`, `FINAL`, `REJECTED`, or customized text.
   - **Digital Signatures**: Draw, type cursive, or upload transparent PNG signatures with instant one-click placement.
   - **Sticky Notes**: Threaded comments and annotations.
+- **🛡️ Metadata Editor & Privacy Sanitizer**: Edit title, author, subject, and keywords with 1-click metadata sanitization to scrub personal traces before sharing.
+- **💾 Annotation Backup & Restore**: Export and import full annotation collections as portable JSON files to transfer markup across revisions.
 - **🗂️ Multi-Document Tab Bar**: Work with multiple opened PDFs simultaneously in a browser-style tab bar with instant session switching and isolation.
 - **🔎 Advanced Search Filtering**: Instant full-text search with dedicated Match Case (`Aa`) and Whole Words (`\b`) filters.
 - **🔄 Quick Page Rotation Shortcuts**: Rotate current page on the fly with `Ctrl+[` (CCW) and `Ctrl+]` (CW).

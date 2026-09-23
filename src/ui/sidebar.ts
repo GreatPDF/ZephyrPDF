@@ -10,6 +10,8 @@ export interface SidebarEvents {
   onSearchPrevious: () => void;
   onExportCitations?: () => void;
   onExportAnnotationReport?: () => void;
+  onExportAnnotationJson?: () => void;
+  onImportAnnotationJson?: (file: File) => void;
 }
 
 export class AppSidebar {
@@ -182,6 +184,11 @@ export class AppSidebar {
 
         <!-- Annotations Tab -->
         <div id="tab-pane-annotations" style="display: none;">
+          <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+            <button class="btn" id="export-ann-json-btn" style="flex: 1; height: 26px; font-size: 0.75rem; padding: 0;">Backup (JSON)</button>
+            <button class="btn" id="import-ann-json-btn" style="flex: 1; height: 26px; font-size: 0.75rem; padding: 0;">Restore</button>
+            <input type="file" id="import-ann-json-input" accept="application/json" style="display: none;" />
+          </div>
           <button class="btn" id="export-annotation-report-btn" style="height: 28px; font-size: 0.75rem; width: 100%; margin-bottom: 8px;">
             📋 Export Summary Report (.md)
           </button>
@@ -269,6 +276,25 @@ export class AppSidebar {
     const exportReportBtn = this.container.querySelector('#export-annotation-report-btn');
     exportReportBtn?.addEventListener('click', () => {
       if (this.events.onExportAnnotationReport) this.events.onExportAnnotationReport();
+    });
+
+    const exportJsonBtn = this.container.querySelector('#export-ann-json-btn');
+    const importJsonBtn = this.container.querySelector('#import-ann-json-btn');
+    const importJsonInput = this.container.querySelector('#import-ann-json-input') as HTMLInputElement;
+
+    exportJsonBtn?.addEventListener('click', () => {
+      if (this.events.onExportAnnotationJson) this.events.onExportAnnotationJson();
+    });
+
+    importJsonBtn?.addEventListener('click', () => {
+      importJsonInput?.click();
+    });
+
+    importJsonInput?.addEventListener('change', () => {
+      const file = importJsonInput.files?.[0];
+      if (file && this.events.onImportAnnotationJson) {
+        this.events.onImportAnnotationJson(file);
+      }
     });
   }
 }
