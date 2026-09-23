@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZephyrPDF · The Featherlight Open-Source PDF Viewer & Editor</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'%3E%3C/path%3E%3Cpolyline points='14 2 14 8 20 8'%3E%3C/polyline%3E%3Cline x1='16' y1='13' x2='8' y2='13'%3E%3C/line%3E%3Cline x1='16' y1='17' x2='8' y2='17'%3E%3C/line%3E%3Cpolyline points='10 9 9 9 8 9'%3E%3C/polyline%3E%3C/svg%3E" />
+    <link rel="manifest" href="./manifest.json" />
+    <script type="module" crossorigin src="./assets/index-I0D5CP88.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-_P8YT2AB.css">
+  </head>
+  <body>
+    <div id="app">
+      <header id="app-header">
+        <div id="app-tab-bar" class="doc-tab-bar-container" style="display: none;"></div>
+      </header>
+      <div class="workspace">
+        <aside class="sidebar" id="app-sidebar"></aside>
+        <main class="viewer-viewport" id="viewer-container">
+          <div class="empty-state" id="empty-state">
+            <div class="dropzone-box" id="dropzone">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="12" y1="18" x2="12" y2="12"></line>
+                <line x1="9" y1="15" x2="15" y2="15"></line>
+              </svg>
+              <div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 6px;">Drop your PDF file here</h3>
+                <p style="font-size: 0.9rem; color: var(--text-secondary);">or click to select a document from your computer</p>
+              </div>
+              <div style="display: flex; gap: 12px; margin-top: 8px;">
+                <button class="btn btn-primary" id="empty-open-btn">Choose PDF</button>
+                <button class="btn" id="empty-sample-btn">Try Sample Document</button>
+              </div>
+            </div>
+          </div>
+          <div id="pages-wrapper" style="display: none; display: flex; flex-direction: column; align-items: center; gap: 24px; width: 100%;"></div>
+        </main>
+      </div>
+
+      <!-- Floating Page Navigation HUD -->
+      <div class="floating-hud" id="floating-hud" style="display: none;">
+        <button class="icon-btn" id="hud-prev-page" title="Previous Page (k)">▲</button>
+        <input type="number" id="hud-current-page" class="page-counter-input" min="1" value="1" />
+        <span style="font-size: 0.85rem; color: var(--text-secondary);">/</span>
+        <span id="hud-total-pages" style="font-size: 0.85rem; font-weight: 600;">1</span>
+        <button class="icon-btn" id="hud-next-page" title="Next Page (j)">▼</button>
+      </div>
+    </div>
+
+    <!-- Hidden file input for open action -->
+    <input type="file" id="file-input" accept="application/pdf" style="display: none;" />
+
+  </body>
+</html>
