@@ -720,6 +720,16 @@ class ZephyrPDFApp {
         this.setActiveTool(toolBeforeSpace);
       }
     });
+
+    let resizeTimer: any;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (window.innerWidth <= 768 && this.currentDoc) {
+          this.fitToWidth();
+        }
+      }, 150);
+    });
   }
 
   public openGoToPageDialog(): void {
@@ -1141,7 +1151,9 @@ class ZephyrPDFApp {
     const container = document.getElementById('viewer-container');
     if (!container || !this.currentDoc || this.currentDoc.pageDimensions.length === 0) return;
     const pageWidth = this.currentDoc.pageDimensions[0].width;
-    const availableWidth = container.clientWidth - 80;
+    const isMobile = window.innerWidth <= 768;
+    const padding = isMobile ? 16 : 80;
+    const availableWidth = Math.max(160, container.clientWidth - padding);
     this.setZoom(availableWidth / pageWidth);
   }
 
@@ -1149,7 +1161,9 @@ class ZephyrPDFApp {
     const container = document.getElementById('viewer-container');
     if (!container || !this.currentDoc || this.currentDoc.pageDimensions.length === 0) return;
     const pageHeight = this.currentDoc.pageDimensions[0].height;
-    const availableHeight = container.clientHeight - 80;
+    const isMobile = window.innerWidth <= 768;
+    const padding = isMobile ? 24 : 80;
+    const availableHeight = Math.max(160, container.clientHeight - padding);
     this.setZoom(availableHeight / pageHeight);
   }
 

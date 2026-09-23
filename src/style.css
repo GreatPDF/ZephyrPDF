@@ -1103,13 +1103,7 @@ button.btn.btn-primary:hover {
   }
 
   .page-container {
-    max-width: 100%;
     box-shadow: var(--shadow-md);
-  }
-
-  .page-canvas {
-    max-width: 100%;
-    height: auto !important;
   }
 
   .floating-hud {
