@@ -129,10 +129,7 @@ class ZephyrPDFApp {
       onZoomFitWidth: () => this.fitToWidth(),
       onZoomFitPage: () => this.fitToPage(),
       onToolSelect: (tool) => {
-        this.activeTool = tool;
-        const vc = document.getElementById('viewer-container');
-        if (vc) vc.style.cursor = tool === 'hand' ? 'grab' : '';
-        this.loupe.setActive(tool === 'loupe');
+        this.setActiveTool(tool);
         if (tool === 'signature' && !this.activeSignature) {
           this.openSignatureDialog();
         }
@@ -214,8 +211,7 @@ class ZephyrPDFApp {
         reader.onload = (e) => {
           if (e.target?.result) {
             this.activeImage = e.target.result as string;
-            this.activeTool = 'image';
-            this.toolbar.setActiveTool('image');
+            this.setActiveTool('image');
             NotificationService.show('Image ready! Click on any page to place it.');
           }
         };
@@ -582,10 +578,7 @@ class ZephyrPDFApp {
       if (e.code === 'Space' && !isSpacePressed) {
         isSpacePressed = true;
         toolBeforeSpace = this.activeTool;
-        this.activeTool = 'hand';
-        this.toolbar.setActiveTool('hand');
-        const vc = document.getElementById('viewer-container');
-        if (vc) vc.style.cursor = 'grab';
+        this.setActiveTool('hand');
         e.preventDefault();
         return;
       }
@@ -662,50 +655,34 @@ class ZephyrPDFApp {
       } else if (e.key.toLowerCase() === 'k') {
         this.scrollToPage(this.currentPageNumber - 1);
       } else if (e.key.toLowerCase() === 'v') {
-        this.toolbar.setActiveTool('select');
-        this.activeTool = 'select';
+        this.setActiveTool('select');
       } else if (e.key.toLowerCase() === 'h') {
-        this.toolbar.setActiveTool('hand');
-        this.activeTool = 'hand';
+        this.setActiveTool('hand');
       } else if (e.key.toLowerCase() === 'l') {
-        this.toolbar.setActiveTool('highlight');
-        this.activeTool = 'highlight';
+        this.setActiveTool('highlight');
       } else if (e.key.toLowerCase() === 'p') {
-        this.toolbar.setActiveTool('freehand');
-        this.activeTool = 'freehand';
+        this.setActiveTool('freehand');
       } else if (e.key.toLowerCase() === 'e') {
-        this.toolbar.setActiveTool('eraser');
-        this.activeTool = 'eraser';
+        this.setActiveTool('eraser');
       } else if (e.key.toLowerCase() === 't') {
-        this.toolbar.setActiveTool('text');
-        this.activeTool = 'text';
+        this.setActiveTool('text');
       } else if (e.key.toLowerCase() === 'r') {
-        this.toolbar.setActiveTool('rectangle');
-        this.activeTool = 'rectangle';
+        this.setActiveTool('rectangle');
       } else if (e.key.toLowerCase() === 'o') {
-        this.toolbar.setActiveTool('ellipse');
-        this.activeTool = 'ellipse';
+        this.setActiveTool('ellipse');
       } else if (e.key.toLowerCase() === 'a') {
-        this.toolbar.setActiveTool('arrow');
-        this.activeTool = 'arrow';
+        this.setActiveTool('arrow');
       } else if (e.key.toLowerCase() === 'x') {
-        this.toolbar.setActiveTool('redaction');
-        this.activeTool = 'redaction';
+        this.setActiveTool('redaction');
       } else if (e.key.toLowerCase() === 'u') {
-        this.toolbar.setActiveTool('measure');
-        this.activeTool = 'measure';
+        this.setActiveTool('measure');
       } else if (e.key.toLowerCase() === 'z' && !e.ctrlKey && !e.metaKey) {
-        this.toolbar.setActiveTool('loupe');
-        this.activeTool = 'loupe';
-        this.loupe.setActive(true);
+        this.setActiveTool('loupe');
       } else if (e.key.toLowerCase() === 'c' && !e.ctrlKey && !e.metaKey) {
-        this.toolbar.setActiveTool('snapshot');
-        this.activeTool = 'snapshot';
+        this.setActiveTool('snapshot');
       } else if (e.key === 'Escape') {
         this.annotationManager.selectAnnotation(null);
-        this.toolbar.setActiveTool('select');
-        this.activeTool = 'select';
-        this.loupe.setActive(false);
+        this.setActiveTool('select');
         window.getSelection()?.removeAllRanges();
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
         const selectedId = this.annotationManager.getSelectedId();
@@ -740,10 +717,7 @@ class ZephyrPDFApp {
     window.addEventListener('keyup', (e) => {
       if (e.code === 'Space' && isSpacePressed) {
         isSpacePressed = false;
-        this.activeTool = toolBeforeSpace;
-        this.toolbar.setActiveTool(toolBeforeSpace);
-        const vc = document.getElementById('viewer-container');
-        if (vc) vc.style.cursor = toolBeforeSpace === 'hand' ? 'grab' : '';
+        this.setActiveTool(toolBeforeSpace);
       }
     });
   }
@@ -1090,8 +1064,7 @@ class ZephyrPDFApp {
           getActiveImage: () => this.activeImage,
           contextMenu: this.contextMenu,
           onResetTool: () => {
-            this.activeTool = 'select';
-            this.toolbar.setActiveTool('select');
+            this.setActiveTool('select');
           }
         });
         overlay.updateSize(viewport.width, viewport.height);
@@ -1144,6 +1117,17 @@ class ZephyrPDFApp {
     }
 
     this.updateSidebarThumbnails();
+  }
+
+  public setActiveTool(tool: ToolType): void {
+    this.activeTool = tool;
+    this.toolbar.setActiveTool(tool);
+    const vc = document.getElementById('viewer-container');
+    if (vc) vc.style.cursor = tool === 'hand' ? 'grab' : '';
+    this.loupe.setActive(tool === 'loupe');
+    for (const overlay of this.pageOverlays.values()) {
+      overlay.setTool(tool);
+    }
   }
 
   public setZoom(scale: number): void {

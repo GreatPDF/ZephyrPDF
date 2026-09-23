@@ -110,6 +110,10 @@ export class PageAnnotationOverlay {
     this.svgLayer.setAttribute('viewBox', `0 0 ${width} ${height}`);
   }
 
+  public setTool(tool: ToolType): void {
+    this.svgLayer.style.pointerEvents = (tool === 'hand' || tool === 'select') ? 'none' : 'all';
+  }
+
   private attachEvents(): void {
     this.svgLayer.addEventListener('pointerdown', this.onPointerDown.bind(this));
     window.addEventListener('pointermove', this.onPointerMove.bind(this));
