@@ -13,13 +13,14 @@ import { SignatureDialog } from './ui/dialogs/signature-dialog';
 import { ShortcutsDialog } from './ui/dialogs/shortcuts-dialog';
 import { MetadataDialog } from './ui/dialogs/metadata-dialog';
 import { CompareDialog } from './ui/dialogs/compare-dialog';
+import { WatermarkDialog } from './ui/dialogs/watermark-dialog';
 import { DocumentComparator } from './core/comparator';
 import { TextSelectionMenu } from './ui/text-selection-menu';
 import { OrganizerModal } from './ui/organizer-modal';
 import { NotificationService } from './ui/notification';
 import { createSamplePdf } from './utils/samples';
 import { MeasureUnit, ToolType } from './types/annotations';
-import { ThemeMode, ViewMode } from './types/document';
+import { ThemeMode, ViewMode, WatermarkOptions, PageNumberOptions } from './types/document';
 import { PRESET_COLORS } from './utils/color';
 
 // Global polyfill for environments missing Promise.withResolvers
@@ -62,6 +63,23 @@ class GreatPDFApp {
   private currentScale: number = 1.0;
   private currentTheme: ThemeMode = 'dark';
   private currentPageNumber: number = 1;
+
+  private watermarkOptions: WatermarkOptions = {
+    enabled: false,
+    text: 'CONFIDENTIAL',
+    opacity: 0.15,
+    fontSize: 48,
+    rotationDegrees: -45,
+    color: '#94a3b8'
+  };
+
+  private pageNumberOptions: PageNumberOptions = {
+    enabled: false,
+    format: 'Page X of Y',
+    position: 'bottom-center',
+    fontSize: 9,
+    color: '#64748b'
+  };
 
   constructor() {
     this.history = new HistoryManager();
@@ -166,6 +184,15 @@ class GreatPDFApp {
           }
         };
         reader.readAsDataURL(file);
+      },
+      onWatermarkClick: () => {
+        new WatermarkDialog(this.watermarkOptions, this.pageNumberOptions, {
+          onSave: (wm, pn) => {
+            this.watermarkOptions = wm;
+            this.pageNumberOptions = pn;
+            NotificationService.show('Watermark & page numbering updated!');
+          }
+        }).open();
       }
     });
 
@@ -728,7 +755,9 @@ class GreatPDFApp {
         this.annotationManager,
         this.formHandler,
         this.mergedDocs,
-        flattenForm
+        flattenForm,
+        this.watermarkOptions,
+        this.pageNumberOptions
       );
 
       const baseName = this.currentDoc.metadata.fileName.replace(/\.pdf$/i, '');

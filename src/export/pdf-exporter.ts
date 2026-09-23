@@ -3,6 +3,7 @@ import { AnnotationManager } from '../annotations/manager';
 import { PageManager } from '../organizer/page-manager';
 import { FormHandler } from '../core/form-handler';
 import { hexToPdfRgb } from '../utils/color';
+import { WatermarkOptions, PageNumberOptions } from '../types/document';
 
 export class PdfExporter {
   public static async exportDocument(
@@ -11,7 +12,9 @@ export class PdfExporter {
     annotationManager: AnnotationManager,
     formHandler?: FormHandler,
     mergedDocs?: Map<string, Uint8Array>,
-    flattenForm: boolean = false
+    flattenForm: boolean = false,
+    watermarkOptions?: WatermarkOptions,
+    pageNumberOptions?: PageNumberOptions
   ): Promise<Uint8Array> {
     const sourceDoc = await PDFDocument.load(sourceBytes, { ignoreEncryption: true });
     if (formHandler) {
@@ -235,6 +238,56 @@ export class PdfExporter {
         } catch (e) {
           console.error('Failed to bake annotation into exported PDF:', e);
         }
+      }
+
+      // Draw watermark if enabled
+      if (watermarkOptions?.enabled && watermarkOptions.text) {
+        const wmColor = hexToPdfRgb(watermarkOptions.color || '#94a3b8');
+        const { width: pageWidth, height: pHeight } = targetPage.getSize();
+        const fontSize = watermarkOptions.fontSize || 48;
+        targetPage.drawText(watermarkOptions.text, {
+          x: pageWidth / 2 - (watermarkOptions.text.length * fontSize * 0.28),
+          y: pHeight / 2,
+          size: fontSize,
+          font: fontHelveticaBold,
+          color: rgb(wmColor.r, wmColor.g, wmColor.b),
+          opacity: watermarkOptions.opacity || 0.15,
+          rotate: degrees(watermarkOptions.rotationDegrees || -45)
+        });
+      }
+
+      // Draw page numbers if enabled
+      if (pageNumberOptions?.enabled) {
+        const { width: pageWidth, height: pHeight } = targetPage.getSize();
+        const currentNum = newPageIndex + 1;
+        const totalNum = activePages.length;
+        let pnText = `${currentNum}`;
+        if (pageNumberOptions.format === 'Page X of Y') {
+          pnText = `Page ${currentNum} of ${totalNum}`;
+        } else if (pageNumberOptions.format === 'X of Y') {
+          pnText = `${currentNum} of ${totalNum}`;
+        }
+
+        let pnX = pageWidth / 2 - 25;
+        let pnY = 20;
+        if (pageNumberOptions.position === 'bottom-right') {
+          pnX = pageWidth - 90;
+          pnY = 20;
+        } else if (pageNumberOptions.position === 'top-right') {
+          pnX = pageWidth - 90;
+          pnY = pHeight - 25;
+        } else if (pageNumberOptions.position === 'top-center') {
+          pnX = pageWidth / 2 - 25;
+          pnY = pHeight - 25;
+        }
+
+        targetPage.drawText(pnText, {
+          x: pnX,
+          y: pnY,
+          size: pageNumberOptions.fontSize || 9,
+          font: fontHelvetica,
+          color: rgb(0.35, 0.35, 0.35)
+        });
       }
     }
 

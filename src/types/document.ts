@@ -55,3 +55,20 @@ export interface SearchState {
   currentMatchIndex: number;
   matches: SearchMatch[];
 }
+
+export interface WatermarkOptions {
+  enabled: boolean;
+  text: string;
+  opacity: number;
+  fontSize: number;
+  rotationDegrees: number;
+  color: string;
+}
+
+export interface PageNumberOptions {
+  enabled: boolean;
+  format: 'Page X of Y' | 'X of Y' | 'X';
+  position: 'bottom-center' | 'bottom-right' | 'top-right' | 'top-center';
+  fontSize: number;
+  color: string;
+}

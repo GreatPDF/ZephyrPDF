@@ -27,6 +27,7 @@ export interface ToolbarEvents {
   onMeasureUnitChange?: (unit: MeasureUnit) => void;
   onCompareFile?: (file: File) => Promise<void>;
   onInsertImage?: (file: File) => void;
+  onWatermarkClick?: () => void;
 }
 
 export class AppToolbar {
@@ -136,6 +137,11 @@ export class AppToolbar {
             <span>Compare</span>
           </button>
           <input type="file" id="compare-file-input" accept="application/pdf" style="display: none;" />
+
+          <button class="btn" id="watermark-btn" title="Watermark & Page Numbering">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+            <span>Watermark</span>
+          </button>
         </div>
 
         <!-- Center Undo/Redo & Zoom Controls -->
@@ -321,6 +327,13 @@ export class AppToolbar {
       const file = compareInput.files?.[0];
       if (file && this.events.onCompareFile) {
         this.events.onCompareFile(file);
+      }
+    });
+
+    const watermarkBtn = byId('watermark-btn');
+    watermarkBtn?.addEventListener('click', () => {
+      if (this.events.onWatermarkClick) {
+        this.events.onWatermarkClick();
       }
     });
 
