@@ -252,6 +252,8 @@ export class PageAnnotationOverlay {
         updatedAt: Date.now()
       };
       this.manager.addAnnotation(stampAnn);
+      this.manager.selectAnnotation(stampAnn.id);
+      this.onResetTool?.();
       return;
     }
 
@@ -271,6 +273,8 @@ export class PageAnnotationOverlay {
           updatedAt: Date.now()
         };
         this.manager.addAnnotation(sigAnn);
+        this.manager.selectAnnotation(sigAnn.id);
+        this.onResetTool?.();
       }
       return;
     }
