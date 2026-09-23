@@ -520,6 +520,31 @@ class ZephyrPDFApp {
       }
     }, { passive: true });
 
+    // Smooth Desktop Wheel Zoom (Ctrl + Wheel) centered at cursor
+    viewerContainer?.addEventListener('wheel', (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
+        const newScale = Math.max(0.3, Math.min(4.0, this.currentScale * zoomFactor));
+
+        if (Math.abs(newScale - this.currentScale) > 0.01) {
+          const rect = viewerContainer.getBoundingClientRect();
+          const cursorX = e.clientX - rect.left;
+          const cursorY = e.clientY - rect.top;
+
+          const scrollX = viewerContainer.scrollLeft;
+          const scrollY = viewerContainer.scrollTop;
+          const prevScale = this.currentScale;
+
+          this.setZoom(newScale);
+
+          const scaleRatio = newScale / prevScale;
+          viewerContainer.scrollLeft = (scrollX + cursorX) * scaleRatio - cursorX;
+          viewerContainer.scrollTop = (scrollY + cursorY) * scaleRatio - cursorY;
+        }
+      }
+    }, { passive: false });
+
     // Hand Tool & Middle-Mouse Pan Support
     let isPanning = false;
     let panStartX = 0;
