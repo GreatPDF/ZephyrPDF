@@ -1179,9 +1179,12 @@ mark.search-highlight.active {
   }
 
   /* Hide Application Chrome */
+  #app-header,
   .app-header,
+  #app-sidebar,
   .sidebar,
   .sidebar-backdrop,
+  #floating-hud,
   .floating-hud,
   .toast-container,
   .doc-tab-strip,
