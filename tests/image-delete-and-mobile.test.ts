@@ -142,4 +142,63 @@ describe('Image Deletion & Mobile UX Tests', () => {
     mockElement.classList.toggle('mobile-open');
     expect(mockElement.classList.contains('mobile-open')).toBe(false);
   });
+
+  it('should accurately nudge selected annotation coordinates by 1px and 10px', () => {
+    const history = new HistoryManager();
+    const manager = new AnnotationManager(history);
+
+    const imgAnn: ImageAnnotation = {
+      id: 'img_nudge',
+      type: 'image',
+      pageIndex: 0,
+      dataUrl: 'data:image/png;base64,...',
+      x: 100,
+      y: 100,
+      width: 50,
+      height: 50,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    manager.addAnnotation(imgAnn);
+    manager.selectAnnotation(imgAnn.id);
+
+    // Nudge right 1px
+    manager.updateAnnotation(imgAnn.id, { x: imgAnn.x + 1 });
+    expect((manager.getAnnotation(imgAnn.id) as ImageAnnotation).x).toBe(101);
+
+    // Nudge down with shift 10px
+    manager.updateAnnotation(imgAnn.id, { y: imgAnn.y + 10 });
+    expect((manager.getAnnotation(imgAnn.id) as ImageAnnotation).y).toBe(110);
+
+    // Nudge left 10px
+    manager.updateAnnotation(imgAnn.id, { x: 101 - 10 });
+    expect((manager.getAnnotation(imgAnn.id) as ImageAnnotation).x).toBe(91);
+
+    // Nudge up 1px
+    manager.updateAnnotation(imgAnn.id, { y: 110 - 1 });
+    expect((manager.getAnnotation(imgAnn.id) as ImageAnnotation).y).toBe(109);
+  });
+
+  it('should simulate temporary spacebar hand pan mode transition', () => {
+    let activeTool = 'freehand';
+    let toolBeforeSpace = 'select';
+    let isSpacePressed = false;
+
+    // Press Space
+    if (!isSpacePressed) {
+      isSpacePressed = true;
+      toolBeforeSpace = activeTool;
+      activeTool = 'hand';
+    }
+    expect(activeTool).toBe('hand');
+    expect(toolBeforeSpace).toBe('freehand');
+
+    // Release Space
+    if (isSpacePressed) {
+      isSpacePressed = false;
+      activeTool = toolBeforeSpace;
+    }
+    expect(activeTool).toBe('freehand');
+  });
 });

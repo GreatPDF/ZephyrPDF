@@ -27,17 +27,22 @@ export class ShortcutsDialog {
       </div>
       <div class="modal-body">
         <h4 style="margin: 8px 0 12px; color: var(--accent-color); font-size: 0.95rem;">Navigation & View</h4>
+        <div class="shortcut-row"><span>Go to Page</span><span class="shortcut-kbd">Ctrl + G</span></div>
+        <div class="shortcut-row"><span>Toggle Sidebar</span><span class="shortcut-kbd">Ctrl + B</span></div>
         <div class="shortcut-row"><span>Next / Previous Page</span><div><span class="shortcut-kbd">j</span> / <span class="shortcut-kbd">k</span> or <span class="shortcut-kbd">PgDn</span> / <span class="shortcut-kbd">PgUp</span></div></div>
         <div class="shortcut-row"><span>First / Last Page</span><div><span class="shortcut-kbd">gg</span> / <span class="shortcut-kbd">G</span> or <span class="shortcut-kbd">Home</span> / <span class="shortcut-kbd">End</span></div></div>
         <div class="shortcut-row"><span>Rotate Page CCW / CW</span><div><span class="shortcut-kbd">Ctrl + [</span> / <span class="shortcut-kbd">Ctrl + ]</span></div></div>
         <div class="shortcut-row"><span>Zoom In / Out</span><div><span class="shortcut-kbd">+</span> / <span class="shortcut-kbd">-</span> or <span class="shortcut-kbd">Ctrl + Wheel</span></div></div>
         <div class="shortcut-row"><span>Fit to Page / Width</span><div><span class="shortcut-kbd">0</span> / <span class="shortcut-kbd">9</span></div></div>
         <div class="shortcut-row"><span>Quick Search / Find</span><span class="shortcut-kbd">/</span> or <span class="shortcut-kbd">Ctrl + F</span></div>
+        <div class="shortcut-row"><span>Temporary Hand Pan</span><span class="shortcut-kbd">Space (Hold)</span></div>
         <div class="shortcut-row"><span>Reset Tool / Deselect</span><span class="shortcut-kbd">Esc</span></div>
 
         <h4 style="margin: 20px 0 12px; color: var(--accent-color); font-size: 0.95rem;">Editing & Tools</h4>
         <div class="shortcut-row"><span>Select Mode</span><span class="shortcut-kbd">v</span></div>
         <div class="shortcut-row"><span>Hand / Pan Tool</span><span class="shortcut-kbd">h</span></div>
+        <div class="shortcut-row"><span>Delete Selected Item</span><div><span class="shortcut-kbd">Delete</span> / <span class="shortcut-kbd">Backspace</span></div></div>
+        <div class="shortcut-row"><span>Pixel Nudge Selected Item</span><div><span class="shortcut-kbd">Arrow Keys</span> (Shift: 10px)</div></div>
         <div class="shortcut-row"><span>Text Highlighter</span><span class="shortcut-kbd">l</span></div>
         <div class="shortcut-row"><span>Freehand Pen</span><span class="shortcut-kbd">p</span></div>
         <div class="shortcut-row"><span>Eraser</span><span class="shortcut-kbd">e</span></div>
@@ -49,7 +54,6 @@ export class ShortcutsDialog {
         <div class="shortcut-row"><span>Ruler / Measure</span><span class="shortcut-kbd">u</span></div>
         <div class="shortcut-row"><span>Magnifier Lens</span><span class="shortcut-kbd">z</span></div>
         <div class="shortcut-row"><span>Marquee Snapshot</span><span class="shortcut-kbd">c</span></div>
-        <div class="shortcut-row"><span>Place Signature</span><span class="shortcut-kbd">g</span></div>
 
         <h4 style="margin: 20px 0 12px; color: var(--accent-color); font-size: 0.95rem;">Document Actions</h4>
         <div class="shortcut-row"><span>Undo / Redo</span><div><span class="shortcut-kbd">Ctrl + Z</span> / <span class="shortcut-kbd">Ctrl + Y</span></div></div>

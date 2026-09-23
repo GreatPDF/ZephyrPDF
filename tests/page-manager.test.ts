@@ -54,6 +54,25 @@ describe('PageManager', () => {
     expect(pages[2].pageNumber).toBe(3);
   });
 
+  it('should duplicate a page and support undo/redo', async () => {
+    pageManager.rotatePage(1, 90);
+    pageManager.duplicatePage(1);
+
+    expect(pageManager.getPageCount()).toBe(4);
+    const pages = pageManager.getPages();
+    expect(pages[1].originalIndex).toBe(1);
+    expect(pages[2].originalIndex).toBe(1);
+    expect(pages[2].rotation).toBe(90);
+    expect(pages[2].pageNumber).toBe(3);
+    expect(pages[3].pageNumber).toBe(4);
+
+    await history.undo();
+    expect(pageManager.getPageCount()).toBe(3);
+
+    await history.redo();
+    expect(pageManager.getPageCount()).toBe(4);
+  });
+
   it('should delete a page and prevent deleting all pages', () => {
     pageManager.deletePage(0);
     expect(pageManager.getPageCount()).toBe(2);

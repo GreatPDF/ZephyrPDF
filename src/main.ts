@@ -129,6 +129,8 @@ class ZephyrPDFApp {
       onZoomFitPage: () => this.fitToPage(),
       onToolSelect: (tool) => {
         this.activeTool = tool;
+        const vc = document.getElementById('viewer-container');
+        if (vc) vc.style.cursor = tool === 'hand' ? 'grab' : '';
         this.loupe.setActive(tool === 'loupe');
         if (tool === 'signature' && !this.activeSignature) {
           this.openSignatureDialog();
@@ -473,6 +475,44 @@ class ZephyrPDFApp {
       }
     }, { passive: true });
 
+    // Hand Tool & Middle-Mouse Pan Support
+    let isPanning = false;
+    let panStartX = 0;
+    let panStartY = 0;
+    let scrollStartX = 0;
+    let scrollStartY = 0;
+
+    viewerContainer?.addEventListener('mousedown', (e: MouseEvent) => {
+      // Pan if Hand tool is active (left-click) OR middle mouse click (button 1)
+      if ((this.activeTool === 'hand' && e.button === 0) || e.button === 1) {
+        isPanning = true;
+        panStartX = e.clientX;
+        panStartY = e.clientY;
+        scrollStartX = viewerContainer.scrollLeft;
+        scrollStartY = viewerContainer.scrollTop;
+        viewerContainer.style.cursor = 'grabbing';
+        e.preventDefault();
+      }
+    });
+
+    window.addEventListener('mousemove', (e: MouseEvent) => {
+      if (isPanning && viewerContainer) {
+        const dx = e.clientX - panStartX;
+        const dy = e.clientY - panStartY;
+        viewerContainer.scrollLeft = scrollStartX - dx;
+        viewerContainer.scrollTop = scrollStartY - dy;
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isPanning) {
+        isPanning = false;
+        if (viewerContainer) {
+          viewerContainer.style.cursor = this.activeTool === 'hand' ? 'grab' : '';
+        }
+      }
+    });
+
     // Wire file picker input
     const fileInput = document.getElementById('file-input') as HTMLInputElement;
     fileInput?.addEventListener('change', async () => {
@@ -519,15 +559,57 @@ class ZephyrPDFApp {
   }
 
   private initShortcuts(): void {
+    let isSpacePressed = false;
+    let toolBeforeSpace: ToolType = 'select';
+
     window.addEventListener('keydown', (e) => {
       // Ignore if user is typing into input or textarea
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) {
         return;
       }
 
+      // Spacebar temporary hand pan
+      if (e.code === 'Space' && !isSpacePressed) {
+        isSpacePressed = true;
+        toolBeforeSpace = this.activeTool;
+        this.activeTool = 'hand';
+        this.toolbar.setActiveTool('hand');
+        const vc = document.getElementById('viewer-container');
+        if (vc) vc.style.cursor = 'grab';
+        e.preventDefault();
+        return;
+      }
+
+      // Arrow keys pixel nudge for selected annotations
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+        const selectedId = this.annotationManager.getSelectedId();
+        if (selectedId) {
+          const ann = this.annotationManager.getAnnotation(selectedId);
+          if (ann && 'x' in ann && 'y' in ann) {
+            e.preventDefault();
+            const step = e.shiftKey ? 10 : 1;
+            let dx = 0;
+            let dy = 0;
+            if (e.key === 'ArrowLeft') dx = -step;
+            else if (e.key === 'ArrowRight') dx = step;
+            else if (e.key === 'ArrowUp') dy = -step;
+            else if (e.key === 'ArrowDown') dy = step;
+
+            this.annotationManager.updateAnnotation(selectedId, {
+              x: ann.x + dx,
+              y: ann.y + dy
+            });
+            return;
+          }
+        }
+      }
+
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
         e.preventDefault();
         this.sidebar.toggle();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'g') {
+        e.preventDefault();
+        this.openGoToPageDialog();
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         if (e.shiftKey) {
@@ -643,6 +725,67 @@ class ZephyrPDFApp {
       } else if (e.key === '?') {
         new ShortcutsDialog().open();
       }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'Space' && isSpacePressed) {
+        isSpacePressed = false;
+        this.activeTool = toolBeforeSpace;
+        this.toolbar.setActiveTool(toolBeforeSpace);
+        const vc = document.getElementById('viewer-container');
+        if (vc) vc.style.cursor = toolBeforeSpace === 'hand' ? 'grab' : '';
+      }
+    });
+  }
+
+  public openGoToPageDialog(): void {
+    if (!this.currentDoc) return;
+    const totalPages = this.pageManager.getPageCount();
+    const modalBackdrop = document.createElement('div');
+    modalBackdrop.className = 'modal-backdrop';
+
+    modalBackdrop.innerHTML = `
+      <div class="modal-card" style="max-width: 320px; text-align: center;">
+        <div class="modal-header">
+          <h3>Go to Page</h3>
+          <button class="icon-btn close-modal-btn">✕</button>
+        </div>
+        <div class="modal-body" style="padding: 16px;">
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">Enter page number (1 – ${totalPages})</p>
+          <input type="number" id="goto-page-input" min="1" max="${totalPages}" value="${this.currentPageNumber}" style="width: 100%; height: 38px; text-align: center; font-size: 1.15rem; font-weight: 600; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); outline: none;" />
+        </div>
+        <div class="modal-footer" style="justify-content: center; gap: 8px;">
+          <button class="btn cancel-btn">Cancel</button>
+          <button class="btn btn-primary jump-btn">Jump</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modalBackdrop);
+    const input = modalBackdrop.querySelector('#goto-page-input') as HTMLInputElement;
+    input?.focus();
+    input?.select();
+
+    const doJump = () => {
+      const target = parseInt(input.value, 10);
+      if (!isNaN(target) && target >= 1 && target <= totalPages) {
+        this.scrollToPage(target);
+      }
+      modalBackdrop.remove();
+    };
+
+    modalBackdrop.querySelector('.jump-btn')?.addEventListener('click', doJump);
+    modalBackdrop.querySelector('.cancel-btn')?.addEventListener('click', () => modalBackdrop.remove());
+    modalBackdrop.querySelector('.close-modal-btn')?.addEventListener('click', () => modalBackdrop.remove());
+    input?.addEventListener('keydown', (ke) => {
+      if (ke.key === 'Enter') {
+        doJump();
+      } else if (ke.key === 'Escape') {
+        modalBackdrop.remove();
+      }
+    });
+    modalBackdrop.addEventListener('click', (me) => {
+      if (me.target === modalBackdrop) modalBackdrop.remove();
     });
   }
 

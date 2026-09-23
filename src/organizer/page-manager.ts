@@ -194,6 +194,47 @@ export class PageManager {
     }
   }
 
+  public duplicatePage(pageIndex: number, trackHistory: boolean = true): void {
+    const active = this.getPages();
+    if (pageIndex < 0 || pageIndex >= active.length) return;
+
+    const source = active[pageIndex];
+    const newPage: PageItem = {
+      id: 'p_dup_' + Math.random().toString(36).substring(2, 9),
+      originalIndex: source.originalIndex,
+      pageNumber: source.pageNumber + 1,
+      rotation: source.rotation,
+      isDeleted: false,
+      isBlank: source.isBlank,
+      sourceDocId: source.sourceDocId,
+      width: source.width,
+      height: source.height
+    };
+
+    const previousPages = this.pages.map(p => ({ ...p }));
+
+    const doDuplicate = () => {
+      const activeList = this.getPages();
+      activeList.splice(pageIndex + 1, 0, newPage);
+      this.pages = activeList;
+      this.recomputePageNumbers();
+      this.notify();
+    };
+
+    if (trackHistory) {
+      this.history.execute({
+        description: `Duplicate page ${pageIndex + 1}`,
+        execute: () => doDuplicate(),
+        undo: () => {
+          this.pages = previousPages;
+          this.notify();
+        }
+      });
+    } else {
+      doDuplicate();
+    }
+  }
+
   public appendDocumentPages(
     sourceDocId: string,
     pageCount: number,

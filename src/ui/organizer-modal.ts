@@ -104,6 +104,7 @@ export class OrganizerModal {
         <div class="organizer-card-actions">
           <button class="icon-btn rot-left-btn" title="Rotate 90° CCW" style="width: 28px; height: 28px;">↺</button>
           <button class="icon-btn rot-right-btn" title="Rotate 90° CW" style="width: 28px; height: 28px;">↻</button>
+          <button class="icon-btn dup-btn" title="Duplicate Page" style="width: 28px; height: 28px;">📋</button>
           <button class="icon-btn del-btn" title="Delete Page" style="width: 28px; height: 28px; color: var(--danger-color);">✕</button>
         </div>
       `;
@@ -162,6 +163,13 @@ export class OrganizerModal {
       rotRight?.addEventListener('click', (e) => {
         e.stopPropagation();
         this.pageManager.rotatePage(index, 90);
+        this.renderGrid();
+      });
+
+      const dupBtn = card.querySelector('.dup-btn');
+      dupBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.pageManager.duplicatePage(index);
         this.renderGrid();
       });
 

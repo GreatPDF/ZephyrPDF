@@ -19,6 +19,10 @@
   - **Pre-set & Custom Stamps**: `APPROVED`, `CONFIDENTIAL`, `DRAFT`, `FINAL`, `REJECTED`, or customized text.
   - **Digital Signatures**: Draw, type cursive, or upload transparent PNG signatures with instant one-click placement.
   - **Sticky Notes**: Threaded comments and annotations.
+- **✋ Hand Tool Drag-Panning & Spacebar Pan**: Smooth cursor drag-scrolling with Hand tool (`h`), middle mouse click, or temporary pan by holding `Spacebar` while keeping your drawing tool active.
+- **🎯 Pixel-Perfect Arrow Key Nudge**: Nudge any selected image, text box, or markup by 1px (or 10px with `Shift`) using keyboard arrow keys.
+- **🚀 Go to Page Spotlight Dialog**: Jump instantly to any page across massive documents with `Ctrl+G` / `Cmd+G` or quick jump.
+- **📋 Page Duplication in Organizer**: 1-click duplicate any page within the visual organizer with full undo/redo history.
 - **📱 Full Mobile & Touch Optimization**: Responsive off-canvas navigation drawer with backdrop, horizontal touch-scrolling toolbars, two-finger pinch-to-zoom gestures, auto-fit width on mobile devices, and touch-friendly controls.
 - **🗑️ Seamless On-Object Deletion**: Instant one-click / single-tap delete badge (`✕`) directly on any selected image or annotation, smooth drag-eraser across vector and image elements, keyboard shortcuts (`Delete`/`Backspace`), and context menu.
 - **⌨️ Sidebar Toggle & Shortcut**: Toggle navigation drawer on demand on desktop and mobile with `Ctrl+B` / `Cmd+B` or header button.
