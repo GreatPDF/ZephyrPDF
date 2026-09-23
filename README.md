@@ -19,6 +19,9 @@
   - **Pre-set & Custom Stamps**: `APPROVED`, `CONFIDENTIAL`, `DRAFT`, `FINAL`, `REJECTED`, or customized text.
   - **Digital Signatures**: Draw, type cursive, or upload transparent PNG signatures with instant one-click placement.
   - **Sticky Notes**: Threaded comments and annotations.
+- **📱 Full Mobile & Touch Optimization**: Responsive off-canvas navigation drawer with backdrop, horizontal touch-scrolling toolbars, two-finger pinch-to-zoom gestures, auto-fit width on mobile devices, and touch-friendly controls.
+- **🗑️ Seamless On-Object Deletion**: Instant one-click / single-tap delete badge (`✕`) directly on any selected image or annotation, smooth drag-eraser across vector and image elements, keyboard shortcuts (`Delete`/`Backspace`), and context menu.
+- **⌨️ Sidebar Toggle & Shortcut**: Toggle navigation drawer on demand on desktop and mobile with `Ctrl+B` / `Cmd+B` or header button.
 - **🎯 Interactive WYSIWYG Resize Handles**: 4 corner drag handles on any selected image, text box, or shape for intuitive real-time resizing with cursor feedback.
 - **⌨️ Keyboard Deletion**: Remove selected annotations instantly with `Delete` or `Backspace`.
 - **🎯 Live Image Placement Preview & Context Menu**: Real-time cursor ghost preview before placing images, plus a right-click context menu on any annotation for instant scaling (+25%/-25%), font sizing, color adjustments, duplication, and deletion.
