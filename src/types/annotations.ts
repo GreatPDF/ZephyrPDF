@@ -192,4 +192,5 @@ export type ToolType =
   | 'measure'
   | 'image'
   | 'freehand_highlight'
-  | 'loupe';
+  | 'loupe'
+  | 'snapshot';

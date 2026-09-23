@@ -1,6 +1,6 @@
 {
   "name": "greatpdf",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "The premier open-source PDF viewing, editing, annotation, and manipulation software.",
   "type": "module",
   "scripts": {

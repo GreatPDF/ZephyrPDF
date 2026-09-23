@@ -18,6 +18,7 @@ import { OptimizerDialog } from './ui/dialogs/optimizer-dialog';
 import { DocumentComparator } from './core/comparator';
 import { TextSelectionMenu } from './ui/text-selection-menu';
 import { DocumentLoupe } from './ui/loupe';
+import { TextExtractor } from './core/text-extractor';
 import { OrganizerModal } from './ui/organizer-modal';
 import { NotificationService } from './ui/notification';
 import { createSamplePdf } from './utils/samples';
@@ -209,6 +210,21 @@ class GreatPDFApp {
           fileName: this.currentDoc.metadata.fileName,
           originalSizeBytes: this.currentDoc.metadata.fileSize
         }).open();
+      },
+      onExtractText: async () => {
+        if (!this.currentDoc) {
+          NotificationService.show('Open a PDF document first.');
+          return;
+        }
+        NotificationService.show('Extracting document text...');
+        const result = await TextExtractor.extractText(
+          this.currentDoc.pdfjsDoc,
+          this.currentDoc.metadata.fileName
+        );
+        const base = this.currentDoc.metadata.fileName.replace(/\.pdf$/i, '');
+        TextExtractor.downloadTextFile(result.markdownText, `${base}_extracted.md`, 'text/markdown');
+        navigator.clipboard?.writeText(result.plainText);
+        NotificationService.show(`Extracted ${result.totalWords.toLocaleString()} words to Markdown file & clipboard!`);
       }
     });
 
@@ -470,6 +486,9 @@ class GreatPDFApp {
         this.toolbar.setActiveTool('loupe');
         this.activeTool = 'loupe';
         this.loupe.setActive(true);
+      } else if (e.key.toLowerCase() === 'c' && !e.ctrlKey && !e.metaKey) {
+        this.toolbar.setActiveTool('snapshot');
+        this.activeTool = 'snapshot';
       } else if (e.key.toLowerCase() === 'g') {
         this.openSignatureDialog();
       } else if (e.key === '?') {

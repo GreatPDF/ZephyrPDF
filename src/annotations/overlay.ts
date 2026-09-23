@@ -23,6 +23,7 @@ import {
   Rect
 } from '../utils/geometry';
 import { hexToRgbaCss } from '../utils/color';
+import { NotificationService } from '../ui/notification';
 
 export class PageAnnotationOverlay {
   private container: HTMLElement;
@@ -312,7 +313,8 @@ export class PageAnnotationOverlay {
       tool === 'line' ||
       tool === 'arrow' ||
       tool === 'redaction' ||
-      tool === 'measure'
+      tool === 'measure' ||
+      tool === 'snapshot'
     ) {
       if (!this.previewElement) {
         const el = document.createElementNS(
@@ -323,7 +325,10 @@ export class PageAnnotationOverlay {
             ? 'line'
             : 'rect'
         );
-        el.setAttribute('stroke', tool === 'redaction' ? '#ef4444' : this.getActiveColor());
+        el.setAttribute(
+          'stroke',
+          tool === 'redaction' ? '#ef4444' : tool === 'snapshot' ? '#0284c7' : this.getActiveColor()
+        );
         el.setAttribute('stroke-width', (this.getActiveStrokeWidth() * scale).toString());
         el.setAttribute(
           'fill',
@@ -331,9 +336,11 @@ export class PageAnnotationOverlay {
             ? hexToRgbaCss(this.getActiveColor(), 0.35)
             : tool === 'redaction'
             ? 'rgba(0, 0, 0, 0.75)'
+            : tool === 'snapshot'
+            ? 'rgba(56, 189, 248, 0.2)'
             : 'none'
         );
-        if (tool === 'redaction') {
+        if (tool === 'redaction' || tool === 'snapshot') {
           el.setAttribute('stroke-dasharray', '4,2');
         }
         this.svgLayer.appendChild(el);
@@ -341,7 +348,7 @@ export class PageAnnotationOverlay {
       }
 
       const rect = normalizeRect(this.startPoint, coords);
-      if (tool === 'rectangle' || tool === 'highlight' || tool === 'redaction') {
+      if (tool === 'rectangle' || tool === 'highlight' || tool === 'redaction' || tool === 'snapshot') {
         this.previewElement.setAttribute('x', (rect.x * scale).toString());
         this.previewElement.setAttribute('y', (rect.y * scale).toString());
         this.previewElement.setAttribute('width', (rect.width * scale).toString());
@@ -370,6 +377,7 @@ export class PageAnnotationOverlay {
 
     const coords = this.getEventCoords(e);
     const tool = this.getActiveTool();
+    const scale = this.getScale();
 
     if (this.previewElement) {
       this.previewElement.remove();
@@ -484,6 +492,42 @@ export class PageAnnotationOverlay {
           updatedAt: now
         };
         this.manager.addAnnotation(ann);
+      }
+    } else if (tool === 'snapshot') {
+      const rect = normalizeRect(this.startPoint, coords);
+      if (rect.width > 8 && rect.height > 8) {
+        const pageCanvas = this.container.querySelector('.page-canvas') as HTMLCanvasElement | null;
+        if (pageCanvas) {
+          const dpr = pageCanvas.width / (pageCanvas.clientWidth || 1);
+          const clipCanvas = document.createElement('canvas');
+          clipCanvas.width = Math.floor(rect.width * scale * dpr);
+          clipCanvas.height = Math.floor(rect.height * scale * dpr);
+          const clipCtx = clipCanvas.getContext('2d');
+          if (clipCtx) {
+            clipCtx.drawImage(
+              pageCanvas,
+              rect.x * scale * dpr,
+              rect.y * scale * dpr,
+              rect.width * scale * dpr,
+              rect.height * scale * dpr,
+              0,
+              0,
+              clipCanvas.width,
+              clipCanvas.height
+            );
+
+            clipCanvas.toBlob(async (blob) => {
+              if (blob) {
+                try {
+                  await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                  NotificationService.show('Area snapshot copied to clipboard!');
+                } catch {
+                  NotificationService.show('Snapshot captured successfully!');
+                }
+              }
+            });
+          }
+        }
       }
     }
 

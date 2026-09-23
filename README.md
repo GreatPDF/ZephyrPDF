@@ -17,6 +17,8 @@
   - **Pre-set & Custom Stamps**: `APPROVED`, `CONFIDENTIAL`, `DRAFT`, `FINAL`, `REJECTED`, or customized text.
   - **Digital Signatures**: Draw, type cursive, or upload transparent PNG signatures with instant one-click placement.
   - **Sticky Notes**: Threaded comments and annotations.
+- **📸 Marquee Snapshot Tool**: Capture and copy any arbitrary rectangular region of a PDF directly to your clipboard as high-res PNG (`c`).
+- **📄 Full Document Text & Markdown Extractor**: Export all text into structured Markdown or plain text with word and character metrics.
 - **📉 In-Browser PDF Compressor & Optimizer**: Compress bulky documents client-side with High, Balanced, and Maximum compression presets (saving up to 80% file size) without cloud uploads.
 - **📑 Annotation Summary Report**: Export all comments, highlights, stamps, and measurements grouped by page into Markdown reports.
 - **🏗️ Interactive Form Builder**: Convert any document into a fillable PDF form by adding custom interactive text fields and checkboxes.

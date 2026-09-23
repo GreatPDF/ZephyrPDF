@@ -29,6 +29,7 @@ export interface ToolbarEvents {
   onInsertImage?: (file: File) => void;
   onWatermarkClick?: () => void;
   onOptimizeClick?: () => void;
+  onExtractText?: () => void;
 }
 
 export class AppToolbar {
@@ -148,6 +149,11 @@ export class AppToolbar {
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="M12 12v9"></path><path d="m8 17 4 4 4-4"></path></svg>
             <span>Compress</span>
           </button>
+
+          <button class="btn" id="export-text-btn" title="Extract Full Document Text / Markdown">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <span>Extract Text</span>
+          </button>
         </div>
 
         <!-- Center Undo/Redo & Zoom Controls -->
@@ -211,6 +217,9 @@ export class AppToolbar {
           </button>
           <button class="icon-btn tool-btn" data-tool="loupe" title="Magnifier / Loupe Lens (z)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+          </button>
+          <button class="icon-btn tool-btn" data-tool="snapshot" title="Marquee Snapshot Copy Tool (c)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
           </button>
 
           <div class="toolbar-divider"></div>
@@ -354,6 +363,13 @@ export class AppToolbar {
     optimizeBtn?.addEventListener('click', () => {
       if (this.events.onOptimizeClick) {
         this.events.onOptimizeClick();
+      }
+    });
+
+    const exportTextBtn = byId('export-text-btn');
+    exportTextBtn?.addEventListener('click', () => {
+      if (this.events.onExtractText) {
+        this.events.onExtractText();
       }
     });
 
