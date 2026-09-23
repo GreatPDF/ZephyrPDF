@@ -3,6 +3,8 @@
 > **The Featherlight, Full-Featured Open-Source PDF Viewer & Editor.**  
 > Built for uncompromising speed, flawless user experience, and 100% privacy.
 
+👉 **[Launch Live Web App on GitHub Pages](https://greatpdf.github.io/ZephyrPDF/)** (Zero Install, 100% Client-Side)
+
 ---
 
 ## Highlights
