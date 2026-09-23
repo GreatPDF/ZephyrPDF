@@ -698,6 +698,36 @@ button.btn.btn-primary:hover {
   accent-color: var(--accent-color);
 }
 
+/* Inline WYSIWYG Text Box Editor */
+.pdf-text-editor {
+  position: absolute;
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1.5px solid #0284c7;
+  border-radius: var(--radius-sm);
+  padding: 3px 6px;
+  outline: none;
+  z-index: 30;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  line-height: 1.25;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+[data-theme="dark"] .pdf-text-editor,
+[data-theme="oled"] .pdf-text-editor {
+  background-color: #0f172a;
+  color: #f8fafc;
+  border-color: #38bdf8;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="sepia"] .pdf-text-editor {
+  background-color: #fff9ea;
+  color: #433422;
+  border-color: #d4a373;
+}
+
 /* Floating Sticky Note Comment Bubble */
 .sticky-note-card {
   position: absolute;

@@ -130,6 +130,18 @@ export class PageAnnotationOverlay {
       }
     });
 
+    this.svgLayer.addEventListener('dblclick', (e: MouseEvent) => {
+      const coords = this.getEventCoords(e as any);
+      const annotations = this.manager.getAnnotationsForPage(this.pageIndex);
+      for (let i = annotations.length - 1; i >= 0; i--) {
+        const ann = annotations[i];
+        if (ann.type === 'text' && this.hitTestAnnotation(ann, coords)) {
+          this.openTextEditor(ann as TextAnnotation);
+          return;
+        }
+      }
+    });
+
     this.svgLayer.addEventListener('pointerleave', () => {
       if (this.previewElement && this.previewElement.id === 'image-placement-preview') {
         this.previewElement.remove();
@@ -308,9 +320,9 @@ export class PageAnnotationOverlay {
         pageIndex: this.pageIndex,
         x: coords.x,
         y: coords.y,
-        width: 150,
-        height: 32,
-        text: 'Enter text here',
+        width: 140,
+        height: 28,
+        text: 'Text Box',
         fontSize: 14,
         fontFamily: 'Helvetica, Arial, sans-serif',
         color: this.getActiveColor(),
@@ -319,6 +331,8 @@ export class PageAnnotationOverlay {
       };
       this.manager.addAnnotation(textAnn);
       this.manager.selectAnnotation(textAnn.id);
+      this.onResetTool?.();
+      setTimeout(() => this.openTextEditor(textAnn), 30);
       return;
     }
 
@@ -761,11 +775,12 @@ export class PageAnnotationOverlay {
     const tool = this.getActiveTool();
     this.svgLayer.style.pointerEvents = (tool === 'hand' || tool === 'select') ? 'none' : 'all';
 
-    // Clear existing SVG children and floating sticky note cards
+    // Clear existing SVG children and floating sticky note cards / text editors
     while (this.svgLayer.firstChild) {
       this.svgLayer.removeChild(this.svgLayer.firstChild);
     }
     this.container.querySelectorAll('.sticky-note-card').forEach(c => c.remove());
+    this.container.querySelectorAll('.pdf-text-editor').forEach(c => c.remove());
 
     const annotations = this.manager.getAnnotationsForPage(this.pageIndex);
     const scale = this.getScale();
@@ -1165,6 +1180,59 @@ export class PageAnnotationOverlay {
         this.appendResizeHandles(this.svgLayer, ann.x, ann.y, ann.width, ann.height, scale);
       }
     }
+  }
+
+  public openTextEditor(ann: TextAnnotation): void {
+    const scale = this.getScale();
+    this.container.querySelectorAll('.pdf-text-editor').forEach(e => e.remove());
+
+    const editor = document.createElement('div');
+    editor.className = 'pdf-text-editor';
+    editor.contentEditable = 'true';
+    editor.innerText = ann.text;
+    editor.style.left = `${(ann.x - 4) * scale}px`;
+    editor.style.top = `${(ann.y - 2) * scale}px`;
+    editor.style.minWidth = `${Math.max(100, ann.width * scale)}px`;
+    editor.style.minHeight = `${Math.max(26, ann.height * scale)}px`;
+    editor.style.fontSize = `${(ann.fontSize || 14) * scale}px`;
+    editor.style.fontFamily = ann.fontFamily || 'Helvetica, Arial, sans-serif';
+    editor.style.color = ann.color;
+    editor.style.fontWeight = ann.bold ? 'bold' : 'normal';
+    editor.style.fontStyle = ann.italic ? 'italic' : 'normal';
+
+    this.container.appendChild(editor);
+    editor.focus();
+
+    // Select all text inside editor for instant replacement
+    const range = document.createRange();
+    range.selectNodeContents(editor);
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(range);
+
+    let isClosed = false;
+    const commit = () => {
+      if (isClosed) return;
+      isClosed = true;
+      const newText = editor.innerText.trim() || 'Text';
+      this.manager.updateAnnotation(ann.id, {
+        text: newText,
+        width: Math.max(60, Math.round(editor.clientWidth / scale)),
+        height: Math.max(22, Math.round(editor.clientHeight / scale))
+      });
+      editor.remove();
+    };
+
+    editor.addEventListener('blur', commit);
+    editor.addEventListener('keydown', (e) => {
+      e.stopPropagation();
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        commit();
+      } else if (e.key === 'Escape') {
+        editor.remove();
+      }
+    });
   }
 
   private appendResizeHandles(
