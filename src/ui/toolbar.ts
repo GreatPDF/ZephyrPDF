@@ -31,6 +31,7 @@ export interface ToolbarEvents {
   onWatermarkClick?: () => void;
   onOptimizeClick?: () => void;
   onExtractText?: () => void;
+  onAddFieldClick?: () => void;
 }
 
 export class AppToolbar {
@@ -153,6 +154,11 @@ export class AppToolbar {
           <button class="btn" id="watermark-btn" title="Watermark & Page Numbering">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
             <span>Watermark</span>
+          </button>
+
+          <button class="btn" id="add-field-btn" title="Add Fillable Form Field (Text or Checkbox)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            <span>+ Field</span>
           </button>
 
           <button class="btn" id="optimize-btn" title="Compress & Optimize PDF File Size">
@@ -385,6 +391,12 @@ export class AppToolbar {
     exportTextBtn?.addEventListener('click', () => {
       if (this.events.onExtractText) {
         this.events.onExtractText();
+      }
+    });
+
+    byId('add-field-btn')?.addEventListener('click', () => {
+      if (this.events.onAddFieldClick) {
+        this.events.onAddFieldClick();
       }
     });
 

@@ -16,6 +16,7 @@ import { MetadataDialog } from './ui/dialogs/metadata-dialog';
 import { CompareDialog } from './ui/dialogs/compare-dialog';
 import { WatermarkDialog } from './ui/dialogs/watermark-dialog';
 import { OptimizerDialog } from './ui/dialogs/optimizer-dialog';
+import { FormFieldDialog } from './ui/dialogs/form-field-dialog';
 import { DocumentComparator } from './core/comparator';
 import { TextSelectionMenu } from './ui/text-selection-menu';
 import { DocumentLoupe } from './ui/loupe';
@@ -253,6 +254,24 @@ class ZephyrPDFApp {
         TextExtractor.downloadTextFile(result.markdownText, `${base}_extracted.md`, 'text/markdown');
         navigator.clipboard?.writeText(result.plainText);
         NotificationService.show(`Extracted ${result.totalWords.toLocaleString()} words to Markdown file & clipboard!`);
+      },
+      onAddFieldClick: () => {
+        if (!this.currentDoc) {
+          NotificationService.show('Open a PDF document first.');
+          return;
+        }
+        const dims = this.currentDoc.pageDimensions[this.currentPageNumber - 1] || { width: 595, height: 842 };
+        new FormFieldDialog({
+          pageCount: this.pageManager.getPageCount(),
+          currentPage: this.currentPageNumber,
+          pageWidth: dims.width,
+          pageHeight: dims.height,
+          onAddField: (field) => {
+            this.formHandler.createField(field);
+            this.renderDocument();
+            NotificationService.show(`Interactive ${field.type} field "${field.name}" added to Page ${field.pageIndex + 1}!`);
+          }
+        }).open();
       }
     });
 
