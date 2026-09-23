@@ -784,7 +784,11 @@ export class PageAnnotationOverlay {
       this.svgLayer.removeChild(this.svgLayer.firstChild);
     }
     this.container.querySelectorAll('.sticky-note-card').forEach(c => c.remove());
-    this.container.querySelectorAll('.pdf-text-editor').forEach(c => c.remove());
+    this.container.querySelectorAll('.pdf-text-editor').forEach(c => {
+      if (c !== document.activeElement && !c.contains(document.activeElement)) {
+        c.remove();
+      }
+    });
 
     const annotations = this.manager.getAnnotationsForPage(this.pageIndex);
     const scale = this.getScale();
@@ -1215,26 +1219,31 @@ export class PageAnnotationOverlay {
     sel?.addRange(range);
 
     let isClosed = false;
-    const commit = () => {
+    const closeEditor = (shouldCommit: boolean) => {
       if (isClosed) return;
       isClosed = true;
-      const newText = editor.innerText.trim() || 'Text';
-      this.manager.updateAnnotation(ann.id, {
-        text: newText,
-        width: Math.max(60, Math.round(editor.clientWidth / scale)),
-        height: Math.max(22, Math.round(editor.clientHeight / scale))
-      });
-      editor.remove();
+      if (shouldCommit) {
+        const newText = editor.innerText.trim() || 'Text';
+        this.manager.updateAnnotation(ann.id, {
+          text: newText,
+          width: Math.max(60, Math.round(editor.clientWidth / scale)),
+          height: Math.max(22, Math.round(editor.clientHeight / scale))
+        });
+      }
+      if (editor.parentElement) {
+        editor.remove();
+      }
     };
 
-    editor.addEventListener('blur', commit);
+    editor.addEventListener('blur', () => closeEditor(true));
     editor.addEventListener('keydown', (e) => {
       e.stopPropagation();
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        commit();
+        closeEditor(true);
       } else if (e.key === 'Escape') {
-        editor.remove();
+        e.preventDefault();
+        closeEditor(false);
       }
     });
   }
