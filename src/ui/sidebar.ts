@@ -300,6 +300,17 @@ export class AppSidebar {
 
     searchInput?.addEventListener('input', triggerSearch);
 
+    searchInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          this.events.onSearchPrevious();
+        } else {
+          this.events.onSearchNext();
+        }
+      }
+    });
+
     caseBtn?.addEventListener('click', () => {
       this.matchCase = !this.matchCase;
       caseBtn.classList.toggle('active', this.matchCase);

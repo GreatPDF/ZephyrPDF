@@ -613,6 +613,14 @@ class ZephyrPDFApp {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
         e.preventDefault();
         this.sidebar.toggle();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        this.sidebar.open();
+        const searchTab = document.querySelector('.sidebar-tab[data-tab="search"]') as HTMLElement;
+        searchTab?.click();
+        const searchInput = document.getElementById('sidebar-search-input') as HTMLInputElement;
+        searchInput?.focus();
+        searchInput?.select();
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'g') {
         e.preventDefault();
         this.openGoToPageDialog();
