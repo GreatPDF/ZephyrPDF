@@ -11,14 +11,14 @@ export interface OrganizerEvents {
 export class OrganizerModal {
   private overlay: HTMLElement | null = null;
   private pageManager: PageManager;
-  private thumbnails: Map<number, string>;
+  private thumbnails: Map<string, string>;
   private events: OrganizerEvents;
   private draggedPageIndex: number | null = null;
   private selectedIndices: Set<number> = new Set();
 
   constructor(
     pageManager: PageManager,
-    thumbnails: Map<number, string>,
+    thumbnails: Map<string, string>,
     events: OrganizerEvents
   ) {
     this.pageManager = pageManager;
@@ -91,7 +91,7 @@ export class OrganizerModal {
       card.setAttribute('draggable', 'true');
       card.setAttribute('data-index', index.toString());
 
-      const thumbUrl = this.thumbnails.get(page.originalIndex) || '';
+      const thumbUrl = this.thumbnails.get(page.id) || '';
 
       card.innerHTML = `
         <div style="position: absolute; top: 10px; left: 10px; z-index: 2;">
@@ -169,7 +169,13 @@ export class OrganizerModal {
       const dupBtn = card.querySelector('.dup-btn');
       dupBtn?.addEventListener('click', (e) => {
         e.stopPropagation();
+        const origPage = this.pageManager.getPages()[index];
+        const origThumb = origPage ? this.thumbnails.get(origPage.id) : null;
         this.pageManager.duplicatePage(index);
+        const newPage = this.pageManager.getPages()[index + 1];
+        if (origThumb && newPage) {
+          this.thumbnails.set(newPage.id, origThumb);
+        }
         this.renderGrid();
       });
 

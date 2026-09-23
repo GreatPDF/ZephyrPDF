@@ -1,4 +1,5 @@
 import 'pdfjs-dist/web/pdf_viewer.css';
+import * as pdfjsLib from 'pdfjs-dist';
 import { HistoryManager } from './core/history';
 import { AnnotationManager } from './annotations/manager';
 import { PageManager } from './organizer/page-manager';
@@ -62,8 +63,9 @@ class ZephyrPDFApp {
 
   private currentDoc: LoadedDocument | null = null;
   private pageOverlays: Map<number, PageAnnotationOverlay> = new Map();
-  private pageThumbnails: Map<number, string> = new Map();
+  private pageThumbnails: Map<string, string> = new Map();
   private mergedDocs: Map<string, Uint8Array> = new Map();
+  private loadedMergedPdfjsDocs: Map<string, pdfjsLib.PDFDocumentProxy> = new Map();
 
   // State
   private activeTool: ToolType = 'select';
@@ -1019,17 +1021,23 @@ class ZephyrPDFApp {
     this.sidebar.setThumbnails([]);
     this.searchEngine.reset();
     this.clearSearchHighlights();
+    this.mergedDocs.clear();
+    this.loadedMergedPdfjsDocs.clear();
     document.title = 'ZephyrPDF · The Featherlight Open-Source PDF Viewer & Editor';
   }
 
   private async generateThumbnails(doc: LoadedDocument): Promise<void> {
     this.pageThumbnails.clear();
     const thumbs: { pageNumber: number; dataUrl: string }[] = [];
+    const pages = this.pageManager.getPages();
 
     for (let i = 1; i <= doc.pdfjsDoc.numPages; i++) {
       const page = await doc.pdfjsDoc.getPage(i);
       const url = await this.renderer.renderThumbnail(page, 140);
-      this.pageThumbnails.set(i - 1, url);
+      const pageItem = pages[i - 1];
+      if (pageItem) {
+        this.pageThumbnails.set(pageItem.id, url);
+      }
       thumbs.push({ pageNumber: i, dataUrl: url });
     }
 
@@ -1043,7 +1051,7 @@ class ZephyrPDFApp {
 
     for (let i = 0; i < pages.length; i++) {
       const p = pages[i];
-      const url = this.pageThumbnails.get(p.originalIndex) || '';
+      const url = this.pageThumbnails.get(p.id) || '';
       thumbs.push({ pageNumber: p.pageNumber, dataUrl: url });
     }
 
@@ -1085,7 +1093,11 @@ class ZephyrPDFApp {
           ctx.fillRect(0, 0, w, h);
         }
       } else {
-        const pageProxy = await this.currentDoc.pdfjsDoc.getPage(pageItem.originalIndex + 1);
+        let fromDoc = this.currentDoc.pdfjsDoc;
+        if (pageItem.sourceDocId && this.loadedMergedPdfjsDocs.has(pageItem.sourceDocId)) {
+          fromDoc = this.loadedMergedPdfjsDocs.get(pageItem.sourceDocId)!;
+        }
+        const pageProxy = await fromDoc.getPage(pageItem.originalIndex + 1);
         const viewport = await this.renderer.renderPageToCanvas(pageProxy, canvas, {
           scale: this.currentScale,
           rotation: pageItem.rotation,
@@ -1334,6 +1346,7 @@ class ZephyrPDFApp {
         this.mergedDocs.set(docId, bytes);
 
         const loaded = await PdfLoader.loadFromBytes(bytes, file.name);
+        this.loadedMergedPdfjsDocs.set(docId, loaded.pdfjsDoc);
         this.pageManager.appendDocumentPages(
           docId,
           loaded.metadata.pageCount,
@@ -1341,10 +1354,13 @@ class ZephyrPDFApp {
         );
 
         // Render thumbnails for merged pages
-        for (let i = 1; i <= loaded.pdfjsDoc.numPages; i++) {
-          const page = await loaded.pdfjsDoc.getPage(i);
+        const currentPages = this.pageManager.getPages();
+        const mergedPages = currentPages.filter(p => p.sourceDocId === docId);
+        for (let i = 0; i < mergedPages.length; i++) {
+          const pageItem = mergedPages[i];
+          const page = await loaded.pdfjsDoc.getPage(pageItem.originalIndex + 1);
           const url = await this.renderer.renderThumbnail(page, 140);
-          this.pageThumbnails.set(i - 1, url);
+          this.pageThumbnails.set(pageItem.id, url);
         }
 
         NotificationService.show(`Merged ${file.name} successfully!`);
