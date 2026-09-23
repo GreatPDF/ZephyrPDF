@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zephyrpdf-v2.2.0';
+const CACHE_NAME = 'zephyrpdf-v2.6.0';
 
 const STATIC_ASSETS = [
   './',
@@ -32,6 +32,20 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  // Network first for HTML document navigations
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const cloned = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then((cached) => {
