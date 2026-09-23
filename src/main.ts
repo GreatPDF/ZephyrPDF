@@ -151,6 +151,15 @@ class ZephyrPDFApp {
         const viewerContainer = document.getElementById('viewer-container');
         if (mode === 'two-page') {
           viewerContainer?.classList.add('mode-two-page');
+          if (this.currentDoc && this.currentDoc.pageDimensions.length > 0) {
+            const container = document.getElementById('viewer-container');
+            if (container) {
+              const pageWidth = this.currentDoc.pageDimensions[0].width;
+              const avail = container.clientWidth - 80;
+              const targetScale = Math.min(1.0, Math.max(0.4, avail / (pageWidth * 2 + 40)));
+              this.setZoom(targetScale);
+            }
+          }
           NotificationService.show('Two-Page Spread View enabled');
         } else if (mode === 'presentation') {
           document.documentElement.requestFullscreen?.();

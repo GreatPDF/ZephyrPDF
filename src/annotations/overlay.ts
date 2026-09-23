@@ -289,13 +289,15 @@ export class PageAnnotationOverlay {
         x: coords.x,
         y: coords.y,
         title: 'Note',
-        content: 'Type your comment here...',
+        content: '',
         color: this.getActiveColor(),
         isOpen: true,
         createdAt: Date.now(),
         updatedAt: Date.now()
       };
       this.manager.addAnnotation(noteAnn);
+      this.manager.selectAnnotation(noteAnn.id);
+      this.onResetTool?.();
       return;
     }
 
@@ -759,10 +761,11 @@ export class PageAnnotationOverlay {
     const tool = this.getActiveTool();
     this.svgLayer.style.pointerEvents = tool === 'hand' ? 'none' : 'all';
 
-    // Clear existing SVG children except active preview if drawing
+    // Clear existing SVG children and floating sticky note cards
     while (this.svgLayer.firstChild) {
       this.svgLayer.removeChild(this.svgLayer.firstChild);
     }
+    this.container.querySelectorAll('.sticky-note-card').forEach(c => c.remove());
 
     const annotations = this.manager.getAnnotationsForPage(this.pageIndex);
     const scale = this.getScale();
@@ -964,22 +967,84 @@ export class PageAnnotationOverlay {
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         circle.setAttribute('cx', (ann.x * scale).toString());
         circle.setAttribute('cy', (ann.y * scale).toString());
-        circle.setAttribute('r', (12 * scale).toString());
+        circle.setAttribute('r', (14 * scale).toString());
         circle.setAttribute('fill', ann.color || '#ffca28');
-        circle.setAttribute('stroke', '#333');
-        circle.setAttribute('stroke-width', '1');
+        circle.setAttribute('stroke', isSelected ? '#0284c7' : '#333');
+        circle.setAttribute('stroke-width', isSelected ? '2.5' : '1');
         circle.setAttribute('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))');
+        circle.style.cursor = 'pointer';
 
         const icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         icon.setAttribute('x', (ann.x * scale).toString());
-        icon.setAttribute('y', ((ann.y + 4) * scale).toString());
+        icon.setAttribute('y', ((ann.y + 4.5) * scale).toString());
         icon.setAttribute('text-anchor', 'middle');
         icon.setAttribute('font-size', `${12 * scale}px`);
         icon.setAttribute('fill', '#000');
+        icon.setAttribute('pointer-events', 'none');
         icon.textContent = '✎';
 
         g.appendChild(circle);
         g.appendChild(icon);
+
+        if (isSelected) {
+          // Interactive delete badge
+          const delBadge = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          delBadge.setAttribute('data-action', 'delete-annotation');
+          delBadge.style.cursor = 'pointer';
+          delBadge.style.pointerEvents = 'all';
+
+          const bx = ann.x * scale + 15;
+          const by = ann.y * scale - 15;
+          const badgeCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          badgeCircle.setAttribute('cx', bx.toString());
+          badgeCircle.setAttribute('cy', by.toString());
+          badgeCircle.setAttribute('r', '9');
+          badgeCircle.setAttribute('fill', '#ef4444');
+          badgeCircle.setAttribute('stroke', '#ffffff');
+          badgeCircle.setAttribute('stroke-width', '1.5');
+
+          const badgeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          badgeIcon.setAttribute('x', bx.toString());
+          badgeIcon.setAttribute('y', (by + 3.5).toString());
+          badgeIcon.setAttribute('text-anchor', 'middle');
+          badgeIcon.setAttribute('fill', '#ffffff');
+          badgeIcon.setAttribute('font-size', '10');
+          badgeIcon.setAttribute('font-weight', 'bold');
+          badgeIcon.setAttribute('pointer-events', 'none');
+          badgeIcon.textContent = '✕';
+
+          delBadge.appendChild(badgeCircle);
+          delBadge.appendChild(badgeIcon);
+          g.appendChild(delBadge);
+
+          // Render active floating comment bubble
+          const card = document.createElement('div');
+          card.className = 'sticky-note-card';
+          card.style.left = `${ann.x * scale + 22}px`;
+          card.style.top = `${ann.y * scale - 12}px`;
+          card.innerHTML = `
+            <div class="sticky-note-card-header">
+              <span>📝 Comment</span>
+              <button class="icon-btn del-note-card-btn" title="Delete Note" style="width: 20px; height: 20px; font-size: 11px;">✕</button>
+            </div>
+            <textarea class="sticky-note-textarea" placeholder="Type comment here...">${ann.content || ''}</textarea>
+          `;
+
+          const textarea = card.querySelector('.sticky-note-textarea') as HTMLTextAreaElement;
+          textarea?.addEventListener('input', () => {
+            ann.content = textarea.value;
+            this.manager.updateAnnotation(ann.id, { content: textarea.value }, false);
+          });
+          textarea?.addEventListener('keydown', (ke) => ke.stopPropagation());
+
+          card.querySelector('.del-note-card-btn')?.addEventListener('click', (ce) => {
+            ce.stopPropagation();
+            this.manager.removeAnnotation(ann.id);
+          });
+
+          this.container.appendChild(card);
+        }
+
         this.svgLayer.appendChild(g);
       } else if (ann.type === 'redaction') {
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
