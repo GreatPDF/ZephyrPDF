@@ -572,6 +572,13 @@ class ZephyrPDFApp {
         this.activeTool = 'select';
         this.loupe.setActive(false);
         window.getSelection()?.removeAllRanges();
+      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+        const selectedId = this.annotationManager.getSelectedId();
+        if (selectedId) {
+          e.preventDefault();
+          this.annotationManager.removeAnnotation(selectedId);
+          NotificationService.show('Selected item deleted');
+        }
       } else if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
         const searchInput = document.getElementById('sidebar-search-input') as HTMLInputElement;

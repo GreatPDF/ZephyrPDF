@@ -48,6 +48,9 @@ export class PageAnnotationOverlay {
   private previewElement: SVGElement | null = null;
   private draggingAnnotationId: string | null = null;
   private dragOffset: { x: number; y: number } = { x: 0, y: 0 };
+  private resizingAnnotationId: string | null = null;
+  private resizeHandle: 'nw' | 'ne' | 'se' | 'sw' | null = null;
+  private resizeOrigRect: { x: number; y: number; width: number; height: number } | null = null;
 
   constructor(
     container: HTMLElement,
@@ -152,6 +155,21 @@ export class PageAnnotationOverlay {
 
     const coords = this.getEventCoords(e);
     const scale = this.getScale();
+
+    // Check if clicked an active corner resize handle
+    const target = e.target as SVGElement;
+    const handleType = target?.getAttribute('data-handle') as any;
+    const selectedId = this.manager.getSelectedId();
+    if (handleType && selectedId) {
+      const ann = this.manager.getAnnotation(selectedId);
+      if (ann && 'x' in ann && 'y' in ann && 'width' in ann && 'height' in ann) {
+        this.resizingAnnotationId = ann.id;
+        this.resizeHandle = handleType;
+        this.resizeOrigRect = { x: ann.x, y: ann.y, width: ann.width, height: ann.height };
+        this.startPoint = coords;
+        return;
+      }
+    }
 
     // Check hit test for selection or dragging
     if (tool === 'select') {
@@ -304,6 +322,47 @@ export class PageAnnotationOverlay {
   private onPointerMove(e: PointerEvent): void {
     const scale = this.getScale();
 
+    // Handle corner handle resizing
+    if (this.resizingAnnotationId && this.resizeOrigRect && this.startPoint) {
+      const coords = this.getEventCoords(e);
+      const dx = coords.x - this.startPoint.x;
+      const dy = coords.y - this.startPoint.y;
+      let newW = this.resizeOrigRect.width;
+      let newH = this.resizeOrigRect.height;
+      let newX = this.resizeOrigRect.x;
+      let newY = this.resizeOrigRect.y;
+
+      if (this.resizeHandle === 'se') {
+        newW = Math.max(20, this.resizeOrigRect.width + dx);
+        newH = Math.max(15, this.resizeOrigRect.height + dy);
+      } else if (this.resizeHandle === 'sw') {
+        newW = Math.max(20, this.resizeOrigRect.width - dx);
+        newH = Math.max(15, this.resizeOrigRect.height + dy);
+        newX = this.resizeOrigRect.x + dx;
+      } else if (this.resizeHandle === 'ne') {
+        newW = Math.max(20, this.resizeOrigRect.width + dx);
+        newH = Math.max(15, this.resizeOrigRect.height - dy);
+        newY = this.resizeOrigRect.y + dy;
+      } else if (this.resizeHandle === 'nw') {
+        newW = Math.max(20, this.resizeOrigRect.width - dx);
+        newH = Math.max(15, this.resizeOrigRect.height - dy);
+        newX = this.resizeOrigRect.x + dx;
+        newY = this.resizeOrigRect.y + dy;
+      }
+
+      this.manager.updateAnnotation(
+        this.resizingAnnotationId,
+        {
+          x: Math.round(newX),
+          y: Math.round(newY),
+          width: Math.round(newW),
+          height: Math.round(newH)
+        },
+        false
+      );
+      return;
+    }
+
     // Handle dragging an existing annotation
     if (this.draggingAnnotationId) {
       const coords = this.getEventCoords(e);
@@ -445,6 +504,13 @@ export class PageAnnotationOverlay {
   }
 
   private onPointerUp(e: PointerEvent): void {
+    if (this.resizingAnnotationId) {
+      this.resizingAnnotationId = null;
+      this.resizeHandle = null;
+      this.resizeOrigRect = null;
+      return;
+    }
+
     if (this.draggingAnnotationId) {
       this.draggingAnnotationId = null;
       return;
@@ -968,6 +1034,42 @@ export class PageAnnotationOverlay {
 
         this.svgLayer.appendChild(g);
       }
+
+      // Append interactive corner resize handles if selected
+      if (isSelected && 'x' in ann && 'y' in ann && 'width' in ann && 'height' in ann) {
+        this.appendResizeHandles(this.svgLayer, ann.x, ann.y, ann.width, ann.height, scale);
+      }
+    }
+  }
+
+  private appendResizeHandles(
+    parent: SVGElement,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    scale: number
+  ): void {
+    const handlePositions: Array<{ type: 'nw' | 'ne' | 'se' | 'sw'; x: number; y: number; cursor: string }> = [
+      { type: 'nw', x: x * scale, y: y * scale, cursor: 'nwse-resize' },
+      { type: 'ne', x: (x + width) * scale, y: y * scale, cursor: 'nesw-resize' },
+      { type: 'se', x: (x + width) * scale, y: (y + height) * scale, cursor: 'nwse-resize' },
+      { type: 'sw', x: x * scale, y: (y + height) * scale, cursor: 'nesw-resize' }
+    ];
+
+    for (const h of handlePositions) {
+      const handle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      handle.setAttribute('x', (h.x - 4).toString());
+      handle.setAttribute('y', (h.y - 4).toString());
+      handle.setAttribute('width', '8');
+      handle.setAttribute('height', '8');
+      handle.setAttribute('fill', '#ffffff');
+      handle.setAttribute('stroke', '#0284c7');
+      handle.setAttribute('stroke-width', '1.5');
+      handle.setAttribute('data-handle', h.type);
+      handle.style.cursor = h.cursor;
+      handle.style.pointerEvents = 'all';
+      parent.appendChild(handle);
     }
   }
 

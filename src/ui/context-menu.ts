@@ -21,17 +21,21 @@ export class AnnotationContextMenu {
     this.menuEl.style.zIndex = '1000';
     document.body.appendChild(this.menuEl);
 
-    this.render();
-    this.attachEvents();
+    window.addEventListener('mousedown', (e) => {
+      if (!this.menuEl.contains(e.target as Node)) {
+        this.hide();
+      }
+    });
   }
 
   public show(ann: Annotation, x: number, y: number): void {
     this.targetAnnotation = ann;
     this.options.annotationManager.selectAnnotation(ann.id);
+    this.render();
 
     // Adjust position to stay inside viewport
     const menuWidth = 190;
-    const menuHeight = 220;
+    const menuHeight = 240;
     const posX = Math.min(x, window.innerWidth - menuWidth - 10);
     const posY = Math.min(y, window.innerHeight - menuHeight - 10);
 
@@ -46,6 +50,9 @@ export class AnnotationContextMenu {
   }
 
   private render(): void {
+    if (!this.targetAnnotation) return;
+    const isText = this.targetAnnotation.type === 'text';
+
     this.menuEl.innerHTML = `
       <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: var(--shadow-lg); padding: 4px; min-width: 180px; font-size: 0.85rem; color: var(--text-primary); display: flex; flex-direction: column; gap: 2px;">
         <button class="ctx-item" id="ctx-duplicate" style="display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: none; border: none; border-radius: 4px; color: var(--text-primary); cursor: pointer; text-align: left; width: 100%;">
@@ -57,8 +64,24 @@ export class AnnotationContextMenu {
         <button class="ctx-item" id="ctx-scale-down" style="display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: none; border: none; border-radius: 4px; color: var(--text-primary); cursor: pointer; text-align: left; width: 100%;">
           <span>🔎</span> Scale Smaller (-25%)
         </button>
+
+        ${
+          isText
+            ? `
+          <div style="height: 1px; background: var(--border-color); margin: 2px 0;"></div>
+          <div style="padding: 2px 10px; font-size: 0.75rem; color: var(--text-secondary);">Font Size:</div>
+          <div style="display: flex; gap: 4px; padding: 2px 10px 4px;">
+            <button class="btn ctx-font-size-btn" data-size="10" style="padding: 2px 6px; font-size: 0.75rem; height: 22px;">10</button>
+            <button class="btn ctx-font-size-btn" data-size="14" style="padding: 2px 6px; font-size: 0.75rem; height: 22px;">14</button>
+            <button class="btn ctx-font-size-btn" data-size="18" style="padding: 2px 6px; font-size: 0.75rem; height: 22px;">18</button>
+            <button class="btn ctx-font-size-btn" data-size="24" style="padding: 2px 6px; font-size: 0.75rem; height: 22px;">24</button>
+          </div>
+          `
+            : ''
+        }
+
         <div style="height: 1px; background: var(--border-color); margin: 2px 0;"></div>
-        <div style="padding: 4px 10px; font-size: 0.75rem; color: var(--text-secondary);">Change Color:</div>
+        <div style="padding: 2px 10px; font-size: 0.75rem; color: var(--text-secondary);">Change Color:</div>
         <div style="display: flex; gap: 6px; padding: 2px 10px 6px;">
           <div class="ctx-color-swatch" data-color="#ffeb3b" style="width: 16px; height: 16px; border-radius: 50%; background: #ffeb3b; cursor: pointer; border: 1px solid rgba(0,0,0,0.2);"></div>
           <div class="ctx-color-swatch" data-color="#69f0ae" style="width: 16px; height: 16px; border-radius: 50%; background: #69f0ae; cursor: pointer; border: 1px solid rgba(0,0,0,0.2);"></div>
@@ -82,15 +105,11 @@ export class AnnotationContextMenu {
         (btn as HTMLElement).style.backgroundColor = 'transparent';
       });
     });
+
+    this.attachEvents();
   }
 
   private attachEvents(): void {
-    window.addEventListener('mousedown', (e) => {
-      if (!this.menuEl.contains(e.target as Node)) {
-        this.hide();
-      }
-    });
-
     const duplicateBtn = this.menuEl.querySelector('#ctx-duplicate');
     const scaleUpBtn = this.menuEl.querySelector('#ctx-scale-up');
     const scaleDownBtn = this.menuEl.querySelector('#ctx-scale-down');
@@ -131,6 +150,18 @@ export class AnnotationContextMenu {
       this.options.annotationManager.removeAnnotation(this.targetAnnotation.id);
       NotificationService.show('Item deleted!');
       this.hide();
+    });
+
+    this.menuEl.querySelectorAll('.ctx-font-size-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (!this.targetAnnotation) return;
+        const size = parseInt(btn.getAttribute('data-size') || '14', 10);
+        this.options.annotationManager.updateAnnotation(this.targetAnnotation.id, {
+          fontSize: size
+        } as any);
+        NotificationService.show(`Font size set to ${size}pt`);
+        this.hide();
+      });
     });
 
     this.menuEl.querySelectorAll('.ctx-color-swatch').forEach((swatch) => {

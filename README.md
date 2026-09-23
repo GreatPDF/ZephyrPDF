@@ -19,7 +19,9 @@
   - **Pre-set & Custom Stamps**: `APPROVED`, `CONFIDENTIAL`, `DRAFT`, `FINAL`, `REJECTED`, or customized text.
   - **Digital Signatures**: Draw, type cursive, or upload transparent PNG signatures with instant one-click placement.
   - **Sticky Notes**: Threaded comments and annotations.
-- **🎯 Live Image Placement Preview & Context Menu**: Real-time cursor ghost preview before placing images, plus a right-click context menu on any annotation for instant scaling (+25%/-25%), color adjustments, duplication, and deletion.
+- **🎯 Interactive WYSIWYG Resize Handles**: 4 corner drag handles on any selected image, text box, or shape for intuitive real-time resizing with cursor feedback.
+- **⌨️ Keyboard Deletion**: Remove selected annotations instantly with `Delete` or `Backspace`.
+- **🎯 Live Image Placement Preview & Context Menu**: Real-time cursor ghost preview before placing images, plus a right-click context menu on any annotation for instant scaling (+25%/-25%), font sizing, color adjustments, duplication, and deletion.
 - **🛡️ Metadata Editor & Privacy Sanitizer**: Edit title, author, subject, and keywords with 1-click metadata sanitization to scrub personal traces before sharing.
 - **💾 Annotation Backup & Restore**: Export and import full annotation collections as portable JSON files to transfer markup across revisions.
 - **🗂️ Multi-Document Tab Bar**: Work with multiple opened PDFs simultaneously in a browser-style tab bar with instant session switching and isolation.
