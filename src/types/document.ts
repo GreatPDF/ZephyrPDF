@@ -1,6 +1,6 @@
 export type ViewMode = 'single' | 'continuous' | 'two-page' | 'presentation';
 
-export type ThemeMode = 'light' | 'dark' | 'sepia';
+export type ThemeMode = 'light' | 'dark' | 'sepia' | 'oled' | 'high-contrast';
 
 export interface PageDimension {
   pageNumber: number;

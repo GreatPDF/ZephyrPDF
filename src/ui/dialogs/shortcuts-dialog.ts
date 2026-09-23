@@ -28,10 +28,12 @@ export class ShortcutsDialog {
       <div class="modal-body">
         <h4 style="margin: 8px 0 12px; color: var(--accent-color); font-size: 0.95rem;">Navigation & View</h4>
         <div class="shortcut-row"><span>Next / Previous Page</span><div><span class="shortcut-kbd">j</span> / <span class="shortcut-kbd">k</span> or <span class="shortcut-kbd">PgDn</span> / <span class="shortcut-kbd">PgUp</span></div></div>
-        <div class="shortcut-row"><span>First / Last Page</span><div><span class="shortcut-kbd">Home</span> / <span class="shortcut-kbd">End</span></div></div>
+        <div class="shortcut-row"><span>First / Last Page</span><div><span class="shortcut-kbd">gg</span> / <span class="shortcut-kbd">G</span> or <span class="shortcut-kbd">Home</span> / <span class="shortcut-kbd">End</span></div></div>
+        <div class="shortcut-row"><span>Rotate Page CCW / CW</span><div><span class="shortcut-kbd">Ctrl + [</span> / <span class="shortcut-kbd">Ctrl + ]</span></div></div>
         <div class="shortcut-row"><span>Zoom In / Out</span><div><span class="shortcut-kbd">+</span> / <span class="shortcut-kbd">-</span> or <span class="shortcut-kbd">Ctrl + Wheel</span></div></div>
         <div class="shortcut-row"><span>Fit to Page / Width</span><div><span class="shortcut-kbd">0</span> / <span class="shortcut-kbd">9</span></div></div>
-        <div class="shortcut-row"><span>Toggle Sidebar</span><div><span class="shortcut-kbd">b</span></div></div>
+        <div class="shortcut-row"><span>Quick Search / Find</span><span class="shortcut-kbd">/</span> or <span class="shortcut-kbd">Ctrl + F</span></div>
+        <div class="shortcut-row"><span>Reset Tool / Deselect</span><span class="shortcut-kbd">Esc</span></div>
 
         <h4 style="margin: 20px 0 12px; color: var(--accent-color); font-size: 0.95rem;">Editing & Tools</h4>
         <div class="shortcut-row"><span>Select Mode</span><span class="shortcut-kbd">v</span></div>

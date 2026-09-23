@@ -50,6 +50,10 @@ export class PageRenderer {
     // Apply reading theme styling
     if (options.theme === 'dark') {
       canvas.style.filter = 'invert(0.9) hue-rotate(180deg) contrast(1.1)';
+    } else if (options.theme === 'oled') {
+      canvas.style.filter = 'invert(0.95) hue-rotate(180deg) contrast(1.25) brightness(0.9)';
+    } else if (options.theme === 'high-contrast') {
+      canvas.style.filter = 'invert(1) contrast(2) grayscale(1)';
     } else if (options.theme === 'sepia') {
       canvas.style.filter = 'sepia(0.4) contrast(0.95) brightness(0.95)';
     } else {

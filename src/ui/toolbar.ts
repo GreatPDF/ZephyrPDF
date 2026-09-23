@@ -394,7 +394,9 @@ export class AppToolbar {
     });
 
     byId('theme-toggle-btn')?.addEventListener('click', () => {
-      const nextTheme = this.activeTheme === 'dark' ? 'light' : this.activeTheme === 'light' ? 'sepia' : 'dark';
+      const themes: ThemeMode[] = ['dark', 'light', 'sepia', 'oled', 'high-contrast'];
+      const currentIdx = themes.indexOf(this.activeTheme);
+      const nextTheme = themes[(currentIdx + 1) % themes.length];
       this.activeTheme = nextTheme;
       this.events.onThemeToggle(nextTheme);
     });

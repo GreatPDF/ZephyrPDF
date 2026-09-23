@@ -45,10 +45,11 @@
 - **🛡️ Permanent Redaction**: Irreversibly black out confidential data, numbers, or text before distribution.
 - **📝 Interactive Form Filling & Flattening**: In-browser AcroForm support—fill text inputs, check boxes, select dropdowns, and optionally flatten forms upon export to permanently lock submissions.
 - **🔍 Full-Text Search**: Instantaneous search across all pages with matching text bounds and rapid previous/next keyboard navigation.
-- **🌓 Reading Modes**: Sleek Modern Dark Mode (with smart document contrast inversion), Clean Light Mode, and warm Sepia paper mode.
+- **🌓 Reading Themes**: Dark Mode, Clean Light Mode, Sepia paper mode, OLED Pure Black (`#000000`), and High-Contrast mode for superior accessibility.
+- **⚡ Virtualized Viewport Rendering**: Unmatched performance on 100+ page documents using smart intersection observers that render active viewports on demand.
 - **📱 Offline PWA Ready**: Install as a standalone native app on desktop or mobile with 100% offline functionality.
 - **💾 Standard Compliant PDF Export**: Edits, annotations, and page reorganizations are baked directly into valid ISO 32000-1 standard PDF objects, fully compatible with Adobe Acrobat, Apple Preview, Chrome, Firefox, SumatraPDF, and Okular.
-- **⌨️ Keyboard Productivity**: Full hotkey support (`j`/`k` page navigation, `+`/`-` zoom, `v` select, `p` pen, `l` highlight, `Ctrl+Z` undo, `Ctrl+Y` redo, `Ctrl+S` save, `?` shortcut cheat sheet).
+- **⌨️ Keyboard Productivity**: Comprehensive Vim and accessibility hotkeys (`j`/`k`, `gg`/`G`, `v`, `p`, `l`, `u`, `z`, `c`, `/` search focus, `Esc` reset, `Ctrl+[`/`Ctrl+]` rotate).
 
 ---
 

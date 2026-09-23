@@ -71,6 +71,7 @@ class GreatPDFApp {
   private currentScale: number = 1.0;
   private currentTheme: ThemeMode = 'dark';
   private currentPageNumber: number = 1;
+  private lastGKeyTime: number = 0;
 
   private watermarkOptions: WatermarkOptions = {
     enabled: false,
@@ -526,8 +527,30 @@ class GreatPDFApp {
       } else if (e.key.toLowerCase() === 'c' && !e.ctrlKey && !e.metaKey) {
         this.toolbar.setActiveTool('snapshot');
         this.activeTool = 'snapshot';
-      } else if (e.key.toLowerCase() === 'g') {
-        this.openSignatureDialog();
+      } else if (e.key === 'Escape') {
+        this.annotationManager.selectAnnotation(null);
+        this.toolbar.setActiveTool('select');
+        this.activeTool = 'select';
+        this.loupe.setActive(false);
+        window.getSelection()?.removeAllRanges();
+      } else if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        const searchInput = document.getElementById('sidebar-search-input') as HTMLInputElement;
+        const searchTab = document.querySelector('.sidebar-tab[data-tab="search"]') as HTMLElement;
+        searchTab?.click();
+        searchInput?.focus();
+        searchInput?.select();
+      } else if (e.key === 'G' && e.shiftKey) {
+        e.preventDefault();
+        this.scrollToPage(this.pageManager.getPageCount());
+      } else if (e.key === 'g' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+        const now = Date.now();
+        if (now - this.lastGKeyTime < 450) {
+          this.scrollToPage(1);
+          this.lastGKeyTime = 0;
+          return;
+        }
+        this.lastGKeyTime = now;
       } else if (e.key === '?') {
         new ShortcutsDialog().open();
       }
