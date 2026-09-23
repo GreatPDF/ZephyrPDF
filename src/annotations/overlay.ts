@@ -635,6 +635,8 @@ export class PageAnnotationOverlay {
           updatedAt: now
         };
         this.manager.addAnnotation(ann);
+        this.manager.selectAnnotation(ann.id);
+        this.onResetTool?.();
       }
     } else if (tool === 'redaction') {
       const rect = normalizeRect(this.startPoint, coords);
@@ -673,6 +675,8 @@ export class PageAnnotationOverlay {
           updatedAt: now
         };
         this.manager.addAnnotation(ann);
+        this.manager.selectAnnotation(ann.id);
+        this.onResetTool?.();
       }
     } else if (tool === 'measure') {
       const dist = Math.hypot(coords.x - this.startPoint.x, coords.y - this.startPoint.y);
@@ -695,6 +699,8 @@ export class PageAnnotationOverlay {
           updatedAt: now
         };
         this.manager.addAnnotation(ann);
+        this.manager.selectAnnotation(ann.id);
+        this.onResetTool?.();
       }
     } else if (tool === 'snapshot') {
       const rect = normalizeRect(this.startPoint, coords);
