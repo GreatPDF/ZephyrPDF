@@ -1013,6 +1013,9 @@ export class PageAnnotationOverlay {
         this.svgLayer.appendChild(img);
       } else if (ann.type === 'sticky_note') {
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.style.pointerEvents = 'all';
+        g.style.cursor = 'pointer';
+        g.setAttribute('data-id', ann.id);
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         circle.setAttribute('cx', (ann.x * scale).toString());
         circle.setAttribute('cy', (ann.y * scale).toString());
@@ -1022,6 +1025,7 @@ export class PageAnnotationOverlay {
         circle.setAttribute('stroke-width', isSelected ? '2.5' : '1');
         circle.setAttribute('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))');
         circle.style.cursor = 'pointer';
+        circle.style.pointerEvents = 'all';
 
         const icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         icon.setAttribute('x', (ann.x * scale).toString());
