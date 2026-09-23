@@ -381,7 +381,7 @@ button.btn.btn-primary:hover {
   position: relative;
 }
 
-/* Sidebar Backdrop for Mobile */
+/* Sidebar Backdrop for Mobile Only */
 .sidebar-backdrop {
   display: none;
   position: fixed;
@@ -391,8 +391,10 @@ button.btn.btn-primary:hover {
   z-index: 99;
 }
 
-.sidebar-backdrop.visible {
-  display: block;
+@media (max-width: 768px) {
+  .sidebar-backdrop.visible {
+    display: block;
+  }
 }
 
 /* Sidebar */

@@ -33,16 +33,22 @@ export class AppSidebar {
   }
 
   public open(): void {
-    this.container.classList.add('mobile-open');
     this.container.classList.remove('collapsed');
-    const backdrop = document.getElementById('sidebar-backdrop');
-    if (backdrop) backdrop.classList.add('visible');
+    if (window.innerWidth <= 768) {
+      this.container.classList.add('mobile-open');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (backdrop) backdrop.classList.add('visible');
+    }
   }
 
   public close(): void {
-    this.container.classList.remove('mobile-open');
-    const backdrop = document.getElementById('sidebar-backdrop');
-    if (backdrop) backdrop.classList.remove('visible');
+    if (window.innerWidth <= 768) {
+      this.container.classList.remove('mobile-open');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (backdrop) backdrop.classList.remove('visible');
+    } else {
+      this.container.classList.add('collapsed');
+    }
   }
 
   public toggle(): void {
