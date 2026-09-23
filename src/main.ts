@@ -52,6 +52,7 @@ class ZephyrPDFApp {
   private loupe: DocumentLoupe;
   private sessionManager: SessionManager;
   private contextMenu!: AnnotationContextMenu;
+  private textSelectionMenu!: TextSelectionMenu;
 
   private toolbar!: AppToolbar;
   private sidebar!: AppSidebar;
@@ -119,6 +120,7 @@ class ZephyrPDFApp {
       onSaveFlatten: () => this.exportPdf(true),
       onPrint: () => window.print(),
       onToggleOrganizer: () => this.openOrganizer(),
+      onToggleSidebar: () => this.sidebar.toggle(),
       onUndo: () => this.history.undo(),
       onRedo: () => this.history.redo(),
       onZoomIn: () => this.setZoom(this.currentScale * 1.15),
@@ -266,13 +268,18 @@ class ZephyrPDFApp {
       }
     });
 
-    new TextSelectionMenu({
-      annotationManager: this.annotationManager,
+    this.textSelectionMenu = new TextSelectionMenu({
+      getAnnotationManager: () => this.annotationManager,
       getScale: () => this.currentScale
     });
 
     this.contextMenu = new AnnotationContextMenu({
-      annotationManager: this.annotationManager
+      getAnnotationManager: () => this.annotationManager
+    });
+
+    const backdropEl = document.getElementById('sidebar-backdrop');
+    backdropEl?.addEventListener('click', () => {
+      this.sidebar.close();
     });
 
     this.sidebar = new AppSidebar(sidebarEl, {
@@ -433,6 +440,39 @@ class ZephyrPDFApp {
       if (!isNaN(page)) this.scrollToPage(page);
     });
 
+    // Mobile Pinch-to-Zoom Gesture Support
+    const viewerContainer = document.getElementById('viewer-container');
+    let initialPinchDistance: number | null = null;
+    let initialScale: number = 1.0;
+
+    viewerContainer?.addEventListener('touchstart', (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        initialPinchDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        initialScale = this.currentScale;
+      }
+    }, { passive: true });
+
+    viewerContainer?.addEventListener('touchmove', (e: TouchEvent) => {
+      if (e.touches.length === 2 && initialPinchDistance !== null && initialPinchDistance > 0) {
+        const currentDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const factor = currentDistance / initialPinchDistance;
+        const newScale = Math.max(0.3, Math.min(4.0, initialScale * factor));
+        this.setZoom(newScale);
+      }
+    }, { passive: true });
+
+    viewerContainer?.addEventListener('touchend', (e: TouchEvent) => {
+      if (e.touches.length < 2) {
+        initialPinchDistance = null;
+      }
+    }, { passive: true });
+
     // Wire file picker input
     const fileInput = document.getElementById('file-input') as HTMLInputElement;
     fileInput?.addEventListener('change', async () => {
@@ -485,7 +525,10 @@ class ZephyrPDFApp {
         return;
       }
 
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        this.sidebar.toggle();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         if (e.shiftKey) {
           this.history.redo();
@@ -682,6 +725,9 @@ class ZephyrPDFApp {
     this.currentScale = session.scale;
     this.currentPageNumber = session.currentPageNumber;
 
+    this.contextMenu?.setAnnotationManager(this.annotationManager);
+    this.textSelectionMenu?.setAnnotationManager(this.annotationManager);
+
     this.history.subscribe(() => {
       this.toolbar.setHistoryState(this.history.canUndo(), this.history.canRedo());
       this.sidebar.setAnnotations(this.annotationManager.getAllAnnotations());
@@ -712,6 +758,9 @@ class ZephyrPDFApp {
 
     // Initial render
     await this.renderDocument();
+    if (window.innerWidth <= 768) {
+      this.fitToWidth();
+    }
     this.updatePageHUD();
   }
 
@@ -791,7 +840,11 @@ class ZephyrPDFApp {
           getActiveSignature: () => this.activeSignature,
           getActiveMeasureUnit: () => this.activeMeasureUnit,
           getActiveImage: () => this.activeImage,
-          contextMenu: this.contextMenu
+          contextMenu: this.contextMenu,
+          onResetTool: () => {
+            this.activeTool = 'select';
+            this.toolbar.setActiveTool('select');
+          }
         });
         overlay.updateSize(viewport.width, viewport.height);
         this.pageOverlays.set(pageItem.originalIndex, overlay);

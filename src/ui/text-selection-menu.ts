@@ -3,7 +3,8 @@ import { HighlightAnnotation, MarkupAnnotation } from '../types/annotations';
 import { NotificationService } from './notification';
 
 export interface TextSelectionMenuOptions {
-  annotationManager: AnnotationManager;
+  annotationManager?: AnnotationManager;
+  getAnnotationManager?: () => AnnotationManager;
   getScale: () => number;
 }
 
@@ -25,6 +26,17 @@ export class TextSelectionMenu {
 
     this.render();
     this.attachEvents();
+  }
+
+  public setAnnotationManager(manager: AnnotationManager): void {
+    this.options.annotationManager = manager;
+  }
+
+  private getManager(): AnnotationManager {
+    if (this.options.getAnnotationManager) {
+      return this.options.getAnnotationManager();
+    }
+    return this.options.annotationManager!;
   }
 
   private render(): void {
@@ -169,7 +181,7 @@ export class TextSelectionMenu {
         createdAt: now,
         updatedAt: now
       };
-      this.options.annotationManager.addAnnotation(ann);
+      this.getManager().addAnnotation(ann);
       NotificationService.show('Highlight added!');
     } else if (action === 'underline' || action === 'strikeout') {
       const ann: MarkupAnnotation = {
@@ -182,7 +194,7 @@ export class TextSelectionMenu {
         createdAt: now,
         updatedAt: now
       };
-      this.options.annotationManager.addAnnotation(ann);
+      this.getManager().addAnnotation(ann);
       NotificationService.show(`${action === 'underline' ? 'Underline' : 'Strikeout'} added!`);
     }
 

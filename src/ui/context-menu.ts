@@ -3,7 +3,8 @@ import { Annotation } from '../types/annotations';
 import { NotificationService } from './notification';
 
 export interface ContextMenuOptions {
-  annotationManager: AnnotationManager;
+  annotationManager?: AnnotationManager;
+  getAnnotationManager?: () => AnnotationManager;
   onRefresh?: () => void;
 }
 
@@ -28,9 +29,20 @@ export class AnnotationContextMenu {
     });
   }
 
+  public setAnnotationManager(manager: AnnotationManager): void {
+    this.options.annotationManager = manager;
+  }
+
+  private getManager(): AnnotationManager {
+    if (this.options.getAnnotationManager) {
+      return this.options.getAnnotationManager();
+    }
+    return this.options.annotationManager!;
+  }
+
   public show(ann: Annotation, x: number, y: number): void {
     this.targetAnnotation = ann;
-    this.options.annotationManager.selectAnnotation(ann.id);
+    this.getManager().selectAnnotation(ann.id);
     this.render();
 
     // Adjust position to stay inside viewport
@@ -128,7 +140,7 @@ export class AnnotationContextMenu {
         copy.x += 20;
         copy.y += 20;
       }
-      this.options.annotationManager.addAnnotation(copy);
+      this.getManager().addAnnotation(copy);
       NotificationService.show('Item duplicated!');
       this.hide();
     });
@@ -147,7 +159,7 @@ export class AnnotationContextMenu {
 
     deleteBtn?.addEventListener('click', () => {
       if (!this.targetAnnotation) return;
-      this.options.annotationManager.removeAnnotation(this.targetAnnotation.id);
+      this.getManager().removeAnnotation(this.targetAnnotation.id);
       NotificationService.show('Item deleted!');
       this.hide();
     });
@@ -156,7 +168,7 @@ export class AnnotationContextMenu {
       btn.addEventListener('click', () => {
         if (!this.targetAnnotation) return;
         const size = parseInt(btn.getAttribute('data-size') || '14', 10);
-        this.options.annotationManager.updateAnnotation(this.targetAnnotation.id, {
+        this.getManager().updateAnnotation(this.targetAnnotation.id, {
           fontSize: size
         } as any);
         NotificationService.show(`Font size set to ${size}pt`);
@@ -172,7 +184,7 @@ export class AnnotationContextMenu {
           const updates: any = {};
           if ('color' in this.targetAnnotation) updates.color = color;
           if ('strokeColor' in this.targetAnnotation) updates.strokeColor = color;
-          this.options.annotationManager.updateAnnotation(this.targetAnnotation.id, updates);
+          this.getManager().updateAnnotation(this.targetAnnotation.id, updates);
           NotificationService.show('Color updated!');
         }
         this.hide();
@@ -193,7 +205,7 @@ export class AnnotationContextMenu {
       updates.fontSize = Math.round((ann as any).fontSize * factor);
     }
 
-    this.options.annotationManager.updateAnnotation(ann.id, updates);
+    this.getManager().updateAnnotation(ann.id, updates);
     NotificationService.show(`Resized by ${Math.round(factor * 100)}%`);
   }
 }

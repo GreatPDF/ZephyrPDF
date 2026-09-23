@@ -32,6 +32,35 @@ export class AppSidebar {
     return this.activeTab;
   }
 
+  public open(): void {
+    this.container.classList.add('mobile-open');
+    this.container.classList.remove('collapsed');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    if (backdrop) backdrop.classList.add('visible');
+  }
+
+  public close(): void {
+    this.container.classList.remove('mobile-open');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    if (backdrop) backdrop.classList.remove('visible');
+  }
+
+  public toggle(): void {
+    if (window.innerWidth <= 768) {
+      if (this.container.classList.contains('mobile-open')) {
+        this.close();
+      } else {
+        this.open();
+      }
+    } else {
+      this.container.classList.toggle('collapsed');
+    }
+  }
+
+  public isMobileOpen(): boolean {
+    return this.container.classList.contains('mobile-open');
+  }
+
   public setThumbnails(thumbnails: { pageNumber: number; dataUrl: string }[]): void {
     const list = this.container.querySelector('#sidebar-thumbnails-list');
     if (!list) return;
@@ -52,6 +81,9 @@ export class AppSidebar {
       item.addEventListener('click', () => {
         this.setCurrentPage(thumb.pageNumber);
         this.events.onPageSelect(thumb.pageNumber);
+        if (window.innerWidth <= 768) {
+          this.close();
+        }
       });
 
       list.appendChild(item);
@@ -86,6 +118,9 @@ export class AppSidebar {
           if (it.pageNumber) {
             this.setCurrentPage(it.pageNumber);
             this.events.onPageSelect(it.pageNumber);
+            if (window.innerWidth <= 768) {
+              this.close();
+            }
           }
         });
 
@@ -123,6 +158,9 @@ export class AppSidebar {
       let label = ann.type.toUpperCase();
       if (ann.type === 'text') label = `Text: "${ann.text.substring(0, 15)}..."`;
       if (ann.type === 'stamp') label = `Stamp: ${ann.stampType}`;
+      if (ann.type === 'image') label = `🖼️ Image (${Math.round(ann.width)}×${Math.round(ann.height)})`;
+      if (ann.type === 'signature') label = `✍️ Signature`;
+      if (ann.type === 'sticky_note') label = `📝 Note: "${ann.title || 'Note'}"`;
 
       card.innerHTML = `
         <div style="display: flex; flex-direction: column; gap: 2px;">
@@ -134,6 +172,9 @@ export class AppSidebar {
 
       card.addEventListener('click', () => {
         this.events.onAnnotationSelect(ann.id, pageNum);
+        if (window.innerWidth <= 768) {
+          this.close();
+        }
       });
 
       const delBtn = card.querySelector('.del-ann-btn');
@@ -162,11 +203,14 @@ export class AppSidebar {
 
   private render(): void {
     this.container.innerHTML = `
-      <div class="sidebar-tabs">
-        <div class="sidebar-tab active" data-tab="thumbnails" title="Page Thumbnails">Pages</div>
-        <div class="sidebar-tab" data-tab="outline" title="Document Bookmarks">Bookmarks</div>
-        <div class="sidebar-tab" data-tab="annotations" title="Annotations List">Markup</div>
-        <div class="sidebar-tab" data-tab="search" title="Search Text">Search</div>
+      <div class="sidebar-header-row">
+        <div class="sidebar-tabs">
+          <div class="sidebar-tab active" data-tab="thumbnails" title="Page Thumbnails">Pages</div>
+          <div class="sidebar-tab" data-tab="outline" title="Document Bookmarks">Bookmarks</div>
+          <div class="sidebar-tab" data-tab="annotations" title="Annotations List">Markup</div>
+          <div class="sidebar-tab" data-tab="search" title="Search Text">Search</div>
+        </div>
+        <button class="icon-btn sidebar-close-btn" id="sidebar-close-btn" title="Close Sidebar">✕</button>
       </div>
 
       <div class="sidebar-content">
@@ -224,6 +268,11 @@ export class AppSidebar {
   }
 
   private setupListeners(): void {
+    const closeBtn = this.container.querySelector('#sidebar-close-btn');
+    closeBtn?.addEventListener('click', () => {
+      this.close();
+    });
+
     const tabs = this.container.querySelectorAll('.sidebar-tab');
     tabs.forEach(t => {
       t.addEventListener('click', () => {

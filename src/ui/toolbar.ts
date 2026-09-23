@@ -9,6 +9,7 @@ export interface ToolbarEvents {
   onSaveFlatten?: () => void;
   onPrint: () => void;
   onToggleOrganizer: () => void;
+  onToggleSidebar?: () => void;
   onUndo: () => void;
   onRedo: () => void;
   onZoomIn: () => void;
@@ -95,6 +96,10 @@ export class AppToolbar {
     wrapper.innerHTML = `
       <div class="primary-toolbar">
         <div class="toolbar-group">
+          <button class="icon-btn" id="sidebar-toggle-btn" title="Toggle Sidebar (Ctrl+B)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+          </button>
+
           <div class="brand">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -340,6 +345,9 @@ export class AppToolbar {
   private attachEventListeners(): void {
     const byId = (id: string) => this.container.querySelector('#' + id);
 
+    byId('sidebar-toggle-btn')?.addEventListener('click', () => {
+      this.events.onToggleSidebar?.();
+    });
     byId('open-file-btn')?.addEventListener('click', () => this.events.onOpenFile());
     byId('sample-file-btn')?.addEventListener('click', () => this.events.onOpenSample());
     byId('save-file-btn')?.addEventListener('click', () => this.events.onSaveExport());

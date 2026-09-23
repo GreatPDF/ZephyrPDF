@@ -232,6 +232,15 @@ header {
   height: 52px;
   border-bottom: 1px solid var(--border-color);
   gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.primary-toolbar::-webkit-scrollbar {
+  display: none;
 }
 
 .brand {
@@ -242,6 +251,7 @@ header {
   font-size: 1.15rem;
   color: var(--text-primary);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .brand-badge {
@@ -257,6 +267,7 @@ header {
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
 }
 
 .toolbar-divider {
@@ -326,12 +337,22 @@ button.btn.btn-primary:hover {
   height: 44px;
   background-color: var(--bg-primary);
   font-size: 0.85rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.annotation-toolbar::-webkit-scrollbar {
+  display: none;
 }
 
 .tool-options {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .color-swatch {
@@ -360,6 +381,20 @@ button.btn.btn-primary:hover {
   position: relative;
 }
 
+/* Sidebar Backdrop for Mobile */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 99;
+}
+
+.sidebar-backdrop.visible {
+  display: block;
+}
+
 /* Sidebar */
 .sidebar {
   width: 280px;
@@ -375,6 +410,25 @@ button.btn.btn-primary:hover {
   width: 0;
   border-right: none;
   overflow: hidden;
+}
+
+.sidebar-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-header-row .sidebar-tabs {
+  flex: 1;
+  border-bottom: none;
+}
+
+.sidebar-close-btn {
+  display: none;
+  margin-right: 6px;
+  width: 28px;
+  height: 28px;
 }
 
 .sidebar-tabs {
@@ -841,4 +895,122 @@ button.btn.btn-primary:hover {
 @keyframes slideIn {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
+}
+
+/* Responsive Mobile & Tablet Layout */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 84vw;
+    max-width: 320px;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.45);
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-close-btn {
+    display: inline-flex;
+  }
+
+  .primary-toolbar {
+    height: 48px;
+    padding: 4px 8px;
+    gap: 6px;
+  }
+
+  .annotation-toolbar {
+    height: 40px;
+    padding: 4px 8px;
+    gap: 6px;
+  }
+
+  /* Compact toolbar buttons on mobile */
+  .primary-toolbar button.btn span:not(.brand-badge),
+  .annotation-toolbar button.btn span {
+    display: none;
+  }
+
+  .primary-toolbar button.btn,
+  .primary-toolbar .icon-btn,
+  .annotation-toolbar button.btn,
+  .annotation-toolbar .icon-btn {
+    height: 34px;
+    min-width: 34px;
+    padding: 0 6px;
+  }
+
+  .brand span {
+    display: inline !important;
+  }
+
+  .brand-badge {
+    display: none;
+  }
+
+  .viewer-viewport {
+    padding: 10px 4px;
+    gap: 12px;
+  }
+
+  .page-container {
+    max-width: 100%;
+    box-shadow: var(--shadow-md);
+  }
+
+  .page-canvas {
+    max-width: 100%;
+    height: auto !important;
+  }
+
+  .floating-hud {
+    bottom: 12px;
+    padding: 4px 10px;
+    transform: translateX(-50%) scale(0.9);
+  }
+
+  .dropzone-box {
+    padding: 28px 16px;
+    width: 90%;
+    max-width: 360px;
+    gap: 12px;
+  }
+
+  .dropzone-box svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .modal-card {
+    width: 95vw;
+    max-width: 95vw;
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    padding: 12px 14px;
+  }
+
+  .modal-body {
+    padding: 14px;
+    max-height: 70vh;
+  }
+
+  .modal-footer {
+    padding: 10px 14px;
+    flex-wrap: wrap;
+  }
+
+  .organizer-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+    padding: 12px;
+  }
 }

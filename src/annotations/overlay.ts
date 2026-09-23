@@ -51,6 +51,7 @@ export class PageAnnotationOverlay {
   private resizingAnnotationId: string | null = null;
   private resizeHandle: 'nw' | 'ne' | 'se' | 'sw' | null = null;
   private resizeOrigRect: { x: number; y: number; width: number; height: number } | null = null;
+  private onResetTool?: () => void;
 
   constructor(
     container: HTMLElement,
@@ -66,6 +67,7 @@ export class PageAnnotationOverlay {
       getActiveMeasureUnit?: () => MeasureUnit;
       getActiveImage?: () => string | null;
       contextMenu?: AnnotationContextMenu;
+      onResetTool?: () => void;
     }
   ) {
     this.container = container;
@@ -80,6 +82,7 @@ export class PageAnnotationOverlay {
     this.getActiveMeasureUnit = options.getActiveMeasureUnit;
     this.getActiveImage = options.getActiveImage;
     this.contextMenu = options.contextMenu;
+    this.onResetTool = options.onResetTool;
 
     this.svgLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     this.svgLayer.classList.add('annotation-layer');
@@ -144,6 +147,18 @@ export class PageAnnotationOverlay {
     };
   }
 
+  private eraseAtCoords(coords: { x: number; y: number }): boolean {
+    const annotations = this.manager.getAnnotationsForPage(this.pageIndex);
+    for (let i = annotations.length - 1; i >= 0; i--) {
+      const ann = annotations[i];
+      if (this.hitTestAnnotation(ann, coords)) {
+        this.manager.removeAnnotation(ann.id);
+        return true;
+      }
+    }
+    return false;
+  }
+
   private onPointerDown(e: PointerEvent): void {
     const tool = this.getActiveTool();
     if (tool === 'hand') return;
@@ -155,11 +170,22 @@ export class PageAnnotationOverlay {
 
     const coords = this.getEventCoords(e);
     const scale = this.getScale();
+    const target = e.target as SVGElement;
+    const selectedId = this.manager.getSelectedId();
+
+    // Check if clicked the interactive delete badge on the selected annotation
+    const actionTarget = target?.closest?.('[data-action="delete-annotation"]') ||
+      (target?.getAttribute?.('data-action') === 'delete-annotation' ? target : null);
+    if (actionTarget && selectedId) {
+      e.stopPropagation();
+      e.preventDefault();
+      this.manager.removeAnnotation(selectedId);
+      NotificationService.show('Item deleted');
+      return;
+    }
 
     // Check if clicked an active corner resize handle
-    const target = e.target as SVGElement;
     const handleType = target?.getAttribute('data-handle') as any;
-    const selectedId = this.manager.getSelectedId();
     if (handleType && selectedId) {
       const ann = this.manager.getAnnotation(selectedId);
       if (ann && 'x' in ann && 'y' in ann && 'width' in ann && 'height' in ann) {
@@ -188,14 +214,8 @@ export class PageAnnotationOverlay {
     }
 
     if (tool === 'eraser') {
-      const annotations = this.manager.getAnnotationsForPage(this.pageIndex);
-      for (let i = annotations.length - 1; i >= 0; i--) {
-        const ann = annotations[i];
-        if (this.hitTestAnnotation(ann, coords)) {
-          this.manager.removeAnnotation(ann.id);
-          return;
-        }
-      }
+      this.isDrawing = true;
+      this.eraseAtCoords(coords);
       return;
     }
 
@@ -255,6 +275,8 @@ export class PageAnnotationOverlay {
           updatedAt: Date.now()
         };
         this.manager.addAnnotation(imgAnn);
+        this.manager.selectAnnotation(imgAnn.id);
+        this.onResetTool?.();
       }
       return;
     }
@@ -321,6 +343,13 @@ export class PageAnnotationOverlay {
 
   private onPointerMove(e: PointerEvent): void {
     const scale = this.getScale();
+
+    // Eraser drag support
+    if (this.isDrawing && this.getActiveTool() === 'eraser') {
+      const coords = this.getEventCoords(e);
+      this.eraseAtCoords(coords);
+      return;
+    }
 
     // Handle corner handle resizing
     if (this.resizingAnnotationId && this.resizeOrigRect && this.startPoint) {
@@ -513,6 +542,11 @@ export class PageAnnotationOverlay {
 
     if (this.draggingAnnotationId) {
       this.draggingAnnotationId = null;
+      return;
+    }
+
+    if (this.getActiveTool() === 'eraser') {
+      this.isDrawing = false;
       return;
     }
 
@@ -722,6 +756,9 @@ export class PageAnnotationOverlay {
   }
 
   public render(): void {
+    const tool = this.getActiveTool();
+    this.svgLayer.style.pointerEvents = tool === 'hand' ? 'none' : 'all';
+
     // Clear existing SVG children except active preview if drawing
     while (this.svgLayer.firstChild) {
       this.svgLayer.removeChild(this.svgLayer.firstChild);
@@ -1071,6 +1108,39 @@ export class PageAnnotationOverlay {
       handle.style.pointerEvents = 'all';
       parent.appendChild(handle);
     }
+
+    // Interactive Delete Badge on top-right of selection box
+    const delBadge = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    delBadge.setAttribute('data-action', 'delete-annotation');
+    delBadge.style.cursor = 'pointer';
+    delBadge.style.pointerEvents = 'all';
+
+    const bx = (x + width) * scale + 12;
+    const by = y * scale - 12;
+
+    const badgeCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    badgeCircle.setAttribute('cx', bx.toString());
+    badgeCircle.setAttribute('cy', by.toString());
+    badgeCircle.setAttribute('r', '11');
+    badgeCircle.setAttribute('fill', '#ef4444');
+    badgeCircle.setAttribute('stroke', '#ffffff');
+    badgeCircle.setAttribute('stroke-width', '1.5');
+    badgeCircle.setAttribute('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))');
+
+    const badgeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    badgeIcon.setAttribute('x', bx.toString());
+    badgeIcon.setAttribute('y', (by + 4).toString());
+    badgeIcon.setAttribute('text-anchor', 'middle');
+    badgeIcon.setAttribute('fill', '#ffffff');
+    badgeIcon.setAttribute('font-size', '12');
+    badgeIcon.setAttribute('font-weight', 'bold');
+    badgeIcon.setAttribute('font-family', 'sans-serif');
+    badgeIcon.setAttribute('pointer-events', 'none');
+    badgeIcon.textContent = '✕';
+
+    delBadge.appendChild(badgeCircle);
+    delBadge.appendChild(badgeIcon);
+    parent.appendChild(delBadge);
   }
 
   public destroy(): void {

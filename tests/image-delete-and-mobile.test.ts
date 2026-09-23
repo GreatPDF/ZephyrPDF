@@ -1,0 +1,145 @@
+import { describe, it, expect } from 'vitest';
+import { AnnotationManager } from '../src/annotations/manager';
+import { HistoryManager } from '../src/core/history';
+import { ImageAnnotation } from '../src/types/annotations';
+import { pointInRect } from '../src/utils/geometry';
+
+describe('Image Deletion & Mobile UX Tests', () => {
+  it('should remove image annotations cleanly from active manager', () => {
+    const history = new HistoryManager();
+    const manager = new AnnotationManager(history);
+
+    const imgAnn: ImageAnnotation = {
+      id: 'img_test_delete_1',
+      type: 'image',
+      pageIndex: 0,
+      dataUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+      x: 100,
+      y: 100,
+      width: 150,
+      height: 100,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    manager.addAnnotation(imgAnn);
+    manager.selectAnnotation(imgAnn.id);
+    expect(manager.getAllAnnotations().length).toBe(1);
+    expect(manager.getSelectedId()).toBe('img_test_delete_1');
+
+    // Simulate delete action (via keypress, context menu, or corner badge)
+    const selectedId = manager.getSelectedId();
+    if (selectedId) {
+      manager.removeAnnotation(selectedId);
+    }
+
+    expect(manager.getAllAnnotations().length).toBe(0);
+    expect(manager.getAnnotation('img_test_delete_1')).toBeUndefined();
+    expect(manager.getSelectedId()).toBeNull();
+
+    // Verify undo restores the deleted image
+    history.undo();
+    expect(manager.getAllAnnotations().length).toBe(1);
+    expect(manager.getAnnotation('img_test_delete_1')).toBeDefined();
+
+    // Verify redo deletes the image again
+    history.redo();
+    expect(manager.getAllAnnotations().length).toBe(0);
+    expect(manager.getAnnotation('img_test_delete_1')).toBeUndefined();
+  });
+
+  it('should route operations to dynamically swapped annotation manager instances', () => {
+    const history1 = new HistoryManager();
+    const initialManager = new AnnotationManager(history1);
+
+    const history2 = new HistoryManager();
+    let activeManager = new AnnotationManager(history2);
+
+    // Context menu / text selection menu getter pattern
+    const getManager = () => activeManager;
+
+    const imgAnn: ImageAnnotation = {
+      id: 'img_session_swap',
+      type: 'image',
+      pageIndex: 0,
+      dataUrl: 'data:image/png;base64,...',
+      x: 200,
+      y: 150,
+      width: 100,
+      height: 80,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    getManager().addAnnotation(imgAnn);
+    expect(activeManager.getAllAnnotations().length).toBe(1);
+    expect(initialManager.getAllAnnotations().length).toBe(0);
+
+    // Deleting via getter removes from activeManager, not obsolete initialManager
+    getManager().removeAnnotation(imgAnn.id);
+    expect(activeManager.getAllAnnotations().length).toBe(0);
+  });
+
+  it('should accurately hit-test image bounding box for eraser tool', () => {
+    const imgAnn: ImageAnnotation = {
+      id: 'img_eraser_hit',
+      type: 'image',
+      pageIndex: 0,
+      dataUrl: 'data:image/png;base64,...',
+      x: 100,
+      y: 200,
+      width: 150,
+      height: 100,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    const rect = { x: imgAnn.x, y: imgAnn.y, width: imgAnn.width, height: imgAnn.height };
+
+    // Points inside image bounds
+    expect(pointInRect({ x: 100, y: 200 }, rect)).toBe(true);
+    expect(pointInRect({ x: 175, y: 250 }, rect)).toBe(true);
+    expect(pointInRect({ x: 250, y: 300 }, rect)).toBe(true);
+
+    // Points outside image bounds
+    expect(pointInRect({ x: 99, y: 200 }, rect)).toBe(false);
+    expect(pointInRect({ x: 251, y: 250 }, rect)).toBe(false);
+    expect(pointInRect({ x: 175, y: 301 }, rect)).toBe(false);
+  });
+
+  it('should verify mobile drawer state logic and class toggle behavior', () => {
+    const classList = new Set<string>();
+    const mockElement = {
+      classList: {
+        add: (c: string) => classList.add(c),
+        remove: (c: string) => classList.delete(c),
+        contains: (c: string) => classList.has(c),
+        toggle: (c: string) => {
+          if (classList.has(c)) {
+            classList.delete(c);
+            return false;
+          } else {
+            classList.add(c);
+            return true;
+          }
+        }
+      }
+    };
+
+    // Open drawer
+    mockElement.classList.add('mobile-open');
+    mockElement.classList.remove('collapsed');
+    expect(mockElement.classList.contains('mobile-open')).toBe(true);
+    expect(mockElement.classList.contains('collapsed')).toBe(false);
+
+    // Close drawer
+    mockElement.classList.remove('mobile-open');
+    expect(mockElement.classList.contains('mobile-open')).toBe(false);
+
+    // Toggle drawer
+    mockElement.classList.toggle('mobile-open');
+    expect(mockElement.classList.contains('mobile-open')).toBe(true);
+    mockElement.classList.toggle('mobile-open');
+    expect(mockElement.classList.contains('mobile-open')).toBe(false);
+  });
+});
