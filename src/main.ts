@@ -946,6 +946,9 @@ class ZephyrPDFApp {
     this.currentScale = session.scale;
     this.currentPageNumber = session.currentPageNumber;
 
+    this.tabBar?.update(this.sessionManager.getAllSessions(), session.id);
+    document.title = `${session.doc.metadata.fileName} · ZephyrPDF`;
+
     this.contextMenu?.setAnnotationManager(this.annotationManager);
     this.textSelectionMenu?.setAnnotationManager(this.annotationManager);
 
