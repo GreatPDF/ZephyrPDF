@@ -300,6 +300,7 @@ class ZephyrPDFApp {
       onSearch: (q, cs, ww) => {
         const matches = this.searchEngine.search(q, cs, ww);
         this.sidebar.setSearchResults(matches, 0);
+        this.updateSearchHighlights(q, cs, ww, 0);
         if (matches.length > 0) {
           this.scrollToPage(matches[0].pageIndex + 1);
         }
@@ -307,17 +308,19 @@ class ZephyrPDFApp {
       onSearchNext: () => {
         const match = this.searchEngine.next();
         if (match) {
-          this.scrollToPage(match.pageIndex + 1);
           const state = this.searchEngine.getState();
           this.sidebar.setSearchResults(state.matches, state.currentMatchIndex);
+          this.setActiveSearchMatch(state.currentMatchIndex);
+          this.scrollToPage(match.pageIndex + 1);
         }
       },
       onSearchPrevious: () => {
         const match = this.searchEngine.previous();
         if (match) {
-          this.scrollToPage(match.pageIndex + 1);
           const state = this.searchEngine.getState();
           this.sidebar.setSearchResults(state.matches, state.currentMatchIndex);
+          this.setActiveSearchMatch(state.currentMatchIndex);
+          this.scrollToPage(match.pageIndex + 1);
         }
       },
       onExportCitations: () => {
@@ -982,6 +985,8 @@ class ZephyrPDFApp {
     this.sidebar.setOutline([]);
     this.sidebar.setAnnotations([]);
     this.sidebar.setThumbnails([]);
+    this.searchEngine.reset();
+    this.clearSearchHighlights();
     document.title = 'ZephyrPDF · The Featherlight Open-Source PDF Viewer & Editor';
   }
 
@@ -1127,6 +1132,84 @@ class ZephyrPDFApp {
     }
 
     this.updateSidebarThumbnails();
+
+    const searchState = this.searchEngine.getState();
+    if (searchState.query) {
+      this.updateSearchHighlights(searchState.query, searchState.caseSensitive, searchState.matchWholeWords, searchState.currentMatchIndex);
+    }
+  }
+
+  public clearSearchHighlights(): void {
+    const marks = document.querySelectorAll('.textLayer mark.search-highlight');
+    marks.forEach(m => {
+      const parent = m.parentNode;
+      if (parent) {
+        parent.replaceChild(document.createTextNode(m.textContent || ''), m);
+        parent.normalize();
+      }
+    });
+  }
+
+  public updateSearchHighlights(query: string, caseSensitive: boolean, matchWholeWords: boolean, activeIndex: number): void {
+    this.clearSearchHighlights();
+    if (!query || query.trim() === '') return;
+
+    let globalIndex = 0;
+    const containers = document.querySelectorAll('.textLayer');
+    const escaped = query.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&');
+    const pattern = matchWholeWords ? `\\b${escaped}\\b` : escaped;
+    const regex = new RegExp(`(${pattern})`, caseSensitive ? 'g' : 'gi');
+
+    containers.forEach(container => {
+      const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
+      const textNodes: Text[] = [];
+      let node: Node | null;
+      while ((node = walker.nextNode())) {
+        textNodes.push(node as Text);
+      }
+
+      for (const textNode of textNodes) {
+        const parent = textNode.parentNode as HTMLElement;
+        if (parent && parent.nodeName === 'MARK') continue;
+        const text = textNode.nodeValue || '';
+        if (!regex.test(text)) continue;
+        regex.lastIndex = 0;
+
+        const frag = document.createDocumentFragment();
+        let lastIdx = 0;
+        let match: RegExpExecArray | null;
+        while ((match = regex.exec(text)) !== null) {
+          if (match.index > lastIdx) {
+            frag.appendChild(document.createTextNode(text.substring(lastIdx, match.index)));
+          }
+          const matchIdx = globalIndex++;
+          const mark = document.createElement('mark');
+          mark.className = matchIdx === activeIndex ? 'search-highlight active' : 'search-highlight';
+          mark.setAttribute('data-match-index', matchIdx.toString());
+          mark.textContent = match[0];
+          frag.appendChild(mark);
+          lastIdx = regex.lastIndex;
+        }
+        if (lastIdx < text.length) {
+          frag.appendChild(document.createTextNode(text.substring(lastIdx)));
+        }
+        parent.replaceChild(frag, textNode);
+      }
+    });
+
+    const activeMark = document.querySelector('.textLayer mark.search-highlight.active') as HTMLElement;
+    activeMark?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  public setActiveSearchMatch(index: number): void {
+    const prevActive = document.querySelector('.textLayer mark.search-highlight.active');
+    prevActive?.classList.remove('active');
+
+    const newActive = document.querySelector(`.textLayer mark.search-highlight[data-match-index="${index}"]`) as HTMLElement;
+    if (newActive) {
+      newActive.classList.add('active');
+      newActive.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   }
 
   public setActiveTool(tool: ToolType): void {

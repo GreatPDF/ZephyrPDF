@@ -647,6 +647,22 @@ button.btn.btn-primary:hover {
   color: transparent;
 }
 
+mark.search-highlight {
+  background-color: rgba(255, 235, 59, 0.45);
+  color: transparent !important;
+  border-radius: 2px;
+  padding: 1px 0;
+  cursor: text;
+}
+
+mark.search-highlight.active {
+  background-color: rgba(255, 152, 0, 0.75);
+  outline: 2px solid #ff9800;
+  box-shadow: 0 0 6px rgba(255, 152, 0, 0.8);
+  color: transparent !important;
+  border-radius: 2px;
+}
+
 /* Form Fields Layer */
 .form-fields-layer {
   position: absolute;
