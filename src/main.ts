@@ -476,8 +476,10 @@ class ZephyrPDFApp {
 
     // Mobile Pinch-to-Zoom Gesture Support
     const viewerContainer = document.getElementById('viewer-container');
+    const pagesWrapper = document.getElementById('pages-wrapper');
     let initialPinchDistance: number | null = null;
     let initialScale: number = 1.0;
+    let targetZoomScale: number = 1.0;
 
     viewerContainer?.addEventListener('touchstart', (e: TouchEvent) => {
       if (e.touches.length === 2) {
@@ -486,6 +488,7 @@ class ZephyrPDFApp {
           e.touches[0].clientY - e.touches[1].clientY
         );
         initialScale = this.currentScale;
+        targetZoomScale = initialScale;
       }
     }, { passive: true });
 
@@ -496,14 +499,24 @@ class ZephyrPDFApp {
           e.touches[0].clientY - e.touches[1].clientY
         );
         const factor = currentDistance / initialPinchDistance;
-        const newScale = Math.max(0.3, Math.min(4.0, initialScale * factor));
-        this.setZoom(newScale);
+        targetZoomScale = Math.max(0.3, Math.min(4.0, initialScale * factor));
+        if (pagesWrapper) {
+          pagesWrapper.style.transform = `scale(${factor})`;
+          pagesWrapper.style.transformOrigin = 'center top';
+        }
       }
     }, { passive: true });
 
     viewerContainer?.addEventListener('touchend', (e: TouchEvent) => {
-      if (e.touches.length < 2) {
+      if (e.touches.length < 2 && initialPinchDistance !== null) {
         initialPinchDistance = null;
+        if (pagesWrapper) {
+          pagesWrapper.style.transform = '';
+          pagesWrapper.style.transformOrigin = '';
+        }
+        if (Math.abs(targetZoomScale - this.currentScale) > 0.05) {
+          this.setZoom(targetZoomScale);
+        }
       }
     }, { passive: true });
 
