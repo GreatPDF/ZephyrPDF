@@ -108,6 +108,8 @@ class ZephyrPDFApp {
     this.initDropzone();
     this.initShortcuts();
     this.initScrollWatcher();
+
+    (window as any).app = this;
   }
 
   private initUI(): void {
