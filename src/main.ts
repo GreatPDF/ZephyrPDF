@@ -684,10 +684,18 @@ class ZephyrPDFApp {
         this.fitToPage();
       } else if (e.key === '9') {
         this.fitToWidth();
-      } else if (e.key.toLowerCase() === 'j') {
+      } else if (e.key.toLowerCase() === 'j' || e.key === 'PageDown') {
+        e.preventDefault();
         this.scrollToPage(this.currentPageNumber + 1);
-      } else if (e.key.toLowerCase() === 'k') {
+      } else if (e.key.toLowerCase() === 'k' || e.key === 'PageUp') {
+        e.preventDefault();
         this.scrollToPage(this.currentPageNumber - 1);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        this.scrollToPage(1);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        this.scrollToPage(this.pageManager.getPageCount());
       } else if (e.key.toLowerCase() === 'v') {
         this.setActiveTool('select');
       } else if (e.key.toLowerCase() === 'h') {
