@@ -1005,6 +1005,20 @@ class ZephyrPDFApp {
     this.sidebar.setThumbnails(thumbs);
   }
 
+  private updateSidebarThumbnails(): void {
+    if (!this.currentDoc) return;
+    const pages = this.pageManager.getPages();
+    const thumbs: { pageNumber: number; dataUrl: string }[] = [];
+
+    for (let i = 0; i < pages.length; i++) {
+      const p = pages[i];
+      const url = this.pageThumbnails.get(p.originalIndex) || '';
+      thumbs.push({ pageNumber: p.pageNumber, dataUrl: url });
+    }
+
+    this.sidebar.setThumbnails(thumbs);
+  }
+
   private async renderDocument(): Promise<void> {
     if (!this.currentDoc) return;
 
@@ -1110,6 +1124,8 @@ class ZephyrPDFApp {
         }
       }
     }
+
+    this.updateSidebarThumbnails();
   }
 
   public setZoom(scale: number): void {

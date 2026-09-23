@@ -306,6 +306,10 @@ export class PdfExporter {
       }
     }
 
+    if (formHandler && !flattenForm) {
+      formHandler.applyToPdf(newDoc);
+    }
+
     return await newDoc.save();
   }
 
