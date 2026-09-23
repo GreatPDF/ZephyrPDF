@@ -16,6 +16,7 @@ import { CompareDialog } from './ui/dialogs/compare-dialog';
 import { WatermarkDialog } from './ui/dialogs/watermark-dialog';
 import { DocumentComparator } from './core/comparator';
 import { TextSelectionMenu } from './ui/text-selection-menu';
+import { DocumentLoupe } from './ui/loupe';
 import { OrganizerModal } from './ui/organizer-modal';
 import { NotificationService } from './ui/notification';
 import { createSamplePdf } from './utils/samples';
@@ -43,6 +44,7 @@ class GreatPDFApp {
   private renderer: PageRenderer;
   private searchEngine: TextSearchEngine;
   private formHandler: FormHandler;
+  private loupe: DocumentLoupe;
 
   private toolbar!: AppToolbar;
   private sidebar!: AppSidebar;
@@ -88,6 +90,7 @@ class GreatPDFApp {
     this.renderer = new PageRenderer();
     this.searchEngine = new TextSearchEngine();
     this.formHandler = new FormHandler();
+    this.loupe = new DocumentLoupe();
 
     this.initUI();
     this.initDropzone();
@@ -114,6 +117,7 @@ class GreatPDFApp {
       onZoomFitPage: () => this.fitToPage(),
       onToolSelect: (tool) => {
         this.activeTool = tool;
+        this.loupe.setActive(tool === 'loupe');
         if (tool === 'signature' && !this.activeSignature) {
           this.openSignatureDialog();
         }
@@ -399,6 +403,10 @@ class GreatPDFApp {
       } else if (e.key.toLowerCase() === 'u') {
         this.toolbar.setActiveTool('measure');
         this.activeTool = 'measure';
+      } else if (e.key.toLowerCase() === 'z' && !e.ctrlKey && !e.metaKey) {
+        this.toolbar.setActiveTool('loupe');
+        this.activeTool = 'loupe';
+        this.loupe.setActive(true);
       } else if (e.key.toLowerCase() === 'g') {
         this.openSignatureDialog();
       } else if (e.key === '?') {

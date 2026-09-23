@@ -53,6 +53,7 @@ export interface FreehandAnnotation extends BaseAnnotation {
   strokeWidth: number;
   opacity: number;
   isEraser?: boolean;
+  isHighlighter?: boolean;
 }
 
 export interface TextAnnotation extends BaseAnnotation {
@@ -189,4 +190,6 @@ export type ToolType =
   | 'sticky_note'
   | 'redaction'
   | 'measure'
-  | 'image';
+  | 'image'
+  | 'freehand_highlight'
+  | 'loupe';

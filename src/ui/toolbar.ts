@@ -203,11 +203,18 @@ export class AppToolbar {
           <button class="icon-btn tool-btn" data-tool="hand" title="Hand / Pan (h)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-4 0v5"></path><path d="M14 10V4a2 2 0 0 0-4 0v6"></path><path d="M10 10.5V6a2 2 0 0 0-4 0v8"></path><path d="M18 8a2 2 0 0 1 4 4v4a8 8 0 0 1-16 0v-2"></path></svg>
           </button>
+          <button class="icon-btn tool-btn" data-tool="loupe" title="Magnifier / Loupe Lens (z)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+          </button>
 
           <div class="toolbar-divider"></div>
 
           <button class="icon-btn tool-btn" data-tool="highlight" title="Text Highlighter (l)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11-6 6v3h3l6-6"></path><path d="m22 2-2.7 2.7a2.5 2.5 0 0 0 0 3.5l1.5 1.5a2.5 2.5 0 0 0 3.5 0L27 7"></path><path d="m14 4 6 6"></path></svg>
+          </button>
+
+          <button class="icon-btn tool-btn" data-tool="freehand_highlight" title="Chisel Freehand Highlighter">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14 12-8.5 8.5a2.12 2.12 0 1 1-3-3L11 9"></path><path d="m5 18 3-3"></path><path d="m15 7 2-2a2.83 2.83 0 0 1 4 4l-2 2"></path></svg>
           </button>
 
           <button class="icon-btn tool-btn" data-tool="freehand" title="Pen / Freehand Draw (p)">

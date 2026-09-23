@@ -110,22 +110,59 @@ export class FormHandler {
     return this.fields.size > 0;
   }
 
+  public createField(info: FormFieldInfo): void {
+    this.fields.set(info.name, info);
+    this.values.set(info.name, info.value);
+    this.notify();
+  }
+
+  public deleteField(name: string): void {
+    this.fields.delete(name);
+    this.values.delete(name);
+    this.notify();
+  }
+
   public applyToPdf(pdfDoc: PDFDocument): void {
     try {
       const form = pdfDoc.getForm();
-      for (const [name, val] of this.values.entries()) {
+      const pages = pdfDoc.getPages();
+
+      for (const info of this.fields.values()) {
+        let field: any;
         try {
-          const field = form.getField(name);
-          if (field instanceof PDFTextField && typeof val === 'string') {
-            field.setText(val);
-          } else if (field instanceof PDFCheckBox && typeof val === 'boolean') {
-            if (val) field.check();
-            else field.uncheck();
-          } else if (field instanceof PDFDropdown && typeof val === 'string') {
-            field.select(val);
-          }
+          field = form.getField(info.name);
         } catch {
-          // Skip missing fields
+          // Field does not exist yet in PDF: create it on the target page
+          const targetPage = pages[info.pageIndex];
+          if (targetPage) {
+            if (info.type === 'checkbox') {
+              field = form.createCheckBox(info.name);
+              field.addToPage(targetPage, {
+                x: info.bounds.x,
+                y: info.bounds.y,
+                width: info.bounds.width || 16,
+                height: info.bounds.height || 16
+              });
+            } else {
+              field = form.createTextField(info.name);
+              field.addToPage(targetPage, {
+                x: info.bounds.x,
+                y: info.bounds.y,
+                width: info.bounds.width || 160,
+                height: info.bounds.height || 24
+              });
+            }
+          }
+        }
+
+        const val = this.values.get(info.name);
+        if (field instanceof PDFTextField && typeof val === 'string') {
+          field.setText(val);
+        } else if (field instanceof PDFCheckBox && typeof val === 'boolean') {
+          if (val) field.check();
+          else field.uncheck();
+        } else if (field instanceof PDFDropdown && typeof val === 'string') {
+          field.select(val);
         }
       }
     } catch (e) {

@@ -253,13 +253,17 @@ export class PageAnnotationOverlay {
     this.startPoint = coords;
     this.currentPoints = [coords];
 
-    if (tool === 'freehand') {
+    if (tool === 'freehand' || tool === 'freehand_highlight') {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const strokeW = tool === 'freehand_highlight' ? Math.max(16, this.getActiveStrokeWidth() * 6) : this.getActiveStrokeWidth();
       path.setAttribute('stroke', this.getActiveColor());
-      path.setAttribute('stroke-width', (this.getActiveStrokeWidth() * scale).toString());
-      path.setAttribute('stroke-linecap', 'round');
+      path.setAttribute('stroke-width', (strokeW * scale).toString());
+      path.setAttribute('stroke-linecap', 'square');
       path.setAttribute('stroke-linejoin', 'round');
       path.setAttribute('fill', 'none');
+      if (tool === 'freehand_highlight') {
+        path.setAttribute('style', 'mix-blend-mode: multiply; opacity: 0.4;');
+      }
       this.svgLayer.appendChild(path);
       this.previewElement = path;
     }
@@ -292,7 +296,7 @@ export class PageAnnotationOverlay {
     const coords = this.getEventCoords(e);
     const tool = this.getActiveTool();
 
-    if (tool === 'freehand') {
+    if (tool === 'freehand' || tool === 'freehand_highlight') {
       this.currentPoints.push(coords);
       if (this.previewElement) {
         const scaledPoints = this.currentPoints.map(p => ({
@@ -375,15 +379,17 @@ export class PageAnnotationOverlay {
     const id = 'ann_' + Math.random().toString(36).substring(2, 9);
     const now = Date.now();
 
-    if (tool === 'freehand' && this.currentPoints.length > 1) {
+    if ((tool === 'freehand' || tool === 'freehand_highlight') && this.currentPoints.length > 1) {
+      const isHighlighter = tool === 'freehand_highlight';
       const ann: FreehandAnnotation = {
         id,
         type: 'freehand',
         pageIndex: this.pageIndex,
         points: this.currentPoints,
         color: this.getActiveColor(),
-        strokeWidth: this.getActiveStrokeWidth(),
-        opacity: 1,
+        strokeWidth: isHighlighter ? Math.max(16, this.getActiveStrokeWidth() * 6) : this.getActiveStrokeWidth(),
+        opacity: isHighlighter ? 0.4 : 1,
+        isHighlighter,
         createdAt: now,
         updatedAt: now
       };
@@ -566,9 +572,13 @@ export class PageAnnotationOverlay {
         path.setAttribute('d', getSvgPathFromPoints(scaledPoints));
         path.setAttribute('stroke', ann.color);
         path.setAttribute('stroke-width', (ann.strokeWidth * scale).toString());
-        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linecap', ann.isHighlighter ? 'square' : 'round');
         path.setAttribute('stroke-linejoin', 'round');
         path.setAttribute('fill', 'none');
+        if (ann.isHighlighter) {
+          path.setAttribute('style', 'mix-blend-mode: multiply;');
+          path.setAttribute('opacity', (ann.opacity || 0.4).toString());
+        }
         if (isSelected) {
           path.setAttribute('filter', 'drop-shadow(0 0 3px #1976d2)');
         }

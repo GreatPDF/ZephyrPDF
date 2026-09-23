@@ -17,6 +17,9 @@
   - **Pre-set & Custom Stamps**: `APPROVED`, `CONFIDENTIAL`, `DRAFT`, `FINAL`, `REJECTED`, or customized text.
   - **Digital Signatures**: Draw, type cursive, or upload transparent PNG signatures with instant one-click placement.
   - **Sticky Notes**: Threaded comments and annotations.
+- **🏗️ Interactive Form Builder**: Convert any document into a fillable PDF form by adding custom interactive text fields and checkboxes.
+- **🔍 Magnifier / Loupe Lens**: Inspect intricate vector blueprints, CAD drawings, and fine print with a 2.5x cursor lens (`z`).
+- **🖍️ Freehand Chisel Highlighter**: Smooth broad-tip marker highlighting for scanned books, contracts, and handwritten documents without OCR text layers.
 - **💧 Document Watermarking**: Add customizable rotated watermark text across all pages (`CONFIDENTIAL`, `DRAFT`, `COPY`) with opacity and angle controls.
 - **🔢 Header & Footer Page Numbering**: Insert dynamic page numbers (`Page X of Y`, `X of Y`, `X`) at customizable header/footer positions.
 - **⚡ Quick Text Selection Menu**: Effortless floating action menu on text selection for instant 1-click highlighting, underlining, strikethrough, and copying.
