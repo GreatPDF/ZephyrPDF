@@ -1167,6 +1167,7 @@ class ZephyrPDFApp {
               const cb = document.createElement('input');
               cb.type = 'checkbox';
               cb.className = 'pdf-acro-checkbox';
+              cb.setAttribute('aria-label', f.name);
               cb.checked = Boolean(f.value);
               cb.style.left = `${leftPx}px`;
               cb.style.top = `${topPx}px`;
@@ -1180,6 +1181,7 @@ class ZephyrPDFApp {
               const input = document.createElement('input');
               input.type = 'text';
               input.className = 'pdf-acro-input';
+              input.setAttribute('aria-label', f.name);
               input.value = typeof f.value === 'string' ? f.value : '';
               input.style.left = `${leftPx}px`;
               input.style.top = `${topPx}px`;

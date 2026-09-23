@@ -714,6 +714,13 @@ mark.search-highlight.active {
   pointer-events: all;
   cursor: pointer;
   accent-color: var(--accent-color);
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.pdf-acro-checkbox:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
 }
 
 /* Inline WYSIWYG Text Box Editor */
