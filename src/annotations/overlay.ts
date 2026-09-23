@@ -354,7 +354,7 @@ export class PageAnnotationOverlay {
       path.setAttribute('stroke-linejoin', 'round');
       path.setAttribute('fill', 'none');
       if (tool === 'freehand_highlight') {
-        path.setAttribute('style', 'mix-blend-mode: multiply; opacity: 0.4;');
+        path.setAttribute('style', 'opacity: 0.4;');
       }
       this.svgLayer.appendChild(path);
       this.previewElement = path;
@@ -805,7 +805,7 @@ export class PageAnnotationOverlay {
           r.setAttribute('width', (rect.width * scale).toString());
           r.setAttribute('height', (rect.height * scale).toString());
           r.setAttribute('fill', hexToRgbaCss(ann.color, ann.opacity));
-          r.setAttribute('style', 'mix-blend-mode: multiply; pointer-events: all; cursor: pointer;');
+          r.setAttribute('style', 'pointer-events: all; cursor: pointer;');
           if (isSelected) {
             r.setAttribute('stroke', '#1976d2');
             r.setAttribute('stroke-width', '1.5');
@@ -828,7 +828,7 @@ export class PageAnnotationOverlay {
         path.style.pointerEvents = 'all';
         path.style.cursor = 'pointer';
         if (ann.isHighlighter) {
-          path.setAttribute('style', 'mix-blend-mode: multiply; pointer-events: all; cursor: pointer;');
+          path.setAttribute('style', 'pointer-events: all; cursor: pointer;');
           path.setAttribute('opacity', (ann.opacity || 0.4).toString());
         }
         if (isSelected) {
