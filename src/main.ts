@@ -469,6 +469,16 @@ class ZephyrPDFApp {
 
     hudPrev?.addEventListener('click', () => this.scrollToPage(this.currentPageNumber - 1));
     hudNext?.addEventListener('click', () => this.scrollToPage(this.currentPageNumber + 1));
+    hudInput?.addEventListener('focus', () => hudInput.select());
+    hudInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const page = parseInt(hudInput.value, 10);
+        if (!isNaN(page)) {
+          this.scrollToPage(page);
+          hudInput.blur();
+        }
+      }
+    });
     hudInput?.addEventListener('change', () => {
       const page = parseInt(hudInput.value, 10);
       if (!isNaN(page)) this.scrollToPage(page);
@@ -914,7 +924,7 @@ class ZephyrPDFApp {
         return;
       }
       console.error(e);
-      alert('Failed to load PDF file: ' + e.message);
+      NotificationService.show('Failed to load PDF file: ' + (e?.message || 'Invalid or corrupted file'), 4000, true);
     }
   }
 
@@ -962,7 +972,7 @@ class ZephyrPDFApp {
             resolve();
           } else {
             console.error(err);
-            alert('Failed to unlock document: ' + err.message);
+            NotificationService.show('Failed to unlock document: ' + (err?.message || 'Decryption failed'), 4000, true);
             resolve();
           }
         }
@@ -1360,7 +1370,9 @@ class ZephyrPDFApp {
     const totalLabel = document.getElementById('hud-total-pages');
     const total = this.pageManager.getPageCount();
 
-    if (currentInput) currentInput.value = this.currentPageNumber.toString();
+    if (currentInput && document.activeElement !== currentInput) {
+      currentInput.value = this.currentPageNumber.toString();
+    }
     if (totalLabel) totalLabel.textContent = total.toString();
   }
 

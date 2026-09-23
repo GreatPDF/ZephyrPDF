@@ -10,10 +10,14 @@ export class NotificationService {
     return this.container;
   }
 
-  public static show(message: string, duration: number = 3000): void {
+  public static show(message: string, duration: number = 3000, isError: boolean = false): void {
     const container = this.ensureContainer();
     const toast = document.createElement('div');
     toast.className = 'toast';
+    if (isError) {
+      toast.style.borderLeftColor = 'var(--danger-color)';
+      toast.style.color = '#f87171';
+    }
     toast.textContent = message;
 
     container.appendChild(toast);
