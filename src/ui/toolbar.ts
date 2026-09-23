@@ -25,6 +25,7 @@ export interface ToolbarEvents {
   onShowShortcuts: () => void;
   onShowMetadata: () => void;
   onMeasureUnitChange?: (unit: MeasureUnit) => void;
+  onCompareFile?: (file: File) => Promise<void>;
 }
 
 export class AppToolbar {
@@ -128,6 +129,12 @@ export class AppToolbar {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>Organize Pages</span>
           </button>
+
+          <button class="btn" id="compare-btn" title="Compare against another PDF">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"></path><path d="M8 21H3v-5"></path><path d="M21 3 14 10"></path><path d="M3 21l7-7"></path></svg>
+            <span>Compare</span>
+          </button>
+          <input type="file" id="compare-file-input" accept="application/pdf" style="display: none;" />
         </div>
 
         <!-- Center Undo/Redo & Zoom Controls -->
@@ -291,6 +298,17 @@ export class AppToolbar {
     });
     byId('print-btn')?.addEventListener('click', () => this.events.onPrint());
     byId('organizer-btn')?.addEventListener('click', () => this.events.onToggleOrganizer());
+    
+    const compareBtn = byId('compare-btn');
+    const compareInput = byId('compare-file-input') as HTMLInputElement;
+    compareBtn?.addEventListener('click', () => compareInput?.click());
+    compareInput?.addEventListener('change', () => {
+      const file = compareInput.files?.[0];
+      if (file && this.events.onCompareFile) {
+        this.events.onCompareFile(file);
+      }
+    });
+
     byId('undo-btn')?.addEventListener('click', () => this.events.onUndo());
     byId('redo-btn')?.addEventListener('click', () => this.events.onRedo());
 

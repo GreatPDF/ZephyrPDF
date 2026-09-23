@@ -51,9 +51,13 @@ export class OrganizerModal {
         <div style="display: flex; gap: 8px;">
           <button class="btn" id="org-rotate-all-btn">Rotate All 90°</button>
           <button class="btn" id="org-add-blank-btn">+ Blank Page</button>
-          <button class="btn" id="org-merge-btn">📎 Merge Another PDF</button>
+          <button class="btn" id="org-merge-btn">📎 Merge PDF</button>
           <button class="btn" id="org-extract-btn" title="Extract selected pages into separate PDF">Extract Selected</button>
-          <button class="btn btn-primary" id="org-apply-btn">Apply & Return to Reader</button>
+          <div style="display: flex; align-items: center; gap: 4px; background: var(--bg-tertiary); padding: 2px 6px; border-radius: 6px;">
+            <input type="text" id="org-range-input" placeholder="Range: 1-3, 5" style="background: transparent; border: none; color: var(--text-primary); font-size: 0.8rem; width: 100px; outline: none;" />
+            <button class="btn" id="org-range-btn" style="height: 26px; padding: 0 8px; font-size: 0.75rem;">Export</button>
+          </div>
+          <button class="btn btn-primary" id="org-apply-btn">Apply & Return</button>
         </div>
       </div>
       <div class="organizer-grid" id="org-grid"></div>
@@ -220,6 +224,24 @@ export class OrganizerModal {
       }
       if (this.events.onExtractPages) {
         await this.events.onExtractPages(Array.from(this.selectedIndices));
+      }
+    });
+
+    const rangeBtn = this.overlay?.querySelector('#org-range-btn');
+    const rangeInput = this.overlay?.querySelector('#org-range-input') as HTMLInputElement;
+    rangeBtn?.addEventListener('click', async () => {
+      const val = rangeInput?.value?.trim();
+      if (!val) {
+        alert('Please enter a page range, e.g. 1-3, 5');
+        return;
+      }
+      const indices = PageManager.parsePageRange(val, this.pageManager.getPageCount());
+      if (indices.length === 0) {
+        alert('No valid pages found in specified range.');
+        return;
+      }
+      if (this.events.onExtractPages) {
+        await this.events.onExtractPages(indices);
       }
     });
   }

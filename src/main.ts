@@ -12,6 +12,8 @@ import { PageAnnotationOverlay } from './annotations/overlay';
 import { SignatureDialog } from './ui/dialogs/signature-dialog';
 import { ShortcutsDialog } from './ui/dialogs/shortcuts-dialog';
 import { MetadataDialog } from './ui/dialogs/metadata-dialog';
+import { CompareDialog } from './ui/dialogs/compare-dialog';
+import { DocumentComparator } from './core/comparator';
 import { OrganizerModal } from './ui/organizer-modal';
 import { NotificationService } from './ui/notification';
 import { createSamplePdf } from './utils/samples';
@@ -116,6 +118,28 @@ class GreatPDFApp {
       },
       onMeasureUnitChange: (unit) => {
         this.activeMeasureUnit = unit;
+      },
+      onCompareFile: async (file: File) => {
+        if (!this.currentDoc) {
+          NotificationService.show('Open a PDF document first before comparing.');
+          return;
+        }
+        try {
+          NotificationService.show(`Analyzing differences with ${file.name}...`);
+          const bytes = new Uint8Array(await file.arrayBuffer());
+          const docB = await PdfLoader.loadFromBytes(bytes, file.name);
+          const summary = await DocumentComparator.compareDocuments(
+            this.currentDoc.pdfjsDoc,
+            docB.pdfjsDoc,
+            this.currentDoc.metadata.fileName,
+            file.name
+          );
+          new CompareDialog(summary).open();
+          NotificationService.show(`Comparison complete: ${summary.changedPagesCount} pages differ.`);
+        } catch (e: any) {
+          console.error(e);
+          alert('Failed to compare documents: ' + e.message);
+        }
       }
     });
 

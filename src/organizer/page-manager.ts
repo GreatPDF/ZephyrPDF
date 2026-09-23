@@ -244,6 +244,36 @@ export class PageManager {
     });
   }
 
+  public static parsePageRange(rangeStr: string, maxPages: number): number[] {
+    const indices = new Set<number>();
+    const parts = rangeStr.split(/[,;\s]+/);
+
+    for (const part of parts) {
+      const clean = part.trim();
+      if (!clean) continue;
+
+      if (clean.includes('-')) {
+        const [startStr, endStr] = clean.split('-');
+        const start = parseInt(startStr, 10);
+        const end = parseInt(endStr, 10);
+        if (!isNaN(start) && !isNaN(end)) {
+          const from = Math.max(1, Math.min(start, end));
+          const to = Math.min(maxPages, Math.max(start, end));
+          for (let p = from; p <= to; p++) {
+            indices.add(p - 1);
+          }
+        }
+      } else {
+        const single = parseInt(clean, 10);
+        if (!isNaN(single) && single >= 1 && single <= maxPages) {
+          indices.add(single - 1);
+        }
+      }
+    }
+
+    return Array.from(indices).sort((a, b) => a - b);
+  }
+
   public subscribe(callback: () => void): () => void {
     this.listeners.push(callback);
     return () => {

@@ -20,10 +20,11 @@
 - **📑 Visual Page Organizer**:
   - Interactive grid view with live page previews.
   - Multi-document merge: Combine pages from multiple PDFs into a single unified file.
-  - Page extraction / split: Select specific pages and export them into a separate document.
+  - Page range extraction & split: Flexible range exporter (e.g. `1-3, 5, 8`) to extract specific pages into a standalone PDF.
   - Drag-and-drop page reordering.
   - 90° Clockwise and Counter-Clockwise page rotations.
   - Page deletion and blank page insertion.
+- **🔍 Document Comparison & Visual Diffing**: Compare revisions of documents with automated pixel-by-pixel change highlighting (Red: removed, Green: added) and change navigation.
 - **📏 Calibrated Measurement Tool**: Real-world distance measurement with dimension lines, tick marks, and customizable units (`mm`, `cm`, `in`, `pt`), ideal for architectural plans and blueprints.
 - **🛡️ Permanent Redaction**: Irreversibly black out confidential data, numbers, or text before distribution.
 - **📝 Interactive Form Filling & Flattening**: In-browser AcroForm support—fill text inputs, check boxes, select dropdowns, and optionally flatten forms upon export to permanently lock submissions.
