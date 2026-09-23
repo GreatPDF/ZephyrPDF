@@ -835,9 +835,82 @@ class ZephyrPDFApp {
       await this.setDocument(loaded);
       NotificationService.show(`Loaded ${file.name} successfully!`);
     } catch (e: any) {
+      if (e?.name === 'PasswordException') {
+        await this.promptPassword(file);
+        return;
+      }
       console.error(e);
       alert('Failed to load PDF file: ' + e.message);
     }
+  }
+
+  public async promptPassword(file: File, isRetry: boolean = false): Promise<void> {
+    return new Promise((resolve) => {
+      const modalBackdrop = document.createElement('div');
+      modalBackdrop.className = 'modal-backdrop';
+
+      modalBackdrop.innerHTML = `
+        <div class="modal-card" style="max-width: 360px;">
+          <div class="modal-header">
+            <h3>🔒 Password Protected</h3>
+            <button class="icon-btn close-modal-btn">✕</button>
+          </div>
+          <div class="modal-body" style="padding: 16px;">
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">
+              ${isRetry ? '<span style="color: var(--danger-color); font-weight: 600;">Incorrect password.</span> ' : ''}
+              This document is encrypted. Please enter the password to open <b>${file.name}</b>:
+            </p>
+            <input type="password" id="pdf-password-input" placeholder="Enter password..." style="width: 100%; height: 38px; padding: 0 12px; font-size: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); outline: none;" />
+          </div>
+          <div class="modal-footer" style="justify-content: flex-end; gap: 8px;">
+            <button class="btn cancel-btn">Cancel</button>
+            <button class="btn btn-primary unlock-btn">Unlock & Open</button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modalBackdrop);
+      const input = modalBackdrop.querySelector('#pdf-password-input') as HTMLInputElement;
+      input?.focus();
+
+      const doUnlock = async () => {
+        const password = input.value;
+        modalBackdrop.remove();
+        try {
+          NotificationService.show(`Unlocking ${file.name}...`);
+          const loaded = await PdfLoader.loadFromFile(file, password);
+          await this.setDocument(loaded);
+          NotificationService.show(`Unlocked & loaded ${file.name}!`);
+          resolve();
+        } catch (err: any) {
+          if (err?.name === 'PasswordException') {
+            await this.promptPassword(file, true);
+            resolve();
+          } else {
+            console.error(err);
+            alert('Failed to unlock document: ' + err.message);
+            resolve();
+          }
+        }
+      };
+
+      modalBackdrop.querySelector('.unlock-btn')?.addEventListener('click', doUnlock);
+      modalBackdrop.querySelector('.cancel-btn')?.addEventListener('click', () => {
+        modalBackdrop.remove();
+        resolve();
+      });
+      modalBackdrop.querySelector('.close-modal-btn')?.addEventListener('click', () => {
+        modalBackdrop.remove();
+        resolve();
+      });
+      input?.addEventListener('keydown', (ke) => {
+        if (ke.key === 'Enter') doUnlock();
+        else if (ke.key === 'Escape') {
+          modalBackdrop.remove();
+          resolve();
+        }
+      });
+    });
   }
 
   public async loadSample(): Promise<void> {
