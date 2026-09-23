@@ -731,7 +731,15 @@ export class PageAnnotationOverlay {
                   await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
                   NotificationService.show('Area snapshot copied to clipboard!');
                 } catch {
-                  NotificationService.show('Snapshot captured successfully!');
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `snapshot_${Date.now()}.png`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  setTimeout(() => URL.revokeObjectURL(url), 2000);
+                  NotificationService.show('Area snapshot downloaded as PNG image!');
                 }
               }
             });
