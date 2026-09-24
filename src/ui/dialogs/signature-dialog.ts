@@ -7,6 +7,11 @@ export class SignatureDialog {
   private strokeWidth: number = 2.5;
   private activeTab: 'draw' | 'type' | 'upload' = 'draw';
   private onSaveCallback: (dataUrl: string) => void;
+  private onKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      this.close();
+    }
+  };
 
   constructor(onSave: (dataUrl: string) => void) {
     this.onSaveCallback = onSave;
@@ -16,10 +21,13 @@ export class SignatureDialog {
     this.render();
   }
 
-  private close(): void {
+  public close(): void {
     if (this.backdrop) {
       this.backdrop.remove();
       this.backdrop = null;
+    }
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('keydown', this.onKeyDown);
     }
   }
 
@@ -79,6 +87,12 @@ export class SignatureDialog {
 
     this.backdrop.appendChild(card);
     document.body.appendChild(this.backdrop);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', this.onKeyDown);
+    }
+    this.backdrop.addEventListener('click', (e) => {
+      if (e.target === this.backdrop) this.close();
+    });
 
     this.setupListeners(card);
   }

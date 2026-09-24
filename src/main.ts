@@ -1625,8 +1625,7 @@ class ZephyrPDFApp {
   public openSignatureDialog(): void {
     new SignatureDialog((dataUrl) => {
       this.activeSignature = dataUrl;
-      this.activeTool = 'signature';
-      this.toolbar.setActiveTool('signature');
+      this.setActiveTool('signature');
       NotificationService.show('Signature ready! Click anywhere on a page to place it.');
     }).open();
   }
