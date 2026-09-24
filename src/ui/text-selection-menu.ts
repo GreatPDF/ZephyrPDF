@@ -142,9 +142,12 @@ export class TextSelectionMenu {
       height: cr.height / scale
     }));
 
-    // Position floating popup directly centered above selection
-    const popupLeft = Math.max(16, rect.left + rect.width / 2 - 110);
-    const popupTop = Math.max(16, rect.top - 46);
+    // Position floating popup directly centered above selection (or below if near top)
+    const popupLeft = Math.max(16, Math.min(window.innerWidth - 240, rect.left + rect.width / 2 - 110));
+    let popupTop = rect.top - 46;
+    if (popupTop < 65) {
+      popupTop = rect.bottom + 10;
+    }
 
     this.menuEl.style.left = `${popupLeft}px`;
     this.menuEl.style.top = `${popupTop}px`;
