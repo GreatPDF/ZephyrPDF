@@ -63,4 +63,27 @@ describe('Form Builder and Chisel Highlighting', () => {
     expect(chiselAnn.strokeWidth).toBe(20);
     expect(chiselAnn.opacity).toBe(0.4);
   });
+
+  it('should create multiline textarea fields with enableMultiline() when height > 35', async () => {
+    const doc = await PDFDocument.create();
+    doc.addPage([600, 800]);
+
+    const formHandler = new FormHandler();
+
+    formHandler.createField({
+      name: 'notes_and_comments',
+      type: 'text',
+      value: 'Line 1: Observations\nLine 2: Recommendations',
+      pageIndex: 0,
+      bounds: { x: 50, y: 200, width: 220, height: 70 }
+    });
+
+    formHandler.applyToPdf(doc);
+    const savedBytes = await doc.save();
+
+    const reloaded = await PDFDocument.load(savedBytes);
+    const field = reloaded.getForm().getTextField('notes_and_comments');
+    expect(field.getText()).toBe('Line 1: Observations\nLine 2: Recommendations');
+    expect(field.isMultiline()).toBe(true);
+  });
 });

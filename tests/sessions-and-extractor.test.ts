@@ -45,4 +45,54 @@ describe('Document Session Manager', () => {
     expect(sessionManager.getAllSessions().length).toBe(1);
     expect(sessionManager.getActiveSession()?.id).toBe(sess2.id);
   });
+
+  it('should maintain independent history and annotation managers across sessions', async () => {
+    const sessionManager = new SessionManager();
+
+    const docA = {
+      pdfjsDoc: { numPages: 1 } as any,
+      pdfLibDoc: await PDFDocument.create(),
+      data: new Uint8Array([1]),
+      metadata: { pageCount: 1, fileSize: 10, fileName: 'Doc_A.pdf' },
+      outline: [],
+      pageDimensions: [{ pageNumber: 1, width: 595, height: 842, rotation: 0, scale: 1 }]
+    } as LoadedDocument;
+
+    const docB = {
+      pdfjsDoc: { numPages: 1 } as any,
+      pdfLibDoc: await PDFDocument.create(),
+      data: new Uint8Array([2]),
+      metadata: { pageCount: 1, fileSize: 20, fileName: 'Doc_B.pdf' },
+      outline: [],
+      pageDimensions: [{ pageNumber: 1, width: 595, height: 842, rotation: 0, scale: 1 }]
+    } as LoadedDocument;
+
+    const sessA = sessionManager.createSession(docA);
+    const sessB = sessionManager.createSession(docB);
+
+    // Add annotation to Session A
+    sessA.annotationManager.addAnnotation({
+      id: 'ann_a1',
+      type: 'rectangle',
+      pageIndex: 0,
+      x: 10,
+      y: 10,
+      width: 50,
+      height: 50,
+      strokeColor: '#38bdf8',
+      strokeWidth: 2,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    });
+
+    expect(sessA.history.canUndo()).toBe(true);
+    expect(sessB.history.canUndo()).toBe(false);
+    expect(sessA.annotationManager.getAllAnnotations().length).toBe(1);
+    expect(sessB.annotationManager.getAllAnnotations().length).toBe(0);
+
+    // Undo on Session A
+    sessA.history.undo();
+    expect(sessA.annotationManager.getAllAnnotations().length).toBe(0);
+    expect(sessB.annotationManager.getAllAnnotations().length).toBe(0);
+  });
 });
