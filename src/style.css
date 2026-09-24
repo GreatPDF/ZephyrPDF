@@ -709,6 +709,15 @@ mark.search-highlight.active {
   box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.35);
 }
 
+.pdf-acro-textarea {
+  resize: none;
+  font-family: inherit;
+  padding: 6px 8px;
+  line-height: 1.4;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
 .pdf-acro-checkbox {
   position: absolute;
   pointer-events: all;

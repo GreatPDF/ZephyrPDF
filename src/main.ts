@@ -1229,9 +1229,11 @@ class ZephyrPDFApp {
               });
               formLayer.appendChild(cb);
             } else {
-              const input = document.createElement('input');
-              input.type = 'text';
+              const isMultiline = f.bounds.height > 35;
+              const input = document.createElement(isMultiline ? 'textarea' : 'input');
+              if (!isMultiline) (input as HTMLInputElement).type = 'text';
               input.className = 'pdf-acro-input';
+              if (isMultiline) input.classList.add('pdf-acro-textarea');
               input.setAttribute('aria-label', f.name);
               input.value = typeof f.value === 'string' ? f.value : '';
               input.style.left = `${leftPx}px`;

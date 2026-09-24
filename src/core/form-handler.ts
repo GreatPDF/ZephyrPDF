@@ -145,6 +145,9 @@ export class FormHandler {
               });
             } else {
               field = form.createTextField(info.name);
+              if (info.bounds.height > 35) {
+                field.enableMultiline();
+              }
               field.addToPage(targetPage, {
                 x: info.bounds.x,
                 y: info.bounds.y,

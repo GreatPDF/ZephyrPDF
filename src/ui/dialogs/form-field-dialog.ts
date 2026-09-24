@@ -47,7 +47,8 @@ export class FormFieldDialog {
         <div>
           <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">Field Type:</label>
           <select id="ff-type-select" style="width: 100%; padding: 8px 10px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-size: 0.9rem;">
-            <option value="text">Text Input (Text Field)</option>
+            <option value="text">Single-line Text Field</option>
+            <option value="textarea">Multi-line Text Field (Textarea)</option>
             <option value="checkbox">Checkbox</option>
           </select>
         </div>
@@ -107,13 +108,15 @@ export class FormFieldDialog {
       const pageSelect = card.querySelector('#ff-page-select') as HTMLSelectElement;
       const posSelect = card.querySelector('#ff-pos-select') as HTMLSelectElement;
 
-      const type = (typeSelect?.value || 'text') as 'text' | 'checkbox';
+      const typeVal = typeSelect?.value || 'text';
+      const type = (typeVal === 'checkbox' ? 'checkbox' : 'text') as 'text' | 'checkbox';
+      const isTextarea = typeVal === 'textarea';
       const name = (nameInput?.value.trim() || `field_${Date.now()}`).replace(/\s+/g, '_');
       const pageIndex = parseInt(pageSelect?.value || '0', 10);
       const pos = posSelect?.value || 'center';
 
-      let width = type === 'checkbox' ? 20 : 180;
-      let height = type === 'checkbox' ? 20 : 26;
+      let width = type === 'checkbox' ? 20 : (isTextarea ? 220 : 180);
+      let height = type === 'checkbox' ? 20 : (isTextarea ? 70 : 26);
 
       const pw = this.props.pageWidth || 595;
       const ph = this.props.pageHeight || 842;
