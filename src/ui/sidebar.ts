@@ -164,9 +164,9 @@ export class AppSidebar {
       let label = ann.type.toUpperCase();
       if (ann.type === 'text') label = `Text: "${ann.text.substring(0, 15)}..."`;
       if (ann.type === 'stamp') label = `Stamp: ${ann.stampType}`;
-      if (ann.type === 'image') label = `🖼️ Image (${Math.round(ann.width)}×${Math.round(ann.height)})`;
-      if (ann.type === 'signature') label = `✍️ Signature`;
-      if (ann.type === 'sticky_note') label = `📝 Note: "${ann.title || 'Note'}"`;
+      if (ann.type === 'image') label = `Image (${Math.round(ann.width)}×${Math.round(ann.height)})`;
+      if (ann.type === 'signature') label = `Signature`;
+      if (ann.type === 'sticky_note') label = `Note: "${ann.title || 'Note'}"`;
 
       card.innerHTML = `
         <div style="display: flex; flex-direction: column; gap: 2px;">
@@ -245,8 +245,9 @@ export class AppSidebar {
             <button class="btn" id="import-ann-json-btn" style="flex: 1; height: 26px; font-size: 0.75rem; padding: 0;">Restore</button>
             <input type="file" id="import-ann-json-input" accept="application/json" style="display: none;" />
           </div>
-          <button class="btn" id="export-annotation-report-btn" style="height: 28px; font-size: 0.75rem; width: 100%; margin-bottom: 8px;">
-            📋 Export Summary Report (.md)
+          <button class="btn" id="export-annotation-report-btn" style="height: 28px; font-size: 0.75rem; width: 100%; margin-bottom: 8px; justify-content: center; gap: 6px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <span>Export Summary Report (.md)</span>
           </button>
           <div class="annotations-list" id="sidebar-annotations-list">
             <div style="color: var(--text-muted); font-size: 0.8rem; padding: 20px;">No annotations</div>
@@ -268,8 +269,9 @@ export class AppSidebar {
                 <button class="icon-btn" id="search-next-btn" style="width: 28px; height: 28px;" title="Next Match">▼</button>
               </div>
             </div>
-            <button class="btn" id="export-search-citations-btn" style="height: 28px; font-size: 0.75rem; width: 100%; margin-top: 4px;">
-              📋 Export Citations (.md)
+            <button class="btn" id="export-search-citations-btn" style="height: 28px; font-size: 0.75rem; width: 100%; margin-top: 4px; justify-content: center; gap: 6px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              <span>Export Citations (.md)</span>
             </button>
           </div>
         </div>
@@ -367,6 +369,7 @@ export class AppSidebar {
       if (file && this.events.onImportAnnotationJson) {
         this.events.onImportAnnotationJson(file);
       }
+      importJsonInput.value = '';
     });
   }
 }
