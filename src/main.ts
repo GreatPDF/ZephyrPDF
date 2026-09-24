@@ -787,6 +787,15 @@ class ZephyrPDFApp {
       } else if (e.key.toLowerCase() === 'c' && !e.ctrlKey && !e.metaKey) {
         this.setActiveTool('snapshot');
       } else if (e.key === 'Escape') {
+        const modalBackdrops = document.querySelectorAll('.modal-backdrop');
+        if (modalBackdrops.length > 0) {
+          const lastBackdrop = modalBackdrops[modalBackdrops.length - 1];
+          lastBackdrop.remove();
+          return;
+        }
+
+        this.contextMenu?.hide();
+        this.textSelectionMenu?.hide();
         this.annotationManager.selectAnnotation(null);
         this.setActiveTool('select');
         window.getSelection()?.removeAllRanges();
