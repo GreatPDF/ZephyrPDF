@@ -580,10 +580,11 @@ class ZephyrPDFApp {
     // Wire file picker input
     const fileInput = document.getElementById('file-input') as HTMLInputElement;
     fileInput?.addEventListener('change', async () => {
-      const file = fileInput.files?.[0];
-      if (file) {
+      const files = Array.from(fileInput.files || []);
+      for (const file of files) {
         await this.loadFile(file);
       }
+      fileInput.value = '';
     });
 
     // Wire empty state buttons
@@ -615,8 +616,15 @@ class ZephyrPDFApp {
 
     window.addEventListener('drop', async (e: DragEvent) => {
       handleDrag(e);
-      const file = e.dataTransfer?.files?.[0];
-      if (file && file.type === 'application/pdf') {
+      const files = Array.from(e.dataTransfer?.files || []);
+      const pdfFiles = files.filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+
+      if (pdfFiles.length === 0 && files.length > 0) {
+        NotificationService.show('Please drop standard PDF documents.', 4000, true);
+        return;
+      }
+
+      for (const file of pdfFiles) {
         await this.loadFile(file);
       }
     });
