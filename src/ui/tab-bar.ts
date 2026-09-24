@@ -46,7 +46,7 @@ export class DocumentTabBar {
       tab.innerHTML = `
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.7; flex-shrink: 0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
         <span class="doc-tab-title">${session.doc.metadata.fileName}</span>
-        <button class="doc-tab-close" title="Close document">✕</button>
+        <button class="doc-tab-close" title="Close document" aria-label="Close document">✕</button>
       `;
 
       tab.addEventListener('click', () => {
@@ -67,6 +67,7 @@ export class DocumentTabBar {
     const addBtn = document.createElement('button');
     addBtn.className = 'doc-tab-add';
     addBtn.title = 'Open PDF in new tab';
+    addBtn.setAttribute('aria-label', 'Open PDF in new tab');
     addBtn.innerHTML = '+';
     addBtn.addEventListener('click', () => {
       this.events.onNewTab();

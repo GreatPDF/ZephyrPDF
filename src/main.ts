@@ -300,14 +300,8 @@ class ZephyrPDFApp {
           await this.applySession(session);
         }
       },
-      onCloseTab: async (sessionId) => {
-        const nextSession = this.sessionManager.closeSession(sessionId);
-        this.tabBar.update(this.sessionManager.getAllSessions(), nextSession ? nextSession.id : null);
-        if (nextSession) {
-          await this.applySession(nextSession);
-        } else {
-          this.closeAllSessions();
-        }
+      onCloseTab: (sessionId) => {
+        this.closeTab(sessionId);
       },
       onNewTab: () => {
         this.triggerFilePicker();
@@ -819,6 +813,38 @@ class ZephyrPDFApp {
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
         e.preventDefault();
         window.print();
+      } else if (((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'w') || (e.altKey && e.key.toLowerCase() === 'w')) {
+        const active = this.sessionManager.getActiveSession();
+        if (active) {
+          e.preventDefault();
+          this.closeTab(active.id);
+        }
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'PageDown' || (e.key === 'Tab' && !e.shiftKey))) {
+        const sessions = this.sessionManager.getAllSessions();
+        if (sessions.length > 1) {
+          e.preventDefault();
+          const active = this.sessionManager.getActiveSession();
+          const currentIdx = sessions.findIndex(s => s.id === active?.id);
+          const nextIdx = (currentIdx + 1) % sessions.length;
+          const nextSession = this.sessionManager.switchSession(sessions[nextIdx].id);
+          if (nextSession) {
+            this.tabBar.update(sessions, nextSession.id);
+            this.applySession(nextSession);
+          }
+        }
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'PageUp' || (e.key === 'Tab' && e.shiftKey))) {
+        const sessions = this.sessionManager.getAllSessions();
+        if (sessions.length > 1) {
+          e.preventDefault();
+          const active = this.sessionManager.getActiveSession();
+          const currentIdx = sessions.findIndex(s => s.id === active?.id);
+          const prevIdx = (currentIdx - 1 + sessions.length) % sessions.length;
+          const nextSession = this.sessionManager.switchSession(sessions[prevIdx].id);
+          if (nextSession) {
+            this.tabBar.update(sessions, nextSession.id);
+            this.applySession(nextSession);
+          }
+        }
       } else if ((e.ctrlKey || e.metaKey) && e.key === '[') {
         e.preventDefault();
         this.pageManager.rotatePage(this.currentPageNumber - 1, -90);
@@ -1202,6 +1228,16 @@ class ZephyrPDFApp {
       this.fitToWidth();
     }
     this.updatePageHUD();
+  }
+
+  public async closeTab(sessionId: string): Promise<void> {
+    const nextSession = this.sessionManager.closeSession(sessionId);
+    this.tabBar.update(this.sessionManager.getAllSessions(), nextSession ? nextSession.id : null);
+    if (nextSession) {
+      await this.applySession(nextSession);
+    } else {
+      this.closeAllSessions();
+    }
   }
 
   public closeAllSessions(): void {

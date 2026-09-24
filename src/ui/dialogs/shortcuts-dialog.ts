@@ -42,6 +42,8 @@ export class ShortcutsDialog {
         <h4 style="margin: 8px 0 12px; color: var(--accent-color); font-size: 0.95rem;">Navigation & View</h4>
         <div class="shortcut-row"><span>Go to Page</span><span class="shortcut-kbd">Ctrl + G</span></div>
         <div class="shortcut-row"><span>Toggle Sidebar</span><span class="shortcut-kbd">Ctrl + B</span></div>
+        <div class="shortcut-row"><span>Next / Previous Tab</span><div><span class="shortcut-kbd">Ctrl + Tab</span> or <span class="shortcut-kbd">Ctrl + PgDn / PgUp</span></div></div>
+        <div class="shortcut-row"><span>Close Document Tab</span><div><span class="shortcut-kbd">Ctrl + W</span> / <span class="shortcut-kbd">Alt + W</span></div></div>
         <div class="shortcut-row"><span>Toggle Presentation / Fullscreen</span><span class="shortcut-kbd">F11</span></div>
         <div class="shortcut-row"><span>Next / Previous Page</span><div><span class="shortcut-kbd">←</span> / <span class="shortcut-kbd">→</span> or <span class="shortcut-kbd">j</span> / <span class="shortcut-kbd">k</span> or <span class="shortcut-kbd">PgDn</span> / <span class="shortcut-kbd">PgUp</span></div></div>
         <div class="shortcut-row"><span>First / Last Page</span><div><span class="shortcut-kbd">gg</span> / <span class="shortcut-kbd">G</span> or <span class="shortcut-kbd">Home</span> / <span class="shortcut-kbd">End</span></div></div>
