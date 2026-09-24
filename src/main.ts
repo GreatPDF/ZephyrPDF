@@ -134,6 +134,7 @@ class ZephyrPDFApp {
       onRedo: () => this.history.redo(),
       onZoomIn: () => this.setZoom(this.currentScale * 1.15),
       onZoomOut: () => this.setZoom(this.currentScale / 1.15),
+      onResetZoom: () => this.setZoom(1.0),
       onZoomFitWidth: () => this.fitToWidth(),
       onZoomFitPage: () => this.fitToPage(),
       onToolSelect: (tool) => {
@@ -832,11 +833,18 @@ class ZephyrPDFApp {
         e.preventDefault();
         this.togglePresentationMode();
       } else if (e.key === '=' || e.key === '+') {
+        if (e.ctrlKey || e.metaKey) e.preventDefault();
         this.setZoom(this.currentScale * 1.15);
       } else if (e.key === '-') {
+        if (e.ctrlKey || e.metaKey) e.preventDefault();
         this.setZoom(this.currentScale / 1.15);
       } else if (e.key === '0') {
-        this.fitToPage();
+        if (e.ctrlKey || e.metaKey) {
+          e.preventDefault();
+          this.setZoom(1.0);
+        } else {
+          this.fitToPage();
+        }
       } else if (e.key === '9') {
         this.fitToWidth();
       } else if (e.key.toLowerCase() === 'j' || e.key === 'PageDown') {

@@ -47,6 +47,7 @@ export class ShortcutsDialog {
         <div class="shortcut-row"><span>First / Last Page</span><div><span class="shortcut-kbd">gg</span> / <span class="shortcut-kbd">G</span> or <span class="shortcut-kbd">Home</span> / <span class="shortcut-kbd">End</span></div></div>
         <div class="shortcut-row"><span>Rotate Page CCW / CW</span><div><span class="shortcut-kbd">Ctrl + [</span> / <span class="shortcut-kbd">Ctrl + ]</span></div></div>
         <div class="shortcut-row"><span>Zoom In / Out</span><div><span class="shortcut-kbd">+</span> / <span class="shortcut-kbd">-</span> or <span class="shortcut-kbd">Ctrl + Wheel</span></div></div>
+        <div class="shortcut-row"><span>Reset Zoom (100%)</span><span class="shortcut-kbd">Ctrl + 0</span></div>
         <div class="shortcut-row"><span>Fit to Page / Width</span><div><span class="shortcut-kbd">0</span> / <span class="shortcut-kbd">9</span></div></div>
         <div class="shortcut-row"><span>Quick Search / Find</span><span class="shortcut-kbd">/</span> or <span class="shortcut-kbd">Ctrl + F</span></div>
         <div class="shortcut-row"><span>Find Next / Prev Match</span><div><span class="shortcut-kbd">F3</span> / <span class="shortcut-kbd">Shift + F3</span> or <span class="shortcut-kbd">Enter</span></div></div>
