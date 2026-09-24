@@ -301,15 +301,49 @@ export class PdfExporter {
               color: rgb(strokeColor.r, strokeColor.g, strokeColor.b)
             });
 
-            // Draw label at midpoint
+            // Perpendicular end ticks
+            const angle = Math.atan2(ann.y2 - ann.y1, ann.x2 - ann.x1);
+            const tickLen = 5;
+            const perpX = Math.sin(angle) * tickLen;
+            const perpY = -Math.cos(angle) * tickLen;
+
+            targetPage.drawLine({
+              start: { x: ann.x1 - perpX, y: pageHeight - (ann.y1 - perpY) },
+              end: { x: ann.x1 + perpX, y: pageHeight - (ann.y1 + perpY) },
+              thickness: 1.5,
+              color: rgb(strokeColor.r, strokeColor.g, strokeColor.b)
+            });
+
+            targetPage.drawLine({
+              start: { x: ann.x2 - perpX, y: pageHeight - (ann.y2 - perpY) },
+              end: { x: ann.x2 + perpX, y: pageHeight - (ann.y2 + perpY) },
+              thickness: 1.5,
+              color: rgb(strokeColor.r, strokeColor.g, strokeColor.b)
+            });
+
+            // Draw label badge at midpoint
             const midX = (ann.x1 + ann.x2) / 2;
             const midY = (ann.y1 + ann.y2) / 2;
+            const textWidth = fontHelveticaBold.widthOfTextAtSize(ann.formattedValue, 8);
+            const badgeW = textWidth + 8;
+            const badgeH = 14;
+
+            targetPage.drawRectangle({
+              x: midX - badgeW / 2,
+              y: pageHeight - (midY + badgeH / 2),
+              width: badgeW,
+              height: badgeH,
+              color: rgb(0.12, 0.16, 0.23),
+              borderColor: rgb(strokeColor.r, strokeColor.g, strokeColor.b),
+              borderWidth: 1
+            });
+
             targetPage.drawText(ann.formattedValue, {
-              x: midX - 16,
+              x: midX - textWidth / 2,
               y: pageHeight - (midY + 3),
               size: 8,
               font: fontHelveticaBold,
-              color: rgb(strokeColor.r, strokeColor.g, strokeColor.b)
+              color: rgb(1, 1, 1)
             });
           }
         } catch (e) {
