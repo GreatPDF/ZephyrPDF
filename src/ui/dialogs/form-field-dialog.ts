@@ -11,6 +11,11 @@ export interface FormFieldDialogProps {
 export class FormFieldDialog {
   private backdrop: HTMLElement | null = null;
   private props: FormFieldDialogProps;
+  private onKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      this.close();
+    }
+  };
 
   constructor(props: FormFieldDialogProps) {
     this.props = props;
@@ -24,6 +29,9 @@ export class FormFieldDialog {
     if (this.backdrop) {
       this.backdrop.remove();
       this.backdrop = null;
+    }
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('keydown', this.onKeyDown);
     }
   }
 
@@ -90,6 +98,9 @@ export class FormFieldDialog {
 
     this.backdrop.appendChild(card);
     document.body.appendChild(this.backdrop);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', this.onKeyDown);
+    }
 
     const closeBtn = card.querySelector('#close-ff-btn');
     const cancelBtn = card.querySelector('#cancel-ff-btn');

@@ -1,5 +1,15 @@
 export class ShortcutsDialog {
   private backdrop: HTMLElement | null = null;
+  private onFeedback?: () => void;
+  private onKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      this.close();
+    }
+  };
+
+  constructor(onFeedback?: () => void) {
+    this.onFeedback = onFeedback;
+  }
 
   public open(): void {
     this.render();
@@ -9,6 +19,9 @@ export class ShortcutsDialog {
     if (this.backdrop) {
       this.backdrop.remove();
       this.backdrop = null;
+    }
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('keydown', this.onKeyDown);
     }
   }
 
@@ -65,19 +78,28 @@ export class ShortcutsDialog {
         <div class="shortcut-row"><span>Print Document</span><span class="shortcut-kbd">Ctrl + P</span></div>
         <div class="shortcut-row"><span>Show Shortcuts</span><span class="shortcut-kbd">?</span></div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <button class="btn" id="shortcuts-feedback-btn" style="font-size: 0.8rem;">💬 Feedback / Report Issue</button>
         <button class="btn btn-primary" id="ok-shortcuts-btn">Got it</button>
       </div>
     `;
 
     this.backdrop.appendChild(card);
     document.body.appendChild(this.backdrop);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', this.onKeyDown);
+    }
 
     const closeBtn = card.querySelector('#close-shortcuts-btn');
     const okBtn = card.querySelector('#ok-shortcuts-btn');
+    const feedbackBtn = card.querySelector('#shortcuts-feedback-btn');
 
     closeBtn?.addEventListener('click', () => this.close());
     okBtn?.addEventListener('click', () => this.close());
+    feedbackBtn?.addEventListener('click', () => {
+      this.close();
+      if (this.onFeedback) this.onFeedback();
+    });
     this.backdrop.addEventListener('click', (e) => {
       if (e.target === this.backdrop) this.close();
     });

@@ -25,6 +25,7 @@ export interface ToolbarEvents {
   onViewModeChange: (mode: ViewMode) => void;
   onShowShortcuts: () => void;
   onShowMetadata: () => void;
+  onShowFeedback?: () => void;
   onMeasureUnitChange?: (unit: MeasureUnit) => void;
   onCompareFile?: (file: File) => Promise<void>;
   onInsertImage?: (file: File) => void;
@@ -210,6 +211,10 @@ export class AppToolbar {
         <div class="toolbar-group">
           <button class="icon-btn" id="theme-toggle-btn" title="Toggle Reading Theme (Dark/Light/Sepia)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          </button>
+
+          <button class="icon-btn" id="feedback-btn" title="Feedback & Bug Report (No account needed)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><line x1="9" y1="10" x2="9.01" y2="10" stroke-width="3"></line><line x1="12" y1="10" x2="12.01" y2="10" stroke-width="3"></line><line x1="15" y1="10" x2="15.01" y2="10" stroke-width="3"></line></svg>
           </button>
 
           <button class="icon-btn" id="meta-btn" title="Document Properties">
@@ -422,6 +427,9 @@ export class AppToolbar {
     });
 
     byId('meta-btn')?.addEventListener('click', () => this.events.onShowMetadata());
+    byId('feedback-btn')?.addEventListener('click', () => {
+      if (this.events.onShowFeedback) this.events.onShowFeedback();
+    });
     byId('shortcuts-btn')?.addEventListener('click', () => this.events.onShowShortcuts());
     byId('sig-btn')?.addEventListener('click', () => this.events.onSignatureClick());
 

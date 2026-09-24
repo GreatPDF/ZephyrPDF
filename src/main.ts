@@ -13,6 +13,7 @@ import { AppSidebar } from './ui/sidebar';
 import { PageAnnotationOverlay } from './annotations/overlay';
 import { SignatureDialog } from './ui/dialogs/signature-dialog';
 import { ShortcutsDialog } from './ui/dialogs/shortcuts-dialog';
+import { FeedbackDialog } from './ui/dialogs/feedback-dialog';
 import { MetadataDialog } from './ui/dialogs/metadata-dialog';
 import { CompareDialog } from './ui/dialogs/compare-dialog';
 import { WatermarkDialog } from './ui/dialogs/watermark-dialog';
@@ -172,7 +173,8 @@ class ZephyrPDFApp {
           NotificationService.show('Continuous Scroll View enabled');
         }
       },
-      onShowShortcuts: () => new ShortcutsDialog().open(),
+      onShowShortcuts: () => new ShortcutsDialog(() => this.showFeedbackDialog()).open(),
+      onShowFeedback: () => this.showFeedbackDialog(),
       onShowMetadata: () => {
         if (this.currentDoc) {
           new MetadataDialog(this.currentDoc.metadata, {
@@ -649,9 +651,11 @@ class ZephyrPDFApp {
     let toolBeforeSpace: ToolType = 'select';
 
     window.addEventListener('keydown', (e) => {
-      // Ignore if user is typing into input or textarea
+      // Ignore if user is typing into input or textarea (unless pressing Escape)
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) {
-        return;
+        if (e.key !== 'Escape') {
+          return;
+        }
       }
 
       // Spacebar temporary hand pan
@@ -831,7 +835,7 @@ class ZephyrPDFApp {
         }
         this.lastGKeyTime = now;
       } else if (e.key === '?') {
-        new ShortcutsDialog().open();
+        new ShortcutsDialog(() => this.showFeedbackDialog()).open();
       }
     });
 
@@ -1373,6 +1377,19 @@ class ZephyrPDFApp {
     } else {
       document.exitFullscreen?.().catch(() => {});
     }
+  }
+
+  public showFeedbackDialog(): void {
+    const viewSelect = document.getElementById('view-mode-select') as HTMLSelectElement;
+    const viewMode = viewSelect?.value || 'continuous';
+    new FeedbackDialog({
+      version: '2.9.0',
+      currentPage: this.currentPageNumber,
+      pageCount: this.pageManager.getPageCount() || 1,
+      zoom: this.currentScale,
+      theme: this.currentTheme,
+      viewMode: viewMode,
+    }).open();
   }
 
   public setActiveTool(tool: ToolType): void {
