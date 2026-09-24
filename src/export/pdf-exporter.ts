@@ -96,6 +96,19 @@ export class PdfExporter {
                 opacity: ann.opacity || 0.35
               });
             }
+          } else if (ann.type === 'underline' || ann.type === 'strikeout') {
+            const strokeColor = hexToPdfRgb(ann.color || (ann.type === 'strikeout' ? '#ef4444' : '#2563eb'));
+            for (const r of ann.rects) {
+              const lineY = ann.type === 'underline'
+                ? pageHeight - (r.y + r.height - 1)
+                : pageHeight - (r.y + r.height / 2);
+              targetPage.drawLine({
+                start: { x: r.x, y: lineY },
+                end: { x: r.x + r.width, y: lineY },
+                thickness: ann.strokeWidth || 1.5,
+                color: rgb(strokeColor.r, strokeColor.g, strokeColor.b)
+              });
+            }
           } else if (ann.type === 'freehand') {
             const pdfColor = hexToPdfRgb(ann.color);
             const pts = ann.points;

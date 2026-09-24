@@ -80,11 +80,28 @@ export class TextSelectionMenu {
       setTimeout(() => this.checkSelection(), 10);
     });
 
+    document.addEventListener('touchend', () => {
+      setTimeout(() => this.checkSelection(), 60);
+    });
+
+    document.addEventListener('selectionchange', () => {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed) {
+        this.hide();
+      }
+    });
+
     document.addEventListener('mousedown', (e) => {
       if (!this.menuEl.contains(e.target as Node)) {
         this.hide();
       }
     });
+
+    document.addEventListener('touchstart', (e) => {
+      if (!this.menuEl.contains(e.target as Node)) {
+        this.hide();
+      }
+    }, { passive: true });
   }
 
   private checkSelection(): void {
@@ -192,7 +209,7 @@ export class TextSelectionMenu {
         type: action,
         pageIndex: this.currentPageIndex,
         rects: this.currentSelectionRects,
-        color: '#1565c0',
+        color: action === 'strikeout' ? '#ef4444' : '#2563eb',
         strokeWidth: 2,
         createdAt: now,
         updatedAt: now

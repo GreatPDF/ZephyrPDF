@@ -7,7 +7,7 @@ import { AnnotationManager } from '../src/annotations/manager';
 import { HistoryManager } from '../src/core/history';
 import { FormHandler } from '../src/core/form-handler';
 import { PdfExporter } from '../src/export/pdf-exporter';
-import { MeasureAnnotation, StickyNoteAnnotation } from '../src/types/annotations';
+import { MeasureAnnotation, StickyNoteAnnotation, MarkupAnnotation } from '../src/types/annotations';
 
 describe('Measurement and Flattening', () => {
   it('should accurately convert PDF points to real-world units', () => {
@@ -119,6 +119,55 @@ describe('Measurement and Flattening', () => {
       updatedAt: Date.now()
     };
     annotationManager.addAnnotation(noteAnn);
+
+    const exportedBytes = await PdfExporter.exportDocument(
+      sourceBytes,
+      pageManager,
+      annotationManager,
+      formHandler
+    );
+
+    expect(exportedBytes).toBeInstanceOf(Uint8Array);
+    const exportedDoc = await PDFDocument.load(exportedBytes);
+    expect(exportedDoc.getPageCount()).toBe(2);
+  });
+
+  it('should bake underline and strikeout annotations into exported PDF', async () => {
+    const sourceBytes = await createSamplePdf();
+    const history = new HistoryManager();
+    const pageManager = new PageManager(history);
+    const annotationManager = new AnnotationManager(history);
+    const formHandler = new FormHandler();
+
+    pageManager.initFromDocument(2, [
+      { width: 595.28, height: 841.89, rotation: 0 },
+      { width: 595.28, height: 841.89, rotation: 0 }
+    ]);
+
+    const underlineAnn: MarkupAnnotation = {
+      id: 'und_pdf_1',
+      type: 'underline',
+      pageIndex: 0,
+      rects: [{ x: 60, y: 120, width: 100, height: 16 }],
+      color: '#2563eb',
+      strokeWidth: 2,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    const strikeAnn: MarkupAnnotation = {
+      id: 'str_pdf_1',
+      type: 'strikeout',
+      pageIndex: 0,
+      rects: [{ x: 200, y: 120, width: 80, height: 16 }],
+      color: '#ef4444',
+      strokeWidth: 2,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    annotationManager.addAnnotation(underlineAnn);
+    annotationManager.addAnnotation(strikeAnn);
 
     const exportedBytes = await PdfExporter.exportDocument(
       sourceBytes,

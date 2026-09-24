@@ -794,7 +794,7 @@ export class PageAnnotationOverlay {
   }
 
   private hitTestAnnotation(ann: Annotation, p: { x: number; y: number }): boolean {
-    if (ann.type === 'highlight') {
+    if (ann.type === 'highlight' || ann.type === 'underline' || ann.type === 'strikeout' || ann.type === 'squiggle') {
       return ann.rects.some(r => pointInRect(p, r));
     }
     if (
@@ -872,6 +872,27 @@ export class PageAnnotationOverlay {
             r.setAttribute('stroke-dasharray', '4,2');
           }
           this.svgLayer.appendChild(r);
+        }
+      } else if (ann.type === 'underline' || ann.type === 'strikeout') {
+        const strokeColor = ann.color || (ann.type === 'strikeout' ? '#ef4444' : '#2563eb');
+        for (const rect of ann.rects) {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          const lineY = ann.type === 'underline'
+            ? (rect.y + rect.height - 1) * scale
+            : (rect.y + rect.height / 2) * scale;
+          line.setAttribute('x1', (rect.x * scale).toString());
+          line.setAttribute('y1', lineY.toString());
+          line.setAttribute('x2', ((rect.x + rect.width) * scale).toString());
+          line.setAttribute('y2', lineY.toString());
+          line.setAttribute('stroke', strokeColor);
+          line.setAttribute('stroke-width', ((ann.strokeWidth || 2) * scale).toString());
+          line.setAttribute('stroke-linecap', 'round');
+          line.setAttribute('style', 'pointer-events: all; cursor: pointer;');
+          if (isSelected) {
+            line.setAttribute('stroke-dasharray', '4,2');
+            line.setAttribute('stroke-width', ((ann.strokeWidth || 2) * scale + 1.5).toString());
+          }
+          this.svgLayer.appendChild(line);
         }
       } else if (ann.type === 'freehand') {
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
