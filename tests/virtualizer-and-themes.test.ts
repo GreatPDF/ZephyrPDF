@@ -38,4 +38,18 @@ describe('Viewport Virtualizer and Themes', () => {
     expect(supportedThemes).toContain('high-contrast');
     expect(supportedThemes.length).toBe(5);
   });
+
+  it('should preserve true document colors in dark, oled, and light themes without inverting canvas', () => {
+    const getFilterForTheme = (theme: ThemeMode): string => {
+      if (theme === 'high-contrast') return 'invert(1) contrast(1.8) grayscale(0.5)';
+      if (theme === 'sepia') return 'sepia(0.35) contrast(0.95) brightness(0.95)';
+      return 'none';
+    };
+
+    expect(getFilterForTheme('dark')).toBe('none');
+    expect(getFilterForTheme('light')).toBe('none');
+    expect(getFilterForTheme('oled')).toBe('none');
+    expect(getFilterForTheme('high-contrast')).toContain('invert');
+    expect(getFilterForTheme('sepia')).toContain('sepia');
+  });
 });

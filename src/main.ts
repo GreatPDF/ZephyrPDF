@@ -1538,6 +1538,7 @@ class ZephyrPDFApp {
     this.currentTheme = theme;
     document.documentElement.setAttribute('data-theme', theme);
     this.renderDocument();
+    NotificationService.show(`Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)}`);
   }
 
   public openSignatureDialog(): void {

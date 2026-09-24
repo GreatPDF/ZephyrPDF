@@ -589,14 +589,6 @@ button.btn.btn-primary:hover {
   transition: background-color var(--transition-normal);
 }
 
-[data-theme="dark"] .page-container {
-  background-color: #1e293b;
-}
-
-[data-theme="oled"] .page-container {
-  background-color: #000000;
-}
-
 [data-theme="sepia"] .page-container {
   background-color: #fbf0d9;
 }
