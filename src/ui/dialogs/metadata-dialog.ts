@@ -8,6 +8,11 @@ export class MetadataDialog {
   private backdrop: HTMLElement | null = null;
   private metadata: DocumentMetadata;
   private events?: MetadataDialogEvents;
+  private onKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      this.close();
+    }
+  };
 
   constructor(metadata: DocumentMetadata, events?: MetadataDialogEvents) {
     this.metadata = { ...metadata };
@@ -22,6 +27,9 @@ export class MetadataDialog {
     if (this.backdrop) {
       this.backdrop.remove();
       this.backdrop = null;
+    }
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('keydown', this.onKeyDown);
     }
   }
 
@@ -89,8 +97,9 @@ export class MetadataDialog {
           </div>
         </div>
 
-        <button class="btn" id="sanitize-meta-btn" style="border: 1px dashed var(--danger-color); color: var(--danger-color); font-size: 0.8rem; height: 32px; justify-content: center;">
-          🧹 Sanitize Metadata (Remove Personal/Author Traces)
+        <button class="btn" id="sanitize-meta-btn" style="border: 1px dashed var(--danger-color); color: var(--danger-color); font-size: 0.8rem; height: 32px; justify-content: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <span>Sanitize Metadata (Remove Personal & Author Traces)</span>
         </button>
       </div>
 
@@ -102,6 +111,12 @@ export class MetadataDialog {
 
     this.backdrop.appendChild(card);
     document.body.appendChild(this.backdrop);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', this.onKeyDown);
+    }
+    this.backdrop.addEventListener('click', (e) => {
+      if (e.target === this.backdrop) this.close();
+    });
 
     this.setupListeners(card);
   }
