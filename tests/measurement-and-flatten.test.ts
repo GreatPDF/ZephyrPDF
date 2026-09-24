@@ -91,6 +91,21 @@ describe('Measurement and Flattening', () => {
     expect(flattenedBytes).toBeInstanceOf(Uint8Array);
     const flattenedDoc = await PDFDocument.load(flattenedBytes);
     expect(flattenedDoc.getPageCount()).toBe(2);
+    // Verified: flattened documents convert interactive AcroForms to static graphics
+    expect(flattenedDoc.getForm().getFields().length).toBe(0);
+
+    // Export without flattening (preserve interactive form fields)
+    const interactiveBytes = await PdfExporter.exportDocument(
+      sourceBytes,
+      pageManager,
+      annotationManager,
+      formHandler,
+      undefined,
+      false
+    );
+    const interactiveDoc = await PDFDocument.load(interactiveBytes);
+    expect(interactiveDoc.getForm().getFields().length).toBeGreaterThan(0);
+    expect(interactiveDoc.getForm().getTextField('reviewer_name').getText()).toBe('Final Flattened Signer');
   });
 
   it('should bake sticky_note annotations with pin and comment text into exported PDF', async () => {

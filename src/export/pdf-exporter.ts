@@ -364,8 +364,16 @@ export class PdfExporter {
       }
     }
 
-    if (formHandler && !flattenForm) {
+    if (formHandler) {
       formHandler.applyToPdf(newDoc);
+      if (flattenForm) {
+        try {
+          const form = newDoc.getForm();
+          form.flatten();
+        } catch (err) {
+          console.warn('Could not flatten form:', err);
+        }
+      }
     }
 
     return await newDoc.save();
