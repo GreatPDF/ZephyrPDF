@@ -1176,6 +1176,22 @@ mark.search-highlight.active {
   }
 }
 
+/* Presentation Mode */
+body.presentation-mode #app-header {
+  opacity: 0.15;
+  transition: opacity 0.3s ease;
+}
+
+body.presentation-mode #app-header:hover {
+  opacity: 1;
+}
+
+body.presentation-mode .sidebar,
+body.presentation-mode .sidebar-backdrop,
+body.presentation-mode .doc-tab-strip {
+  display: none !important;
+}
+
 /* ==========================================================================
    Print Stylesheet
    ========================================================================== */

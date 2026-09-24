@@ -165,7 +165,7 @@ class ZephyrPDFApp {
           }
           NotificationService.show('Two-Page Spread View enabled');
         } else if (mode === 'presentation') {
-          document.documentElement.requestFullscreen?.();
+          this.togglePresentationMode();
           NotificationService.show('Presentation Mode enabled');
         } else {
           viewerContainer?.classList.remove('mode-two-page');
@@ -590,6 +590,20 @@ class ZephyrPDFApp {
     // Wire empty state buttons
     document.getElementById('empty-open-btn')?.addEventListener('click', () => this.triggerFilePicker());
     document.getElementById('empty-sample-btn')?.addEventListener('click', () => this.loadSample());
+
+    document.addEventListener('fullscreenchange', () => {
+      const isFullscreen = Boolean(document.fullscreenElement);
+      document.body.classList.toggle('presentation-mode', isFullscreen);
+      const select = document.getElementById('view-mode-select') as HTMLSelectElement;
+      if (isFullscreen) {
+        this.fitToPage();
+        if (select) select.value = 'presentation';
+      } else {
+        if (select && select.value === 'presentation') {
+          select.value = 'continuous';
+        }
+      }
+    });
   }
 
   private initDropzone(): void {
@@ -723,6 +737,9 @@ class ZephyrPDFApp {
         } else {
           this.searchNext();
         }
+      } else if (e.key === 'F11') {
+        e.preventDefault();
+        this.togglePresentationMode();
       } else if (e.key === '=' || e.key === '+') {
         this.setZoom(this.currentScale * 1.15);
       } else if (e.key === '-') {
@@ -1330,6 +1347,14 @@ class ZephyrPDFApp {
       this.sidebar.setSearchResults(state.matches, state.currentMatchIndex);
       this.setActiveSearchMatch(state.currentMatchIndex);
       this.scrollToPage(match.pageIndex + 1);
+    }
+  }
+
+  public togglePresentationMode(): void {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
     }
   }
 
