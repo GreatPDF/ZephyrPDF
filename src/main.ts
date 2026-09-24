@@ -776,6 +776,12 @@ class ZephyrPDFApp {
             });
             return;
           }
+        } else if (e.key === 'ArrowLeft' && !e.ctrlKey && !e.metaKey) {
+          e.preventDefault();
+          this.scrollToPage(this.currentPageNumber - 1);
+        } else if (e.key === 'ArrowRight' && !e.ctrlKey && !e.metaKey) {
+          e.preventDefault();
+          this.scrollToPage(this.currentPageNumber + 1);
         }
       }
 
