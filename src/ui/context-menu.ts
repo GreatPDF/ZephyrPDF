@@ -27,6 +27,12 @@ export class AnnotationContextMenu {
         this.hide();
       }
     });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.menuEl.style.display !== 'none') {
+        this.hide();
+      }
+    });
   }
 
   public setAnnotationManager(manager: AnnotationManager): void {
@@ -68,13 +74,16 @@ export class AnnotationContextMenu {
     this.menuEl.innerHTML = `
       <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: var(--shadow-lg); padding: 4px; min-width: 180px; font-size: 0.85rem; color: var(--text-primary); display: flex; flex-direction: column; gap: 2px;">
         <button class="ctx-item" id="ctx-duplicate" style="display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: none; border: none; border-radius: 4px; color: var(--text-primary); cursor: pointer; text-align: left; width: 100%;">
-          <span>📋</span> Duplicate
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <span>Duplicate</span>
         </button>
         <button class="ctx-item" id="ctx-scale-up" style="display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: none; border: none; border-radius: 4px; color: var(--text-primary); cursor: pointer; text-align: left; width: 100%;">
-          <span>🔍</span> Scale Larger (+25%)
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+          <span>Scale Larger (+25%)</span>
         </button>
         <button class="ctx-item" id="ctx-scale-down" style="display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: none; border: none; border-radius: 4px; color: var(--text-primary); cursor: pointer; text-align: left; width: 100%;">
-          <span>🔎</span> Scale Smaller (-25%)
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+          <span>Scale Smaller (-25%)</span>
         </button>
 
         ${
@@ -95,16 +104,17 @@ export class AnnotationContextMenu {
         <div style="height: 1px; background: var(--border-color); margin: 2px 0;"></div>
         <div style="padding: 2px 10px; font-size: 0.75rem; color: var(--text-secondary);">Change Color:</div>
         <div style="display: flex; gap: 6px; padding: 2px 10px 6px;">
-          <div class="ctx-color-swatch" data-color="#ffeb3b" style="width: 16px; height: 16px; border-radius: 50%; background: #ffeb3b; cursor: pointer; border: 1px solid rgba(0,0,0,0.2);"></div>
-          <div class="ctx-color-swatch" data-color="#69f0ae" style="width: 16px; height: 16px; border-radius: 50%; background: #69f0ae; cursor: pointer; border: 1px solid rgba(0,0,0,0.2);"></div>
-          <div class="ctx-color-swatch" data-color="#40c4ff" style="width: 16px; height: 16px; border-radius: 50%; background: #40c4ff; cursor: pointer; border: 1px solid rgba(0,0,0,0.2);"></div>
-          <div class="ctx-color-swatch" data-color="#ff80ab" style="width: 16px; height: 16px; border-radius: 50%; background: #ff80ab; cursor: pointer; border: 1px solid rgba(0,0,0,0.2);"></div>
-          <div class="ctx-color-swatch" data-color="#d32f2f" style="width: 16px; height: 16px; border-radius: 50%; background: #d32f2f; cursor: pointer; border: 1px solid rgba(0,0,0,0.2);"></div>
-          <div class="ctx-color-swatch" data-color="#212121" style="width: 16px; height: 16px; border-radius: 50%; background: #212121; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);"></div>
+          <button type="button" class="ctx-color-swatch" data-color="#ffeb3b" aria-label="Yellow" style="width: 18px; height: 18px; border-radius: 50%; background: #ffeb3b; cursor: pointer; border: 1px solid rgba(0,0,0,0.2); padding: 0;"></button>
+          <button type="button" class="ctx-color-swatch" data-color="#69f0ae" aria-label="Green" style="width: 18px; height: 18px; border-radius: 50%; background: #69f0ae; cursor: pointer; border: 1px solid rgba(0,0,0,0.2); padding: 0;"></button>
+          <button type="button" class="ctx-color-swatch" data-color="#40c4ff" aria-label="Blue" style="width: 18px; height: 18px; border-radius: 50%; background: #40c4ff; cursor: pointer; border: 1px solid rgba(0,0,0,0.2); padding: 0;"></button>
+          <button type="button" class="ctx-color-swatch" data-color="#ff80ab" aria-label="Pink" style="width: 18px; height: 18px; border-radius: 50%; background: #ff80ab; cursor: pointer; border: 1px solid rgba(0,0,0,0.2); padding: 0;"></button>
+          <button type="button" class="ctx-color-swatch" data-color="#d32f2f" aria-label="Red" style="width: 18px; height: 18px; border-radius: 50%; background: #d32f2f; cursor: pointer; border: 1px solid rgba(0,0,0,0.2); padding: 0;"></button>
+          <button type="button" class="ctx-color-swatch" data-color="#212121" aria-label="Black" style="width: 18px; height: 18px; border-radius: 50%; background: #212121; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); padding: 0;"></button>
         </div>
         <div style="height: 1px; background: var(--border-color); margin: 2px 0;"></div>
         <button class="ctx-item" id="ctx-delete" style="display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: none; border: none; border-radius: 4px; color: var(--danger-color); cursor: pointer; text-align: left; width: 100%;">
-          <span>🗑️</span> Delete Item
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          <span>Delete Item</span>
         </button>
       </div>
     `;
