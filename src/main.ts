@@ -258,7 +258,11 @@ class ZephyrPDFApp {
         );
         const base = this.currentDoc.metadata.fileName.replace(/\.pdf$/i, '');
         TextExtractor.downloadTextFile(result.markdownText, `${base}_extracted.md`, 'text/markdown');
-        navigator.clipboard?.writeText(result.plainText);
+        try {
+          await navigator.clipboard?.writeText(result.plainText);
+        } catch {
+          // Non-blocking clipboard permission fallback
+        }
         NotificationService.show(`Extracted ${result.totalWords.toLocaleString()} words to Markdown file & clipboard!`);
       },
       onAddFieldClick: () => {
