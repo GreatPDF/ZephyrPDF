@@ -99,7 +99,7 @@ export class AppToolbar {
     wrapper.innerHTML = `
       <div class="primary-toolbar">
         <div class="toolbar-group">
-          <button class="icon-btn" id="sidebar-toggle-btn" title="Toggle Sidebar (Ctrl+B)">
+          <button class="icon-btn" id="sidebar-toggle-btn" title="Toggle Sidebar (Ctrl+B)" aria-label="Toggle Sidebar (Ctrl+B)">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
           </button>
 
@@ -117,26 +117,26 @@ export class AppToolbar {
 
           <div class="toolbar-divider"></div>
 
-          <button class="btn" id="open-file-btn" title="Open PDF File (Ctrl+O)">
+          <button class="btn" id="open-file-btn" title="Open PDF File (Ctrl+O)" aria-label="Open PDF File (Ctrl+O)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
             <span>Open</span>
           </button>
 
-          <button class="btn" id="sample-file-btn" title="Load Showcase Document">
+          <button class="btn" id="sample-file-btn" title="Load Showcase Document" aria-label="Load Showcase Document">
             <span>Sample Doc</span>
           </button>
 
-          <button class="btn btn-primary" id="save-file-btn" title="Export & Save Standard PDF (Ctrl+S)">
+          <button class="btn btn-primary" id="save-file-btn" title="Export & Save Standard PDF (Ctrl+S)" aria-label="Export & Save Standard PDF (Ctrl+S)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
             <span>Save PDF</span>
           </button>
 
-          <button class="btn" id="save-flatten-btn" title="Flatten & Lock Form Fields upon Save">
+          <button class="btn" id="save-flatten-btn" title="Flatten & Lock Form Fields upon Save" aria-label="Flatten & Lock Form Fields upon Save">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
             <span>Flatten</span>
           </button>
 
-          <button class="icon-btn" id="print-btn" title="Print (Ctrl+P)">
+          <button class="icon-btn" id="print-btn" title="Print (Ctrl+P)" aria-label="Print Document (Ctrl+P)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
           </button>
 
@@ -176,32 +176,32 @@ export class AppToolbar {
 
         <!-- Center Undo/Redo & Zoom Controls -->
         <div class="toolbar-group">
-          <button class="icon-btn" id="undo-btn" title="Undo (Ctrl+Z)" disabled>
+          <button class="icon-btn" id="undo-btn" title="Undo (Ctrl+Z)" aria-label="Undo (Ctrl+Z)" disabled>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path></svg>
           </button>
-          <button class="icon-btn" id="redo-btn" title="Redo (Ctrl+Y)" disabled>
+          <button class="icon-btn" id="redo-btn" title="Redo (Ctrl+Y)" aria-label="Redo (Ctrl+Y)" disabled>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"></path><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path></svg>
           </button>
 
           <div class="toolbar-divider"></div>
 
-          <button class="icon-btn" id="zoom-out-btn" title="Zoom Out (-)">
+          <button class="icon-btn" id="zoom-out-btn" title="Zoom Out (-)" aria-label="Zoom Out (-)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
           </button>
           <span id="zoom-label" title="Click to Reset Zoom (100%)" style="font-size: 0.85rem; font-weight: 600; min-width: 48px; text-align: center; cursor: pointer; user-select: none;">100%</span>
-          <button class="icon-btn" id="zoom-in-btn" title="Zoom In (+)">
+          <button class="icon-btn" id="zoom-in-btn" title="Zoom In (+)" aria-label="Zoom In (+)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
           </button>
-          <button class="icon-btn" id="zoom-fit-width-btn" title="Fit to Width (9)">
+          <button class="icon-btn" id="zoom-fit-width-btn" title="Fit to Width (9)" aria-label="Fit to Width (9)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 9 4 4 9 4"></polyline><polyline points="20 9 20 4 15 4"></polyline><polyline points="4 15 4 20 9 20"></polyline><polyline points="20 15 20 20 15 20"></polyline></svg>
           </button>
-          <button class="icon-btn" id="zoom-fit-page-btn" title="Fit to Page (0)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+          <button class="icon-btn" id="zoom-fit-page-btn" title="Fit to Page (0)" aria-label="Fit to Page (0)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
           </button>
 
           <div class="toolbar-divider"></div>
 
-          <select id="view-mode-select" title="Document View Mode" style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; padding: 2px 6px; font-size: 0.8rem;">
+          <select id="view-mode-select" title="Document View Mode" aria-label="Document View Mode" style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; padding: 2px 6px; font-size: 0.8rem;">
             <option value="continuous" selected>Continuous</option>
             <option value="single">Single Page</option>
             <option value="two-page">Two-Page</option>
@@ -211,19 +211,19 @@ export class AppToolbar {
 
         <!-- Right Side Settings & Dialogs -->
         <div class="toolbar-group">
-          <button class="icon-btn" id="theme-toggle-btn" title="Toggle Reading Theme (Dark/Light/Sepia)">
+          <button class="icon-btn" id="theme-toggle-btn" title="Toggle Reading Theme (Dark/Light/Sepia)" aria-label="Toggle Reading Theme (Dark/Light/Sepia)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
           </button>
 
-          <button class="icon-btn" id="feedback-btn" title="Feedback & Bug Report (No account needed)">
+          <button class="icon-btn" id="feedback-btn" title="Feedback & Bug Report (No account needed)" aria-label="Feedback and Bug Report">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><line x1="9" y1="10" x2="9.01" y2="10" stroke-width="3"></line><line x1="12" y1="10" x2="12.01" y2="10" stroke-width="3"></line><line x1="15" y1="10" x2="15.01" y2="10" stroke-width="3"></line></svg>
           </button>
 
-          <button class="icon-btn" id="meta-btn" title="Document Properties">
+          <button class="icon-btn" id="meta-btn" title="Document Properties" aria-label="Document Properties and Metadata">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
           </button>
 
-          <button class="icon-btn" id="shortcuts-btn" title="Keyboard Shortcuts (?)">
+          <button class="icon-btn" id="shortcuts-btn" title="Keyboard Shortcuts (?)" aria-label="Keyboard Shortcuts">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
           </button>
         </div>
@@ -232,64 +232,64 @@ export class AppToolbar {
       <!-- Secondary Toolbar for Editing & Markup Tools -->
       <div class="annotation-toolbar">
         <div class="toolbar-group">
-          <button class="icon-btn tool-btn active" data-tool="select" title="Select / Move (v)">
+          <button class="icon-btn tool-btn active" data-tool="select" title="Select / Move (v)" aria-label="Select Tool (v)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 3 7 18 3-7 7-3L3 3z"></path></svg>
           </button>
-          <button class="icon-btn tool-btn" data-tool="hand" title="Hand / Pan (h)">
+          <button class="icon-btn tool-btn" data-tool="hand" title="Hand / Pan (h)" aria-label="Hand Pan Tool (h)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a2 2 0 0 0-4 0v5"></path><path d="M14 10V4a2 2 0 0 0-4 0v6"></path><path d="M10 10.5V6a2 2 0 0 0-4 0v8"></path><path d="M18 8a2 2 0 0 1 4 4v4a8 8 0 0 1-16 0v-2"></path></svg>
           </button>
-          <button class="icon-btn tool-btn" data-tool="loupe" title="Magnifier / Loupe Lens (z)">
+          <button class="icon-btn tool-btn" data-tool="loupe" title="Magnifier / Loupe Lens (z)" aria-label="Magnifier Loupe Lens (z)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
           </button>
-          <button class="icon-btn tool-btn" data-tool="snapshot" title="Marquee Snapshot Copy Tool (c)">
+          <button class="icon-btn tool-btn" data-tool="snapshot" title="Marquee Snapshot Copy Tool (c)" aria-label="Marquee Snapshot Tool (c)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
           </button>
 
           <div class="toolbar-divider"></div>
 
-          <button class="icon-btn tool-btn" data-tool="highlight" title="Text Highlighter (l)">
+          <button class="icon-btn tool-btn" data-tool="highlight" title="Text Highlighter (l)" aria-label="Text Highlighter (l)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11-6 6v3h3l6-6"></path><path d="m22 2-2.7 2.7a2.5 2.5 0 0 0 0 3.5l1.5 1.5a2.5 2.5 0 0 0 3.5 0L27 7"></path><path d="m14 4 6 6"></path></svg>
           </button>
 
-          <button class="icon-btn tool-btn" data-tool="freehand_highlight" title="Chisel Freehand Highlighter">
+          <button class="icon-btn tool-btn" data-tool="freehand_highlight" title="Chisel Freehand Highlighter" aria-label="Chisel Freehand Highlighter">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14 12-8.5 8.5a2.12 2.12 0 1 1-3-3L11 9"></path><path d="m5 18 3-3"></path><path d="m15 7 2-2a2.83 2.83 0 0 1 4 4l-2 2"></path></svg>
           </button>
 
-          <button class="icon-btn tool-btn" data-tool="freehand" title="Pen / Freehand Draw (p)">
+          <button class="icon-btn tool-btn" data-tool="freehand" title="Pen / Freehand Draw (p)" aria-label="Pen Freehand Draw (p)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
           </button>
 
-          <button class="icon-btn tool-btn" data-tool="eraser" title="Eraser (e)">
+          <button class="icon-btn tool-btn" data-tool="eraser" title="Eraser (e)" aria-label="Eraser Tool (e)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"></path><path d="M22 21H7"></path><path d="m5 11 9 9"></path></svg>
           </button>
 
-          <button class="icon-btn tool-btn" data-tool="text" title="Add Text Box (t)">
+          <button class="icon-btn tool-btn" data-tool="text" title="Add Text Box (t)" aria-label="Add Text Box (t)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
           </button>
 
-          <button class="icon-btn tool-btn" data-tool="rectangle" title="Rectangle (r)">
+          <button class="icon-btn tool-btn" data-tool="rectangle" title="Rectangle (r)" aria-label="Rectangle Shape (r)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
           </button>
 
-          <button class="icon-btn tool-btn" data-tool="ellipse" title="Ellipse (o)">
+          <button class="icon-btn tool-btn" data-tool="ellipse" title="Ellipse (o)" aria-label="Ellipse Shape (o)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle></svg>
           </button>
 
-          <button class="icon-btn tool-btn" data-tool="arrow" title="Arrow / Line (a)">
+          <button class="icon-btn tool-btn" data-tool="arrow" title="Arrow / Line (a)" aria-label="Arrow Line (a)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </button>
 
-          <button class="icon-btn tool-btn" data-tool="redaction" title="Permanent Redaction / Blackout (x)">
+          <button class="icon-btn tool-btn" data-tool="redaction" title="Permanent Redaction / Blackout (x)" aria-label="Permanent Redaction Blackout (x)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor"></rect><line x1="3" y1="3" x2="21" y2="21" stroke="#ef4444" stroke-width="2"></line></svg>
           </button>
 
-          <button class="icon-btn tool-btn" data-tool="measure" title="Calibrated Ruler / Measure (u)">
+          <button class="icon-btn tool-btn" data-tool="measure" title="Calibrated Ruler / Measure (u)" aria-label="Calibrated Ruler Measure (u)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.3 8.7 8.7 21.3a1 1 0 0 1-1.4 0l-6-6a1 1 0 0 1 0-1.4L13.9 1.3a1 1 0 0 1 1.4 0l6 6a1 1 0 0 1 0 1.4Z"></path><path d="m14.5 4.5 2 2"></path><path d="m11.5 7.5 2 2"></path><path d="m8.5 10.5 2 2"></path><path d="m5.5 13.5 2 2"></path></svg>
           </button>
 
           <div class="toolbar-divider"></div>
 
-          <button class="icon-btn tool-btn" data-tool="stamp" title="Place Stamp (m)">
+          <button class="icon-btn tool-btn" data-tool="stamp" title="Place Stamp (m)" aria-label="Place Stamp (m)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="12" rx="2"></rect><path d="M7 8V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3"></path></svg>
           </button>
 
@@ -312,7 +312,7 @@ export class AppToolbar {
           </button>
           <input type="file" id="image-insert-input" accept="image/png, image/jpeg" style="display: none;" />
 
-          <button class="icon-btn tool-btn" data-tool="sticky_note" title="Add Sticky Comment">
+          <button class="icon-btn tool-btn" data-tool="sticky_note" title="Add Sticky Comment" aria-label="Add Sticky Comment">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path><path d="M15 3v6h6"></path></svg>
           </button>
         </div>
