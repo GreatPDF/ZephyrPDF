@@ -328,24 +328,8 @@ class ZephyrPDFApp {
           this.scrollToPage(matches[0].pageIndex + 1);
         }
       },
-      onSearchNext: () => {
-        const match = this.searchEngine.next();
-        if (match) {
-          const state = this.searchEngine.getState();
-          this.sidebar.setSearchResults(state.matches, state.currentMatchIndex);
-          this.setActiveSearchMatch(state.currentMatchIndex);
-          this.scrollToPage(match.pageIndex + 1);
-        }
-      },
-      onSearchPrevious: () => {
-        const match = this.searchEngine.previous();
-        if (match) {
-          const state = this.searchEngine.getState();
-          this.sidebar.setSearchResults(state.matches, state.currentMatchIndex);
-          this.setActiveSearchMatch(state.currentMatchIndex);
-          this.scrollToPage(match.pageIndex + 1);
-        }
-      },
+      onSearchNext: () => this.searchNext(),
+      onSearchPrevious: () => this.searchPrevious(),
       onExportCitations: () => {
         const state = this.searchEngine.getState();
         if (!state.query || state.matches.length === 0) {
@@ -724,6 +708,13 @@ class ZephyrPDFApp {
         this.pageManager.rotatePage(this.currentPageNumber - 1, 90);
         this.renderDocument();
         NotificationService.show(`Page ${this.currentPageNumber} rotated 90° CW`);
+      } else if (e.key === 'F3') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          this.searchPrevious();
+        } else {
+          this.searchNext();
+        }
       } else if (e.key === '=' || e.key === '+') {
         this.setZoom(this.currentScale * 1.15);
       } else if (e.key === '-') {
@@ -1311,6 +1302,26 @@ class ZephyrPDFApp {
     if (newActive) {
       newActive.classList.add('active');
       newActive.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  public searchNext(): void {
+    const match = this.searchEngine.next();
+    if (match) {
+      const state = this.searchEngine.getState();
+      this.sidebar.setSearchResults(state.matches, state.currentMatchIndex);
+      this.setActiveSearchMatch(state.currentMatchIndex);
+      this.scrollToPage(match.pageIndex + 1);
+    }
+  }
+
+  public searchPrevious(): void {
+    const match = this.searchEngine.previous();
+    if (match) {
+      const state = this.searchEngine.getState();
+      this.sidebar.setSearchResults(state.matches, state.currentMatchIndex);
+      this.setActiveSearchMatch(state.currentMatchIndex);
+      this.scrollToPage(match.pageIndex + 1);
     }
   }
 
