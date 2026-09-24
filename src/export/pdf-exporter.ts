@@ -280,10 +280,14 @@ export class PdfExporter {
               opacity: 1
             });
             if (ann.width > 36 && ann.height > 12) {
-              targetPage.drawText(ann.overlayText || 'REDACTED', {
-                x: ann.x + 4,
-                y: pageHeight - (ann.y + ann.height / 2 + 3),
-                size: Math.min(8, ann.height * 0.5),
+              const text = ann.overlayText || 'REDACTED';
+              const fontSize = Math.min(8, ann.height * 0.5);
+              const textWidth = fontHelveticaBold.widthOfTextAtSize(text, fontSize);
+              const textX = ann.x + Math.max(2, (ann.width - textWidth) / 2);
+              targetPage.drawText(text, {
+                x: textX,
+                y: pageHeight - (ann.y + ann.height / 2 + fontSize * 0.35),
+                size: fontSize,
                 font: fontHelveticaBold,
                 color: rgb(1, 1, 1)
               });
