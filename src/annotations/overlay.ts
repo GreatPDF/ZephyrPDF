@@ -1126,8 +1126,20 @@ export class PageAnnotationOverlay {
           // Render active floating comment bubble
           const card = document.createElement('div');
           card.className = 'sticky-note-card';
-          card.style.left = `${ann.x * scale + 22}px`;
-          card.style.top = `${ann.y * scale - 12}px`;
+
+          const cardW = 220;
+          const containerW = this.container.clientWidth || 600;
+          let leftPx = ann.x * scale + 22;
+          if (leftPx + cardW > containerW - 10) {
+            // Flip to left side of pin if near right edge
+            leftPx = Math.max(10, ann.x * scale - cardW - 15);
+          }
+          const containerH = this.container.clientHeight || 800;
+          const cardH = 130;
+          let topPx = Math.max(8, Math.min(containerH - cardH - 10, ann.y * scale - 12));
+
+          card.style.left = `${Math.round(leftPx)}px`;
+          card.style.top = `${Math.round(topPx)}px`;
           card.innerHTML = `
             <div class="sticky-note-card-header">
               <span>📝 Comment</span>

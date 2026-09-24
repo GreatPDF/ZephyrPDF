@@ -223,6 +223,40 @@ export class PdfExporter {
             } catch (err) {
               console.warn('Failed to embed image:', err);
             }
+          } else if (ann.type === 'sticky_note') {
+            const noteColor = hexToPdfRgb(ann.color || '#ffca28');
+            // Draw note pin circle
+            targetPage.drawCircle({
+              x: ann.x,
+              y: pageHeight - ann.y,
+              size: 10,
+              color: rgb(noteColor.r, noteColor.g, noteColor.b),
+              borderColor: rgb(0.2, 0.2, 0.2),
+              borderWidth: 1.2
+            });
+            // Draw note text preview if content exists
+            if (ann.content && ann.content.trim()) {
+              const preview = ann.content.length > 40 ? ann.content.substring(0, 37) + '...' : ann.content;
+              const boxW = Math.min(220, Math.max(70, preview.length * 5.5 + 14));
+              const boxH = 18;
+              targetPage.drawRectangle({
+                x: ann.x + 14,
+                y: pageHeight - (ann.y + boxH / 2),
+                width: boxW,
+                height: boxH,
+                color: rgb(1, 0.98, 0.85),
+                borderColor: rgb(noteColor.r, noteColor.g, noteColor.b),
+                borderWidth: 1,
+                opacity: 0.95
+              });
+              targetPage.drawText(preview, {
+                x: ann.x + 18,
+                y: pageHeight - (ann.y + 3.5),
+                size: 8,
+                font: fontHelvetica,
+                color: rgb(0.15, 0.15, 0.15)
+              });
+            }
           } else if (ann.type === 'redaction') {
             targetPage.drawRectangle({
               x: ann.x,

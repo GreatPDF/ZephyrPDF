@@ -1432,8 +1432,10 @@ class ZephyrPDFApp {
     if (match) {
       const state = this.searchEngine.getState();
       this.sidebar.setSearchResults(state.matches, state.currentMatchIndex);
+      if (this.currentPageNumber !== match.pageIndex + 1) {
+        this.scrollToPage(match.pageIndex + 1);
+      }
       this.setActiveSearchMatch(state.currentMatchIndex);
-      this.scrollToPage(match.pageIndex + 1);
     }
   }
 
@@ -1442,8 +1444,10 @@ class ZephyrPDFApp {
     if (match) {
       const state = this.searchEngine.getState();
       this.sidebar.setSearchResults(state.matches, state.currentMatchIndex);
+      if (this.currentPageNumber !== match.pageIndex + 1) {
+        this.scrollToPage(match.pageIndex + 1);
+      }
       this.setActiveSearchMatch(state.currentMatchIndex);
-      this.scrollToPage(match.pageIndex + 1);
     }
   }
 

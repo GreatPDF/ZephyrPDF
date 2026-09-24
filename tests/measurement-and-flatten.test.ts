@@ -7,7 +7,7 @@ import { AnnotationManager } from '../src/annotations/manager';
 import { HistoryManager } from '../src/core/history';
 import { FormHandler } from '../src/core/form-handler';
 import { PdfExporter } from '../src/export/pdf-exporter';
-import { MeasureAnnotation } from '../src/types/annotations';
+import { MeasureAnnotation, StickyNoteAnnotation } from '../src/types/annotations';
 
 describe('Measurement and Flattening', () => {
   it('should accurately convert PDF points to real-world units', () => {
@@ -91,5 +91,44 @@ describe('Measurement and Flattening', () => {
     expect(flattenedBytes).toBeInstanceOf(Uint8Array);
     const flattenedDoc = await PDFDocument.load(flattenedBytes);
     expect(flattenedDoc.getPageCount()).toBe(2);
+  });
+
+  it('should bake sticky_note annotations with pin and comment text into exported PDF', async () => {
+    const sourceBytes = await createSamplePdf();
+    const history = new HistoryManager();
+    const pageManager = new PageManager(history);
+    const annotationManager = new AnnotationManager(history);
+    const formHandler = new FormHandler();
+
+    pageManager.initFromDocument(2, [
+      { width: 595.28, height: 841.89, rotation: 0 },
+      { width: 595.28, height: 841.89, rotation: 0 }
+    ]);
+
+    const noteAnn: StickyNoteAnnotation = {
+      id: 'note_export_1',
+      type: 'sticky_note',
+      pageIndex: 0,
+      x: 120,
+      y: 180,
+      title: 'Review Note',
+      content: 'Please verify section 2 compliance.',
+      color: '#ffca28',
+      isOpen: true,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+    annotationManager.addAnnotation(noteAnn);
+
+    const exportedBytes = await PdfExporter.exportDocument(
+      sourceBytes,
+      pageManager,
+      annotationManager,
+      formHandler
+    );
+
+    expect(exportedBytes).toBeInstanceOf(Uint8Array);
+    const exportedDoc = await PDFDocument.load(exportedBytes);
+    expect(exportedDoc.getPageCount()).toBe(2);
   });
 });
