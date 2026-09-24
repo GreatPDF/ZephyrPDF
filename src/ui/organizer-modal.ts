@@ -185,7 +185,7 @@ export class OrganizerModal {
       delBtn?.addEventListener('click', (e) => {
         e.stopPropagation();
         if (this.pageManager.getPages().length <= 1) {
-          alert('Cannot delete the only page in the document.');
+          NotificationService.show('Cannot delete the only page in the document.', 4000, true);
           return;
         }
         this.pageManager.deletePage(index);

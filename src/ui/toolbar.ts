@@ -376,6 +376,7 @@ export class AppToolbar {
       if (file && this.events.onCompareFile) {
         this.events.onCompareFile(file);
       }
+      compareInput.value = '';
     });
 
     const watermarkBtn = byId('watermark-btn');
@@ -441,6 +442,7 @@ export class AppToolbar {
       if (file && this.events.onInsertImage) {
         this.events.onInsertImage(file);
       }
+      imgInput.value = '';
     });
 
     // Tools

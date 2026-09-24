@@ -212,7 +212,7 @@ class ZephyrPDFApp {
           NotificationService.show(`Comparison complete: ${summary.changedPagesCount} pages differ.`);
         } catch (e: any) {
           console.error(e);
-          alert('Failed to compare documents: ' + e.message);
+          NotificationService.show('Failed to compare documents: ' + (e?.message || 'Error'), 4000, true);
         }
       },
       onInsertImage: async (file: File) => {
@@ -435,7 +435,7 @@ class ZephyrPDFApp {
           await this.renderDocument();
           NotificationService.show(`Imported annotations from ${file.name}!`);
         } catch (e: any) {
-          alert('Failed to import annotations: ' + e.message);
+          NotificationService.show('Failed to import annotations: ' + (e?.message || 'Invalid JSON format'), 4000, true);
         }
       }
     });
@@ -1117,7 +1117,7 @@ class ZephyrPDFApp {
       NotificationService.show('Welcome to ZephyrPDF!');
     } catch (e: any) {
       console.error(e);
-      alert('Failed to generate sample PDF: ' + e.message);
+      NotificationService.show('Failed to generate sample PDF: ' + (e?.message || 'Generation error'), 4000, true);
     }
   }
 
