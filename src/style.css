@@ -361,11 +361,17 @@ button.btn.btn-primary:hover {
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
+  padding: 0;
+  display: inline-block;
+  vertical-align: middle;
   transition: transform var(--transition-fast);
 }
 
-.color-swatch:hover {
-  transform: scale(1.15);
+.color-swatch:hover,
+.color-swatch:focus-visible {
+  transform: scale(1.18);
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
 }
 
 .color-swatch.active {

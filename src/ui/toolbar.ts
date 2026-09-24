@@ -320,12 +320,12 @@ export class AppToolbar {
         <!-- Color & Stroke Selector -->
         <div class="tool-options">
           <span style="font-size: 0.75rem; color: var(--text-secondary);">Color:</span>
-          <div class="color-swatch active" data-color="#ffeb3b" style="background-color: #ffeb3b;" title="Highlighter Yellow"></div>
-          <div class="color-swatch" data-color="#69f0ae" style="background-color: #69f0ae;" title="Neon Green"></div>
-          <div class="color-swatch" data-color="#40c4ff" style="background-color: #40c4ff;" title="Electric Blue"></div>
-          <div class="color-swatch" data-color="#ff80ab" style="background-color: #ff80ab;" title="Pink"></div>
-          <div class="color-swatch" data-color="#d32f2f" style="background-color: #d32f2f;" title="Crimson Red"></div>
-          <div class="color-swatch" data-color="#212121" style="background-color: #212121;" title="Solid Black"></div>
+          <button type="button" class="color-swatch active" data-color="#ffeb3b" style="background-color: #ffeb3b;" title="Highlighter Yellow" aria-label="Highlighter Yellow"></button>
+          <button type="button" class="color-swatch" data-color="#69f0ae" style="background-color: #69f0ae;" title="Neon Green" aria-label="Neon Green"></button>
+          <button type="button" class="color-swatch" data-color="#40c4ff" style="background-color: #40c4ff;" title="Electric Blue" aria-label="Electric Blue"></button>
+          <button type="button" class="color-swatch" data-color="#ff80ab" style="background-color: #ff80ab;" title="Pink" aria-label="Pink"></button>
+          <button type="button" class="color-swatch" data-color="#d32f2f" style="background-color: #d32f2f;" title="Crimson Red" aria-label="Crimson Red"></button>
+          <button type="button" class="color-swatch" data-color="#212121" style="background-color: #212121;" title="Solid Black" aria-label="Solid Black"></button>
 
           <div class="toolbar-divider"></div>
 
