@@ -1,5 +1,6 @@
 import { PageManager } from '../organizer/page-manager';
 import { PageItem } from '../types/organizer';
+import { NotificationService } from './notification';
 
 export interface OrganizerEvents {
   onApply: () => void;
@@ -57,6 +58,7 @@ export class OrganizerModal {
             <input type="text" id="org-range-input" placeholder="Range: 1-3, 5" style="background: transparent; border: none; color: var(--text-primary); font-size: 0.8rem; width: 100px; outline: none;" />
             <button class="btn" id="org-range-btn" style="height: 26px; padding: 0 8px; font-size: 0.75rem;">Export</button>
           </div>
+          <button class="btn" id="org-cancel-btn">Cancel</button>
           <button class="btn btn-primary" id="org-apply-btn">Apply & Return</button>
         </div>
       </div>
@@ -202,6 +204,11 @@ export class OrganizerModal {
       this.close();
     });
 
+    const cancelBtn = this.overlay?.querySelector('#org-cancel-btn');
+    cancelBtn?.addEventListener('click', () => {
+      this.close();
+    });
+
     const addBlankBtn = this.overlay?.querySelector('#org-add-blank-btn');
     addBlankBtn?.addEventListener('click', () => {
       const count = this.pageManager.getPageCount();
@@ -233,7 +240,7 @@ export class OrganizerModal {
     const extractBtn = this.overlay?.querySelector('#org-extract-btn');
     extractBtn?.addEventListener('click', async () => {
       if (this.selectedIndices.size === 0) {
-        alert('Please select at least one page checkbox to extract.');
+        NotificationService.show('Please select at least one page checkbox to extract.', 3000, true);
         return;
       }
       if (this.events.onExtractPages) {
@@ -246,12 +253,12 @@ export class OrganizerModal {
     rangeBtn?.addEventListener('click', async () => {
       const val = rangeInput?.value?.trim();
       if (!val) {
-        alert('Please enter a page range, e.g. 1-3, 5');
+        NotificationService.show('Please enter a page range, e.g. 1-3, 5', 3000, true);
         return;
       }
       const indices = PageManager.parsePageRange(val, this.pageManager.getPageCount());
       if (indices.length === 0) {
-        alert('No valid pages found in specified range.');
+        NotificationService.show('No valid pages found in specified range.', 3000, true);
         return;
       }
       if (this.events.onExtractPages) {
