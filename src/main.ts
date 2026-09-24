@@ -1099,8 +1099,11 @@ class ZephyrPDFApp {
       modalBackdrop.innerHTML = `
         <div class="modal-card" style="max-width: 360px;">
           <div class="modal-header">
-            <h3>🔒 Password Protected</h3>
-            <button class="icon-btn close-modal-btn">✕</button>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <h3 style="margin: 0; font-size: 1.15rem;">Password Protected</h3>
+            </div>
+            <button class="icon-btn close-modal-btn" aria-label="Close dialog">✕</button>
           </div>
           <div class="modal-body" style="padding: 16px;">
             <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">
@@ -1149,6 +1152,12 @@ class ZephyrPDFApp {
       modalBackdrop.querySelector('.close-modal-btn')?.addEventListener('click', () => {
         modalBackdrop.remove();
         resolve();
+      });
+      modalBackdrop.addEventListener('click', (e) => {
+        if (e.target === modalBackdrop) {
+          modalBackdrop.remove();
+          resolve();
+        }
       });
       input?.addEventListener('keydown', (ke) => {
         if (ke.key === 'Enter') doUnlock();
@@ -1724,7 +1733,13 @@ class ZephyrPDFApp {
   }
 }
 
+declare global {
+  interface Window {
+    zephyrApp?: ZephyrPDFApp;
+  }
+}
+
 // Bootstrap application on DOM ready
 window.addEventListener('DOMContentLoaded', () => {
-  new ZephyrPDFApp();
+  window.zephyrApp = new ZephyrPDFApp();
 });
