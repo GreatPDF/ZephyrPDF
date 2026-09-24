@@ -202,9 +202,15 @@ export class AppSidebar {
 
   public setCurrentPage(pageNumber: number): void {
     this.currentPage = pageNumber;
+    let activeItem: HTMLElement | null = null;
     this.container.querySelectorAll('.thumbnail-item').forEach(item => {
-      item.classList.toggle('active', item.getAttribute('data-page') === pageNumber.toString());
+      const isActive = item.getAttribute('data-page') === pageNumber.toString();
+      item.classList.toggle('active', isActive);
+      if (isActive) activeItem = item as HTMLElement;
     });
+    if (activeItem) {
+      (activeItem as HTMLElement).scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
   }
 
   private render(): void {
