@@ -38,7 +38,7 @@ export class PageAnnotationOverlay {
   private getActiveStamp: () => string;
   private getActiveSignature: () => string | null;
   private getActiveMeasureUnit?: () => MeasureUnit;
-  private getActiveImage?: () => string | null;
+  private getActiveImage?: () => { dataUrl: string; width: number; height: number } | string | null;
   private contextMenu?: AnnotationContextMenu;
 
   // Active interaction state
@@ -65,7 +65,7 @@ export class PageAnnotationOverlay {
       getActiveStamp: () => string;
       getActiveSignature: () => string | null;
       getActiveMeasureUnit?: () => MeasureUnit;
-      getActiveImage?: () => string | null;
+      getActiveImage?: () => { dataUrl: string; width: number; height: number } | string | null;
       contextMenu?: AnnotationContextMenu;
       onResetTool?: () => void;
     }
@@ -282,15 +282,18 @@ export class PageAnnotationOverlay {
     if (tool === 'image') {
       const imgData = this.getActiveImage ? this.getActiveImage() : null;
       if (imgData) {
+        const dataUrl = typeof imgData === 'string' ? imgData : imgData.dataUrl;
+        const w = typeof imgData === 'object' && imgData.width ? imgData.width : 150;
+        const h = typeof imgData === 'object' && imgData.height ? imgData.height : 100;
         const imgAnn: ImageAnnotation = {
           id: 'img_' + Math.random().toString(36).substring(2, 9),
           type: 'image',
           pageIndex: this.pageIndex,
-          dataUrl: imgData,
-          x: coords.x - 75,
-          y: coords.y - 50,
-          width: 150,
-          height: 100,
+          dataUrl: dataUrl,
+          x: Math.round(coords.x - w / 2),
+          y: Math.round(coords.y - h / 2),
+          width: w,
+          height: h,
           createdAt: Date.now(),
           updatedAt: Date.now()
         };
@@ -388,19 +391,51 @@ export class PageAnnotationOverlay {
       if (this.resizeHandle === 'se') {
         newW = Math.max(20, this.resizeOrigRect.width + dx);
         newH = Math.max(15, this.resizeOrigRect.height + dy);
+        if (e.shiftKey && this.resizeOrigRect.width > 0 && this.resizeOrigRect.height > 0) {
+          const aspect = this.resizeOrigRect.width / this.resizeOrigRect.height;
+          if (Math.abs(dx) >= Math.abs(dy)) {
+            newH = Math.max(15, newW / aspect);
+          } else {
+            newW = Math.max(20, newH * aspect);
+          }
+        }
       } else if (this.resizeHandle === 'sw') {
         newW = Math.max(20, this.resizeOrigRect.width - dx);
         newH = Math.max(15, this.resizeOrigRect.height + dy);
-        newX = this.resizeOrigRect.x + dx;
+        if (e.shiftKey && this.resizeOrigRect.width > 0 && this.resizeOrigRect.height > 0) {
+          const aspect = this.resizeOrigRect.width / this.resizeOrigRect.height;
+          if (Math.abs(dx) >= Math.abs(dy)) {
+            newH = Math.max(15, newW / aspect);
+          } else {
+            newW = Math.max(20, newH * aspect);
+          }
+        }
+        newX = this.resizeOrigRect.x + (this.resizeOrigRect.width - newW);
       } else if (this.resizeHandle === 'ne') {
         newW = Math.max(20, this.resizeOrigRect.width + dx);
         newH = Math.max(15, this.resizeOrigRect.height - dy);
-        newY = this.resizeOrigRect.y + dy;
+        if (e.shiftKey && this.resizeOrigRect.width > 0 && this.resizeOrigRect.height > 0) {
+          const aspect = this.resizeOrigRect.width / this.resizeOrigRect.height;
+          if (Math.abs(dx) >= Math.abs(dy)) {
+            newH = Math.max(15, newW / aspect);
+          } else {
+            newW = Math.max(20, newH * aspect);
+          }
+        }
+        newY = this.resizeOrigRect.y + (this.resizeOrigRect.height - newH);
       } else if (this.resizeHandle === 'nw') {
         newW = Math.max(20, this.resizeOrigRect.width - dx);
         newH = Math.max(15, this.resizeOrigRect.height - dy);
-        newX = this.resizeOrigRect.x + dx;
-        newY = this.resizeOrigRect.y + dy;
+        if (e.shiftKey && this.resizeOrigRect.width > 0 && this.resizeOrigRect.height > 0) {
+          const aspect = this.resizeOrigRect.width / this.resizeOrigRect.height;
+          if (Math.abs(dx) >= Math.abs(dy)) {
+            newH = Math.max(15, newW / aspect);
+          } else {
+            newW = Math.max(20, newH * aspect);
+          }
+        }
+        newX = this.resizeOrigRect.x + (this.resizeOrigRect.width - newW);
+        newY = this.resizeOrigRect.y + (this.resizeOrigRect.height - newH);
       }
 
       this.manager.updateAnnotation(
@@ -441,12 +476,16 @@ export class PageAnnotationOverlay {
     if (tool === 'image' && !this.isDrawing) {
       const imgData = this.getActiveImage ? this.getActiveImage() : null;
       if (imgData) {
+        const dataUrl = typeof imgData === 'string' ? imgData : imgData.dataUrl;
+        const baseW = typeof imgData === 'object' && imgData.width ? imgData.width : 150;
+        const baseH = typeof imgData === 'object' && imgData.height ? imgData.height : 100;
+
         if (!this.previewElement || this.previewElement.id !== 'image-placement-preview') {
           if (this.previewElement) this.previewElement.remove();
           const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
           g.setAttribute('id', 'image-placement-preview');
           const img = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-          img.setAttribute('href', imgData);
+          img.setAttribute('href', dataUrl);
           img.setAttribute('opacity', '0.65');
           const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
           rect.setAttribute('fill', 'none');
@@ -460,8 +499,8 @@ export class PageAnnotationOverlay {
         }
 
         const coords = this.getEventCoords(e);
-        const w = 150 * scale;
-        const h = 100 * scale;
+        const w = baseW * scale;
+        const h = baseH * scale;
         const x = coords.x * scale - w / 2;
         const y = coords.y * scale - h / 2;
 

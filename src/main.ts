@@ -29,7 +29,8 @@ import { DocumentTabBar } from './ui/tab-bar';
 import { OrganizerModal } from './ui/organizer-modal';
 import { NotificationService } from './ui/notification';
 import { createSamplePdf } from './utils/samples';
-import { MeasureUnit, ToolType } from './types/annotations';
+import { MeasureUnit, ToolType, ImageAnnotation } from './types/annotations';
+import { processImageFile, ProcessedImage } from './utils/image';
 import { ThemeMode, ViewMode, WatermarkOptions, PageNumberOptions } from './types/document';
 import { PRESET_COLORS } from './utils/color';
 
@@ -74,7 +75,7 @@ class ZephyrPDFApp {
   private activeStrokeWidth: number = 2;
   private activeStamp: string = 'APPROVED';
   private activeSignature: string | null = null;
-  private activeImage: string | null = null;
+  private activeImage: ProcessedImage | null = null;
   private activeMeasureUnit: MeasureUnit = 'mm';
   private currentScale: number = 1.0;
   private currentTheme: ThemeMode = 'dark';
@@ -111,6 +112,7 @@ class ZephyrPDFApp {
     this.initUI();
     this.initDropzone();
     this.initShortcuts();
+    this.initClipboardPaste();
     this.initScrollWatcher();
 
     (window as any).app = this;
@@ -213,16 +215,15 @@ class ZephyrPDFApp {
           alert('Failed to compare documents: ' + e.message);
         }
       },
-      onInsertImage: (file: File) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if (e.target?.result) {
-            this.activeImage = e.target.result as string;
-            this.setActiveTool('image');
-            NotificationService.show('Image ready! Click on any page to place it.');
-          }
-        };
-        reader.readAsDataURL(file);
+      onInsertImage: async (file: File) => {
+        try {
+          const processed = await processImageFile(file);
+          this.activeImage = processed;
+          this.setActiveTool('image');
+          NotificationService.show('Image ready! Click on any page to place it.');
+        } catch {
+          NotificationService.show('Failed to load image file.', 3000, true);
+        }
       },
       onWatermarkClick: () => {
         new WatermarkDialog(this.watermarkOptions, this.pageNumberOptions, {
@@ -634,9 +635,26 @@ class ZephyrPDFApp {
       handleDrag(e);
       const files = Array.from(e.dataTransfer?.files || []);
       const pdfFiles = files.filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+      const imgFiles = files.filter(f => f.type.startsWith('image/'));
+
+      if (pdfFiles.length === 0 && imgFiles.length > 0) {
+        if (!this.currentDoc) {
+          NotificationService.show('Please open a PDF document first before adding images.', 4000, true);
+          return;
+        }
+        for (const imgFile of imgFiles) {
+          try {
+            const processed = await processImageFile(imgFile);
+            this.pasteImageOntoCurrentPage(processed);
+          } catch {
+            NotificationService.show('Failed to load dropped image.', 3000, true);
+          }
+        }
+        return;
+      }
 
       if (pdfFiles.length === 0 && files.length > 0) {
-        NotificationService.show('Please drop standard PDF documents.', 4000, true);
+        NotificationService.show('Please drop standard PDF documents or images.', 4000, true);
         return;
       }
 
@@ -644,6 +662,64 @@ class ZephyrPDFApp {
         await this.loadFile(file);
       }
     });
+  }
+
+  private initClipboardPaste(): void {
+    window.addEventListener('paste', async (e: ClipboardEvent) => {
+      // Ignore if user is typing or pasting into an input or textarea
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) {
+        return;
+      }
+
+      const items = e.clipboardData?.items;
+      if (!items || items.length === 0) return;
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          if (file) {
+            try {
+              const processed = await processImageFile(file);
+              this.pasteImageOntoCurrentPage(processed);
+            } catch {
+              NotificationService.show('Failed to paste image.', 3000, true);
+            }
+          }
+          break;
+        }
+      }
+    });
+  }
+
+  public pasteImageOntoCurrentPage(processed: ProcessedImage): void {
+    if (!this.currentDoc) {
+      NotificationService.show('Open a PDF document first before placing images.', 3000, true);
+      return;
+    }
+    const pageIdx = Math.max(0, this.currentPageNumber - 1);
+    const dims = this.currentDoc.pageDimensions[pageIdx] || { width: 595, height: 842 };
+    const x = Math.round((dims.width - processed.width) / 2);
+    const y = Math.round((dims.height - processed.height) / 2);
+
+    const imgAnn: ImageAnnotation = {
+      id: 'img_' + Math.random().toString(36).substring(2, 9),
+      type: 'image',
+      pageIndex: pageIdx,
+      dataUrl: processed.dataUrl,
+      x: Math.max(10, x),
+      y: Math.max(10, y),
+      width: processed.width,
+      height: processed.height,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    this.annotationManager.addAnnotation(imgAnn);
+    this.annotationManager.selectAnnotation(imgAnn.id);
+    this.setActiveTool('select');
+    NotificationService.show(`Image placed onto Page ${pageIdx + 1}!`);
   }
 
   private initShortcuts(): void {
@@ -1558,7 +1634,7 @@ class ZephyrPDFApp {
       NotificationService.show(`Saved ${exportName} successfully!`);
     } catch (e: any) {
       console.error(e);
-      alert('Failed to export PDF: ' + e.message);
+      NotificationService.show('Failed to export PDF: ' + (e?.message || 'Export error'), 4000, true);
     }
   }
 }

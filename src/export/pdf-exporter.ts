@@ -199,9 +199,20 @@ export class PdfExporter {
                 bytes[i] = binaryStr.charCodeAt(i);
               }
               const isJpg = header && (header.includes('jpeg') || header.includes('jpg'));
-              const image = isJpg
-                ? await newDoc.embedJpg(bytes)
-                : await newDoc.embedPng(bytes);
+              let image;
+              if (isJpg) {
+                try {
+                  image = await newDoc.embedJpg(bytes);
+                } catch {
+                  image = await newDoc.embedPng(bytes);
+                }
+              } else {
+                try {
+                  image = await newDoc.embedPng(bytes);
+                } catch {
+                  image = await newDoc.embedJpg(bytes);
+                }
+              }
 
               targetPage.drawImage(image, {
                 x: ann.x,

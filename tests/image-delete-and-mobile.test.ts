@@ -3,6 +3,7 @@ import { AnnotationManager } from '../src/annotations/manager';
 import { HistoryManager } from '../src/core/history';
 import { ImageAnnotation } from '../src/types/annotations';
 import { pointInRect } from '../src/utils/geometry';
+import { processImageDataUrl } from '../src/utils/image';
 
 describe('Image Deletion & Mobile UX Tests', () => {
   it('should remove image annotations cleanly from active manager', () => {
@@ -200,5 +201,39 @@ describe('Image Deletion & Mobile UX Tests', () => {
       activeTool = toolBeforeSpace;
     }
     expect(activeTool).toBe('freehand');
+  });
+
+  it('should compute aspect-ratio-constrained dimensions when Shift is held during corner resize', () => {
+    const origRect = { x: 50, y: 50, width: 200, height: 100 }; // 2:1 aspect ratio
+    const aspect = origRect.width / origRect.height; // 2.0
+
+    // Simulate resizing from SE handle with Shift held
+    const dx = 50;
+    const dy = 80;
+    let newW = Math.max(20, origRect.width + dx); // 250
+    let newH = Math.max(15, origRect.height + dy); // 180
+    const shiftKey = true;
+
+    if (shiftKey && origRect.width > 0 && origRect.height > 0) {
+      if (Math.abs(dx) >= Math.abs(dy)) {
+        newH = Math.max(15, newW / aspect);
+      } else {
+        newW = Math.max(20, newH * aspect);
+      }
+    }
+
+    // Since |dy| = 80 > |dx| = 50, newH is 180 and newW scales to 180 * 2 = 360
+    expect(newH).toBe(180);
+    expect(newW).toBe(360);
+    expect(newW / newH).toBeCloseTo(aspect, 2);
+  });
+
+  it('should safely process image data URL with fallback dimensions in non-DOM environments', async () => {
+    const rawDataUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+    const processed = await processImageDataUrl(rawDataUrl, 200, 200);
+
+    expect(processed.dataUrl).toBe(rawDataUrl);
+    expect(processed.width).toBeGreaterThanOrEqual(30);
+    expect(processed.height).toBeGreaterThanOrEqual(20);
   });
 });
