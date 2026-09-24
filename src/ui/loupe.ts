@@ -40,17 +40,21 @@ export class DocumentLoupe {
   }
 
   private attachEvents(): void {
+    window.addEventListener('mouseleave', () => {
+      if (this.isActive) {
+        this.loupeEl.style.display = 'none';
+      }
+    });
+
     window.addEventListener('mousemove', (e) => {
       if (!this.isActive) return;
 
       this.loupeEl.style.left = `${e.clientX - this.size / 2}px`;
       this.loupeEl.style.top = `${e.clientY - this.size / 2}px`;
-
-      // Find the page canvas directly underneath cursor
-      this.loupeEl.style.display = 'none';
-      const underEl = document.elementFromPoint(e.clientX, e.clientY);
       this.loupeEl.style.display = 'block';
 
+      // Find the page canvas directly underneath cursor
+      const underEl = document.elementFromPoint(e.clientX, e.clientY);
       if (!underEl) return;
 
       const pageContainer = underEl.closest('.page-container');
