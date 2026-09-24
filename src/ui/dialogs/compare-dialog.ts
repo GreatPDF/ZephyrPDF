@@ -4,6 +4,23 @@ export class CompareDialog {
   private backdrop: HTMLElement | null = null;
   private summary: DocumentDiffSummary;
   private currentPageIndex: number = 0;
+  private onKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      this.close();
+    } else if (e.key === 'ArrowLeft') {
+      if (this.currentPageIndex > 0) {
+        this.currentPageIndex--;
+        const card = this.backdrop?.querySelector('.modal-card') as HTMLElement;
+        if (card) this.updatePage(card);
+      }
+    } else if (e.key === 'ArrowRight') {
+      if (this.currentPageIndex < this.summary.pageDiffs.length - 1) {
+        this.currentPageIndex++;
+        const card = this.backdrop?.querySelector('.modal-card') as HTMLElement;
+        if (card) this.updatePage(card);
+      }
+    }
+  };
 
   constructor(summary: DocumentDiffSummary) {
     this.summary = summary;
@@ -17,6 +34,9 @@ export class CompareDialog {
     if (this.backdrop) {
       this.backdrop.remove();
       this.backdrop = null;
+    }
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('keydown', this.onKeyDown);
     }
   }
 
@@ -82,6 +102,12 @@ export class CompareDialog {
 
     this.backdrop.appendChild(card);
     document.body.appendChild(this.backdrop);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', this.onKeyDown);
+    }
+    this.backdrop.addEventListener('click', (e) => {
+      if (e.target === this.backdrop) this.close();
+    });
 
     this.setupListeners(card);
   }

@@ -1,6 +1,7 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { PdfOptimizer, CompressionLevel, OptimizationResult } from '../../core/optimizer';
 import { PdfExporter } from '../../export/pdf-exporter';
+import { NotificationService } from '../notification';
 
 export interface OptimizerDialogProps {
   pdfjsDoc: pdfjsLib.PDFDocumentProxy;
@@ -14,6 +15,11 @@ export class OptimizerDialog {
   private selectedLevel: CompressionLevel = 'medium';
   private lastResult: OptimizationResult | null = null;
   private isProcessing: boolean = false;
+  private onKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape' && !this.isProcessing) {
+      this.close();
+    }
+  };
 
   constructor(props: OptimizerDialogProps) {
     this.props = props;
@@ -27,6 +33,9 @@ export class OptimizerDialog {
     if (this.backdrop) {
       this.backdrop.remove();
       this.backdrop = null;
+    }
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('keydown', this.onKeyDown);
     }
   }
 
@@ -113,6 +122,14 @@ export class OptimizerDialog {
 
     this.backdrop.appendChild(card);
     document.body.appendChild(this.backdrop);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', this.onKeyDown);
+    }
+    this.backdrop.addEventListener('click', (e) => {
+      if (e.target === this.backdrop && !this.isProcessing) {
+        this.close();
+      }
+    });
 
     this.setupListeners(card);
   }
@@ -164,12 +181,16 @@ export class OptimizerDialog {
         resultBox.style.display = 'block';
 
         newSizeLabel.textContent = `${this.formatBytes(result.originalSize)} ➔ ${this.formatBytes(result.optimizedSize)}`;
-        savingsLabel.textContent = `Reduced by ${result.percentSaved}% (${this.formatBytes(Math.max(0, result.originalSize - result.optimizedSize))} saved)`;
+        if (result.optimizedSize < result.originalSize) {
+          savingsLabel.textContent = `Reduced by ${result.percentSaved}% (${this.formatBytes(result.originalSize - result.optimizedSize)} saved)`;
+        } else {
+          savingsLabel.textContent = `Document is already compact. Rasterizing pages increases size (${this.formatBytes(result.optimizedSize)}).`;
+        }
 
         runBtn.style.display = 'none';
         downloadBtn.style.display = 'inline-flex';
       } catch (err: any) {
-        alert('Optimization error: ' + err.message);
+        NotificationService.show('Optimization error: ' + (err?.message || 'Compression failed'), 4000, true);
         runBtn.disabled = false;
       } finally {
         this.isProcessing = false;
