@@ -503,6 +503,7 @@ class ZephyrPDFApp {
 
     viewerContainer?.addEventListener('touchmove', (e: TouchEvent) => {
       if (e.touches.length === 2 && initialPinchDistance !== null && initialPinchDistance > 0) {
+        if (e.cancelable) e.preventDefault();
         const currentDistance = Math.hypot(
           e.touches[0].clientX - e.touches[1].clientX,
           e.touches[0].clientY - e.touches[1].clientY
@@ -514,7 +515,7 @@ class ZephyrPDFApp {
           pagesWrapper.style.transformOrigin = 'center top';
         }
       }
-    }, { passive: true });
+    }, { passive: false });
 
     viewerContainer?.addEventListener('touchend', (e: TouchEvent) => {
       if (e.touches.length < 2 && initialPinchDistance !== null) {
