@@ -580,6 +580,14 @@ button.btn.btn-primary:hover {
   gap: 20px !important;
 }
 
+.viewer-viewport.mode-single .page-container {
+  display: none !important;
+}
+
+.viewer-viewport.mode-single .page-container.active-single-page {
+  display: block !important;
+}
+
 .page-container {
   position: relative;
   box-shadow: var(--shadow-lg);

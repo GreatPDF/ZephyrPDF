@@ -202,6 +202,7 @@ export class AppToolbar {
 
           <select id="view-mode-select" title="Document View Mode" style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; padding: 2px 6px; font-size: 0.8rem;">
             <option value="continuous" selected>Continuous</option>
+            <option value="single">Single Page</option>
             <option value="two-page">Two-Page</option>
             <option value="presentation">Presentation</option>
           </select>

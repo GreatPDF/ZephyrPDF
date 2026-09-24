@@ -155,6 +155,8 @@ class ZephyrPDFApp {
       onThemeToggle: (theme) => this.setTheme(theme),
       onViewModeChange: (mode: ViewMode) => {
         const viewerContainer = document.getElementById('viewer-container');
+        viewerContainer?.classList.remove('mode-single', 'mode-two-page');
+
         if (mode === 'two-page') {
           viewerContainer?.classList.add('mode-two-page');
           if (this.currentDoc && this.currentDoc.pageDimensions.length > 0) {
@@ -167,11 +169,15 @@ class ZephyrPDFApp {
             }
           }
           NotificationService.show('Two-Page Spread View enabled');
+        } else if (mode === 'single') {
+          viewerContainer?.classList.add('mode-single');
+          this.updateSinglePageVisibility();
+          this.scrollToPage(this.currentPageNumber);
+          NotificationService.show('Single Page View enabled');
         } else if (mode === 'presentation') {
           this.togglePresentationMode();
           NotificationService.show('Presentation Mode enabled');
         } else {
-          viewerContainer?.classList.remove('mode-two-page');
           NotificationService.show('Continuous Scroll View enabled');
         }
       },
@@ -1353,6 +1359,7 @@ class ZephyrPDFApp {
     }
 
     this.updateSidebarThumbnails();
+    this.updateSinglePageVisibility();
 
     const searchState = this.searchEngine.getState();
     if (searchState.query) {
@@ -1521,12 +1528,29 @@ class ZephyrPDFApp {
     const clamped = Math.max(1, Math.min(total, pageNumber));
     this.currentPageNumber = clamped;
 
+    this.updateSinglePageVisibility();
+
     const el = document.querySelector(`.page-container[data-page="${clamped}"]`) as HTMLElement;
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     this.updatePageHUD();
     this.sidebar.setCurrentPage(clamped);
+  }
+
+  private updateSinglePageVisibility(): void {
+    const viewerContainer = document.getElementById('viewer-container');
+    if (viewerContainer?.classList.contains('mode-single')) {
+      const allPages = document.querySelectorAll('.page-container');
+      allPages.forEach(p => {
+        const pageNum = parseInt(p.getAttribute('data-page') || '0', 10);
+        if (pageNum === this.currentPageNumber) {
+          p.classList.add('active-single-page');
+        } else {
+          p.classList.remove('active-single-page');
+        }
+      });
+    }
   }
 
   private updatePageHUD(): void {
