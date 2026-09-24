@@ -23,6 +23,7 @@ import {
   Rect
 } from '../utils/geometry';
 import { hexToRgbaCss } from '../utils/color';
+import { WatermarkOptions } from '../types/document';
 import { NotificationService } from '../ui/notification';
 import { AnnotationContextMenu } from '../ui/context-menu';
 
@@ -39,6 +40,7 @@ export class PageAnnotationOverlay {
   private getActiveSignature: () => string | null;
   private getActiveMeasureUnit?: () => MeasureUnit;
   private getActiveImage?: () => { dataUrl: string; width: number; height: number } | string | null;
+  private getActiveWatermark?: () => WatermarkOptions | null;
   private contextMenu?: AnnotationContextMenu;
 
   // Active interaction state
@@ -66,6 +68,7 @@ export class PageAnnotationOverlay {
       getActiveSignature: () => string | null;
       getActiveMeasureUnit?: () => MeasureUnit;
       getActiveImage?: () => { dataUrl: string; width: number; height: number } | string | null;
+      getActiveWatermark?: () => WatermarkOptions | null;
       contextMenu?: AnnotationContextMenu;
       onResetTool?: () => void;
     }
@@ -81,6 +84,7 @@ export class PageAnnotationOverlay {
     this.getActiveSignature = options.getActiveSignature;
     this.getActiveMeasureUnit = options.getActiveMeasureUnit;
     this.getActiveImage = options.getActiveImage;
+    this.getActiveWatermark = options.getActiveWatermark;
     this.contextMenu = options.contextMenu;
     this.onResetTool = options.onResetTool;
 
@@ -853,6 +857,29 @@ export class PageAnnotationOverlay {
     const annotations = this.manager.getAnnotationsForPage(this.pageIndex);
     const scale = this.getScale();
     const selectedId = this.manager.getSelectedId();
+
+    // Live watermark preview
+    if (this.getActiveWatermark) {
+      const wm = this.getActiveWatermark();
+      if (wm && wm.enabled && wm.text) {
+        const wmText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        const centerX = (this.container.clientWidth || 595 * scale) / 2;
+        const centerY = (this.container.clientHeight || 842 * scale) / 2;
+        wmText.setAttribute('x', centerX.toString());
+        wmText.setAttribute('y', centerY.toString());
+        wmText.setAttribute('text-anchor', 'middle');
+        wmText.setAttribute('dominant-baseline', 'middle');
+        wmText.setAttribute('font-size', `${Math.round((wm.fontSize || 48) * scale)}px`);
+        wmText.setAttribute('font-weight', 'bold');
+        wmText.setAttribute('fill', wm.color || '#94a3b8');
+        wmText.setAttribute('opacity', (wm.opacity || 0.15).toString());
+        wmText.setAttribute('transform', `rotate(${wm.rotationDegrees || -45} ${centerX} ${centerY})`);
+        wmText.setAttribute('pointer-events', 'none');
+        wmText.setAttribute('user-select', 'none');
+        wmText.textContent = wm.text;
+        this.svgLayer.appendChild(wmText);
+      }
+    }
 
     for (const ann of annotations) {
       const isSelected = ann.id === selectedId;

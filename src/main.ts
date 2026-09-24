@@ -230,7 +230,8 @@ class ZephyrPDFApp {
           onSave: (wm, pn) => {
             this.watermarkOptions = wm;
             this.pageNumberOptions = pn;
-            NotificationService.show('Watermark & page numbering updated!');
+            this.renderDocument();
+            NotificationService.show('Watermark & page numbering applied!');
           }
         }).open();
       },
@@ -1288,6 +1289,7 @@ class ZephyrPDFApp {
           getActiveSignature: () => this.activeSignature,
           getActiveMeasureUnit: () => this.activeMeasureUnit,
           getActiveImage: () => this.activeImage,
+          getActiveWatermark: () => this.watermarkOptions,
           contextMenu: this.contextMenu,
           onResetTool: () => {
             this.setActiveTool('select');

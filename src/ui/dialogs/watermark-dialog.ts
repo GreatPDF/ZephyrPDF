@@ -9,6 +9,11 @@ export class WatermarkDialog {
   private watermark: WatermarkOptions;
   private pageNumbers: PageNumberOptions;
   private events: WatermarkDialogEvents;
+  private onKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      this.close();
+    }
+  };
 
   constructor(
     initialWatermark: WatermarkOptions,
@@ -28,6 +33,9 @@ export class WatermarkDialog {
     if (this.backdrop) {
       this.backdrop.remove();
       this.backdrop = null;
+    }
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('keydown', this.onKeyDown);
     }
   }
 
@@ -133,6 +141,12 @@ export class WatermarkDialog {
 
     this.backdrop.appendChild(card);
     document.body.appendChild(this.backdrop);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', this.onKeyDown);
+    }
+    this.backdrop.addEventListener('click', (e) => {
+      if (e.target === this.backdrop) this.close();
+    });
 
     this.setupListeners(card);
   }
