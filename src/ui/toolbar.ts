@@ -196,7 +196,7 @@ export class AppToolbar {
           <button class="icon-btn" id="zoom-out-btn" title="Zoom Out (-)" aria-label="Zoom Out (-)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
           </button>
-          <span id="zoom-label" title="Click to Reset Zoom (100%)" style="font-size: 0.85rem; font-weight: 600; min-width: 48px; text-align: center; cursor: pointer; user-select: none;">100%</span>
+          <span id="zoom-label" role="button" tabindex="0" title="Click to Reset Zoom (100%)" aria-label="Reset zoom to 100%" style="font-size: 0.85rem; font-weight: 600; min-width: 48px; text-align: center; cursor: pointer; user-select: none;">100%</span>
           <button class="icon-btn" id="zoom-in-btn" title="Zoom In (+)" aria-label="Zoom In (+)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
           </button>
@@ -421,7 +421,15 @@ export class AppToolbar {
 
     byId('zoom-in-btn')?.addEventListener('click', () => this.events.onZoomIn());
     byId('zoom-out-btn')?.addEventListener('click', () => this.events.onZoomOut());
-    byId('zoom-label')?.addEventListener('click', () => this.events.onResetZoom?.());
+    const zoomLabel = byId('zoom-label');
+    zoomLabel?.addEventListener('click', () => this.events.onResetZoom?.());
+    zoomLabel?.addEventListener('keydown', (e: Event) => {
+      const ke = e as KeyboardEvent;
+      if (ke.key === 'Enter' || ke.key === ' ') {
+        ke.preventDefault();
+        this.events.onResetZoom?.();
+      }
+    });
     byId('zoom-fit-width-btn')?.addEventListener('click', () => this.events.onZoomFitWidth());
     byId('zoom-fit-page-btn')?.addEventListener('click', () => this.events.onZoomFitPage());
 
