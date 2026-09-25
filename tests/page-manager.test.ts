@@ -137,4 +137,43 @@ describe('PageManager', () => {
     expect(reloaded.getPageCount()).toBe(2);
     expect(reloaded.getPage(1).getSize().width).toBeCloseTo(595, 0);
   });
+
+  it('should append pages from another document and export merged PDF', async () => {
+    const doc1 = await PDFDocument.create();
+    doc1.addPage([595, 842]);
+    const doc1Bytes = await doc1.save();
+
+    const doc2 = await PDFDocument.create();
+    doc2.addPage([612, 792]);
+    doc2.addPage([612, 792]);
+    const doc2Bytes = await doc2.save();
+
+    const pm = new PageManager(new HistoryManager());
+    pm.initFromDocument(1, [{ width: 595, height: 842, rotation: 0 }]);
+
+    const mergedDocId = 'merged_doc_abc';
+    pm.appendDocumentPages(mergedDocId, 2, [
+      { width: 612, height: 792, rotation: 0 },
+      { width: 612, height: 792, rotation: 0 }
+    ]);
+    expect(pm.getPageCount()).toBe(3);
+
+    const mergedDocs = new Map<string, Uint8Array>();
+    mergedDocs.set(mergedDocId, doc2Bytes);
+
+    const am = new AnnotationManager(new HistoryManager());
+    const exportedBytes = await PdfExporter.exportDocument(
+      doc1Bytes,
+      pm,
+      am,
+      undefined,
+      mergedDocs
+    );
+
+    const reloaded = await PDFDocument.load(exportedBytes);
+    expect(reloaded.getPageCount()).toBe(3);
+    expect(reloaded.getPage(0).getSize().width).toBeCloseTo(595, 0);
+    expect(reloaded.getPage(1).getSize().width).toBeCloseTo(612, 0);
+    expect(reloaded.getPage(2).getSize().width).toBeCloseTo(612, 0);
+  });
 });

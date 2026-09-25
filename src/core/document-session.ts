@@ -15,6 +15,8 @@ export interface DocumentSession {
   currentPageNumber: number;
   scrollTop: number;
   thumbnails: Map<number, string>;
+  mergedDocs?: Map<string, Uint8Array>;
+  loadedMergedPdfjsDocs?: Map<string, any>;
 }
 
 export class SessionManager {
@@ -42,7 +44,9 @@ export class SessionManager {
       scale: 1.0,
       currentPageNumber: 1,
       scrollTop: 0,
-      thumbnails: new Map()
+      thumbnails: new Map(),
+      mergedDocs: new Map(),
+      loadedMergedPdfjsDocs: new Map()
     };
 
     this.sessions.set(id, session);

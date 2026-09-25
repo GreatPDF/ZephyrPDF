@@ -262,8 +262,14 @@ export class OrganizerModal {
     mergeInput?.addEventListener('change', async () => {
       const file = mergeInput.files?.[0];
       if (file && this.events.onMergeFile) {
-        await this.events.onMergeFile(file);
-        this.renderGrid();
+        try {
+          await this.events.onMergeFile(file);
+          this.renderGrid();
+        } catch (err: any) {
+          NotificationService.show('Failed to merge PDF: ' + (err?.message || 'Merge error'), 4000, true);
+        } finally {
+          mergeInput.value = '';
+        }
       }
     });
 

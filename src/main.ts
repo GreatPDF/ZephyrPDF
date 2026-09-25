@@ -1284,6 +1284,10 @@ class ZephyrPDFApp {
     this.formHandler = session.formHandler;
     this.currentScale = session.scale;
     this.currentPageNumber = session.currentPageNumber;
+    this.mergedDocs = session.mergedDocs || new Map();
+    this.loadedMergedPdfjsDocs = session.loadedMergedPdfjsDocs || new Map();
+    session.mergedDocs = this.mergedDocs;
+    session.loadedMergedPdfjsDocs = this.loadedMergedPdfjsDocs;
 
     this.tabBar?.update(this.sessionManager.getAllSessions(), session.id);
     document.title = `${session.doc.metadata.fileName} · ZephyrPDF`;
