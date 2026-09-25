@@ -348,7 +348,7 @@ export class AppToolbar {
           <div class="toolbar-divider"></div>
 
           <span style="font-size: 0.75rem; color: var(--text-secondary);">Unit:</span>
-          <select id="measure-unit-select" style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; padding: 2px 6px; font-size: 0.8rem;">
+          <select id="measure-unit-select" aria-label="Measurement calibration unit" style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; padding: 2px 6px; font-size: 0.8rem;">
             <option value="mm" selected>mm</option>
             <option value="cm">cm</option>
             <option value="in">in</option>
