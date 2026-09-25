@@ -60,7 +60,7 @@ export class CompareDialog {
             ${this.summary.changedPagesCount} of ${totalPages} pages changed
           </span>
         </div>
-        <button class="icon-btn" id="close-compare-btn">✕</button>
+        <button class="icon-btn" id="close-compare-btn" title="Close dialog" aria-label="Close dialog">✕</button>
       </div>
 
       <div style="padding: 10px 20px; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
@@ -76,9 +76,9 @@ export class CompareDialog {
         </div>
 
         <div style="display: flex; align-items: center; gap: 8px;">
-          <button class="icon-btn" id="prev-diff-page" title="Previous Page" style="width: 28px; height: 28px;">◀</button>
+          <button class="icon-btn" id="prev-diff-page" title="Previous Page" aria-label="Previous Diff Page" style="width: 28px; height: 28px;">◀</button>
           <span style="font-size: 0.85rem; font-weight: 600;" id="diff-page-indicator">Page ${this.currentPageIndex + 1} of ${totalPages}</span>
-          <button class="icon-btn" id="next-diff-page" title="Next Page" style="width: 28px; height: 28px;">▶</button>
+          <button class="icon-btn" id="next-diff-page" title="Next Page" aria-label="Next Diff Page" style="width: 28px; height: 28px;">▶</button>
         </div>
       </div>
 
