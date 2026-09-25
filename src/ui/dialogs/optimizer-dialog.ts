@@ -58,7 +58,7 @@ export class OptimizerDialog {
     card.innerHTML = `
       <div class="modal-header">
         <h3>PDF Optimizer & Compressor</h3>
-        <button class="icon-btn" id="close-opt-btn">✕</button>
+        <button class="icon-btn" id="close-opt-btn" aria-label="Close dialog" title="Close dialog">✕</button>
       </div>
 
       <div class="modal-body" style="display: flex; flex-direction: column; gap: 16px;">
