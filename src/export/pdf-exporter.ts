@@ -382,23 +382,25 @@ export class PdfExporter {
           pnText = `${currentNum} of ${totalNum}`;
         }
 
-        let pnX = pageWidth / 2 - 25;
+        const fontSize = pageNumberOptions.fontSize || 9;
+        const textWidth = fontHelvetica.widthOfTextAtSize(pnText, fontSize);
+        let pnX = (pageWidth - textWidth) / 2;
         let pnY = 20;
         if (pageNumberOptions.position === 'bottom-right') {
-          pnX = pageWidth - 90;
+          pnX = pageWidth - textWidth - 36;
           pnY = 20;
         } else if (pageNumberOptions.position === 'top-right') {
-          pnX = pageWidth - 90;
+          pnX = pageWidth - textWidth - 36;
           pnY = pHeight - 25;
         } else if (pageNumberOptions.position === 'top-center') {
-          pnX = pageWidth / 2 - 25;
+          pnX = (pageWidth - textWidth) / 2;
           pnY = pHeight - 25;
         }
 
         targetPage.drawText(pnText, {
           x: pnX,
           y: pnY,
-          size: pageNumberOptions.fontSize || 9,
+          size: fontSize,
           font: fontHelvetica,
           color: rgb(0.35, 0.35, 0.35)
         });
