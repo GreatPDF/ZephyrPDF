@@ -35,6 +35,12 @@ export class PageManager {
     return [...this.pages];
   }
 
+  public restorePages(savedPages: PageItem[]): void {
+    this.pages = savedPages.map(p => ({ ...p }));
+    this.recomputePageNumbers();
+    this.notify();
+  }
+
   public getPageCount(): number {
     return this.getPages().length;
   }

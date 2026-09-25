@@ -923,7 +923,12 @@ class ZephyrPDFApp {
       } else if (e.key === 'Escape') {
         const orgOverlay = document.querySelector('.organizer-overlay');
         if (orgOverlay) {
-          orgOverlay.remove();
+          const cancelBtn = orgOverlay.querySelector('#org-cancel-btn') as HTMLButtonElement | null;
+          if (cancelBtn) {
+            cancelBtn.click();
+          } else {
+            orgOverlay.remove();
+          }
           return;
         }
 

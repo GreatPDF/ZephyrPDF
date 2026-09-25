@@ -84,4 +84,19 @@ describe('PageManager', () => {
       pageManager.deletePage(0);
     }).toThrow('A document must contain at least one page');
   });
+
+  it('should restore page manager state from snapshot on cancellation', () => {
+    const snapshot = pageManager.getAllPages().map(p => ({ ...p }));
+    expect(pageManager.getPageCount()).toBe(3);
+
+    pageManager.insertBlankPage(3);
+    pageManager.rotatePage(0, 90);
+    expect(pageManager.getPageCount()).toBe(4);
+    expect(pageManager.getPages()[0].rotation).toBe(90);
+
+    // Restore state
+    pageManager.restorePages(snapshot);
+    expect(pageManager.getPageCount()).toBe(3);
+    expect(pageManager.getPages()[0].rotation).toBe(0);
+  });
 });

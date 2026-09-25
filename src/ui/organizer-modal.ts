@@ -16,6 +16,8 @@ export class OrganizerModal {
   private events: OrganizerEvents;
   private draggedPageIndex: number | null = null;
   private selectedIndices: Set<number> = new Set();
+  private snapshotPages: PageItem[] = [];
+  private keyHandler: ((e: KeyboardEvent) => void) | null = null;
 
   constructor(
     pageManager: PageManager,
@@ -28,10 +30,26 @@ export class OrganizerModal {
   }
 
   public open(): void {
+    this.snapshotPages = this.pageManager.getAllPages().map(p => ({ ...p }));
     this.render();
+    this.keyHandler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        this.cancel();
+      }
+    };
+    window.addEventListener('keydown', this.keyHandler);
+  }
+
+  public cancel(): void {
+    this.pageManager.restorePages(this.snapshotPages);
+    this.close();
   }
 
   public close(): void {
+    if (this.keyHandler) {
+      window.removeEventListener('keydown', this.keyHandler);
+      this.keyHandler = null;
+    }
     if (this.overlay) {
       this.overlay.remove();
       this.overlay = null;
@@ -206,7 +224,13 @@ export class OrganizerModal {
 
     const cancelBtn = this.overlay?.querySelector('#org-cancel-btn');
     cancelBtn?.addEventListener('click', () => {
-      this.close();
+      this.cancel();
+    });
+
+    this.overlay?.addEventListener('click', (e) => {
+      if (e.target === this.overlay) {
+        this.cancel();
+      }
     });
 
     const addBlankBtn = this.overlay?.querySelector('#org-add-blank-btn');
