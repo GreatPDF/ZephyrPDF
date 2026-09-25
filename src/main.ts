@@ -798,8 +798,7 @@ class ZephyrPDFApp {
         const selectedId = this.annotationManager.getSelectedId();
         if (selectedId) {
           const ann = this.annotationManager.getAnnotation(selectedId);
-          if (ann && 'x' in ann && 'y' in ann) {
-            e.preventDefault();
+          if (ann) {
             const step = e.shiftKey ? 10 : 1;
             let dx = 0;
             let dy = 0;
@@ -808,11 +807,33 @@ class ZephyrPDFApp {
             else if (e.key === 'ArrowUp') dy = -step;
             else if (e.key === 'ArrowDown') dy = step;
 
-            this.annotationManager.updateAnnotation(selectedId, {
-              x: ann.x + dx,
-              y: ann.y + dy
-            });
-            return;
+            if ('x' in ann && 'y' in ann) {
+              e.preventDefault();
+              this.annotationManager.updateAnnotation(selectedId, {
+                x: ann.x + dx,
+                y: ann.y + dy
+              });
+              return;
+            } else if ('x1' in ann && 'y1' in ann && 'x2' in ann && 'y2' in ann) {
+              e.preventDefault();
+              this.annotationManager.updateAnnotation(selectedId, {
+                x1: ann.x1 + dx,
+                y1: ann.y1 + dy,
+                x2: ann.x2 + dx,
+                y2: ann.y2 + dy
+              });
+              return;
+            } else if ('points' in ann && Array.isArray((ann as any).points)) {
+              e.preventDefault();
+              const shiftedPoints = (ann as any).points.map((p: any) => ({
+                x: p.x + dx,
+                y: p.y + dy
+              }));
+              this.annotationManager.updateAnnotation(selectedId, {
+                points: shiftedPoints
+              });
+              return;
+            }
           }
         } else if (e.key === 'ArrowLeft' && !e.ctrlKey && !e.metaKey) {
           e.preventDefault();
