@@ -1158,14 +1158,14 @@ class ZephyrPDFApp {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
               <h3 style="margin: 0; font-size: 1.15rem;">Password Protected</h3>
             </div>
-            <button class="icon-btn close-modal-btn" aria-label="Close dialog">✕</button>
+            <button class="icon-btn close-modal-btn" aria-label="Close dialog" title="Close dialog">✕</button>
           </div>
           <div class="modal-body" style="padding: 16px;">
             <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">
               ${isRetry ? '<span style="color: var(--danger-color); font-weight: 600;">Incorrect password.</span> ' : ''}
               This document is encrypted. Please enter the password to open <b>${file.name}</b>:
             </p>
-            <input type="password" id="pdf-password-input" placeholder="Enter password..." style="width: 100%; height: 38px; padding: 0 12px; font-size: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); outline: none;" />
+            <input type="password" id="pdf-password-input" aria-label="Document password" placeholder="Enter password..." style="width: 100%; height: 38px; padding: 0 12px; font-size: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); outline: none;" />
           </div>
           <div class="modal-footer" style="justify-content: flex-end; gap: 8px;">
             <button class="btn cancel-btn">Cancel</button>
