@@ -35,11 +35,14 @@ export class DocumentTabBar {
 
     const tabStrip = document.createElement('div');
     tabStrip.className = 'doc-tab-strip';
+    tabStrip.setAttribute('role', 'tablist');
 
     for (const session of this.sessions) {
       const isActive = session.id === this.activeSessionId;
       const tab = document.createElement('div');
       tab.className = `doc-tab ${isActive ? 'active' : ''}`;
+      tab.setAttribute('role', 'tab');
+      tab.setAttribute('aria-selected', isActive.toString());
       tab.setAttribute('data-id', session.id);
       tab.title = session.doc.metadata.fileName;
 
