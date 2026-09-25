@@ -42,7 +42,7 @@ export class SignatureDialog {
     card.innerHTML = `
       <div class="modal-header">
         <h3>Create Signature</h3>
-        <button class="icon-btn" id="close-sig-btn">✕</button>
+        <button class="icon-btn" id="close-sig-btn" aria-label="Close dialog" title="Close dialog">✕</button>
       </div>
       <div class="modal-body">
         <div style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">

@@ -50,13 +50,13 @@ export class OrganizerModal {
           <span style="font-size: 0.85rem; color: var(--text-muted);" id="org-page-count">${this.pageManager.getPageCount()} pages</span>
         </div>
         <div style="display: flex; gap: 8px;">
-          <button class="btn" id="org-rotate-all-btn">Rotate All 90°</button>
-          <button class="btn" id="org-add-blank-btn">+ Blank Page</button>
-          <button class="btn" id="org-merge-btn">📎 Merge PDF</button>
-          <button class="btn" id="org-extract-btn" title="Extract selected pages into separate PDF">Extract Selected</button>
+          <button class="btn" id="org-rotate-all-btn" aria-label="Rotate All 90°">Rotate All 90°</button>
+          <button class="btn" id="org-add-blank-btn" aria-label="Add Blank Page">+ Blank Page</button>
+          <button class="btn" id="org-merge-btn" aria-label="Merge PDF">📎 Merge PDF</button>
+          <button class="btn" id="org-extract-btn" title="Extract selected pages into separate PDF" aria-label="Extract selected pages into separate PDF">Extract Selected</button>
           <div style="display: flex; align-items: center; gap: 4px; background: var(--bg-tertiary); padding: 2px 6px; border-radius: 6px;">
             <input type="text" id="org-range-input" placeholder="Range: 1-3, 5" style="background: transparent; border: none; color: var(--text-primary); font-size: 0.8rem; width: 100px; outline: none;" />
-            <button class="btn" id="org-range-btn" style="height: 26px; padding: 0 8px; font-size: 0.75rem;">Export</button>
+            <button class="btn" id="org-range-btn" style="height: 26px; padding: 0 8px; font-size: 0.75rem;" aria-label="Export page range">Export</button>
           </div>
           <button class="btn" id="org-cancel-btn">Cancel</button>
           <button class="btn btn-primary" id="org-apply-btn">Apply & Return</button>
@@ -104,10 +104,10 @@ export class OrganizerModal {
         </div>
         <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Page ${index + 1}</span>
         <div class="organizer-card-actions">
-          <button class="icon-btn rot-left-btn" title="Rotate 90° CCW" style="width: 28px; height: 28px;">↺</button>
-          <button class="icon-btn rot-right-btn" title="Rotate 90° CW" style="width: 28px; height: 28px;">↻</button>
-          <button class="icon-btn dup-btn" title="Duplicate Page" style="width: 28px; height: 28px;">📋</button>
-          <button class="icon-btn del-btn" title="Delete Page" style="width: 28px; height: 28px; color: var(--danger-color);">✕</button>
+          <button class="icon-btn rot-left-btn" title="Rotate 90° CCW" aria-label="Rotate 90° CCW" style="width: 28px; height: 28px;">↺</button>
+          <button class="icon-btn rot-right-btn" title="Rotate 90° CW" aria-label="Rotate 90° CW" style="width: 28px; height: 28px;">↻</button>
+          <button class="icon-btn dup-btn" title="Duplicate Page" aria-label="Duplicate Page" style="width: 28px; height: 28px;">📋</button>
+          <button class="icon-btn del-btn" title="Delete Page" aria-label="Delete Page" style="width: 28px; height: 28px; color: var(--danger-color);">✕</button>
         </div>
       `;
 

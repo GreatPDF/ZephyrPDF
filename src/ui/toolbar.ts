@@ -142,33 +142,33 @@ export class AppToolbar {
 
           <div class="toolbar-divider"></div>
 
-          <button class="btn" id="organizer-btn" title="Manage & Reorder Pages">
+          <button class="btn" id="organizer-btn" title="Manage & Reorder Pages" aria-label="Manage & Reorder Pages">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>Organize Pages</span>
           </button>
 
-          <button class="btn" id="compare-btn" title="Compare against another PDF">
+          <button class="btn" id="compare-btn" title="Compare against another PDF" aria-label="Compare against another PDF">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"></path><path d="M8 21H3v-5"></path><path d="M21 3 14 10"></path><path d="M3 21l7-7"></path></svg>
             <span>Compare</span>
           </button>
           <input type="file" id="compare-file-input" accept="application/pdf" style="display: none;" />
 
-          <button class="btn" id="watermark-btn" title="Watermark & Page Numbering">
+          <button class="btn" id="watermark-btn" title="Watermark & Page Numbering" aria-label="Watermark & Page Numbering">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
             <span>Watermark</span>
           </button>
 
-          <button class="btn" id="add-field-btn" title="Add Fillable Form Field (Text or Checkbox)">
+          <button class="btn" id="add-field-btn" title="Add Fillable Form Field (Text or Checkbox)" aria-label="Add Fillable Form Field (Text or Checkbox)">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
             <span>+ Field</span>
           </button>
 
-          <button class="btn" id="optimize-btn" title="Compress & Optimize PDF File Size">
+          <button class="btn" id="optimize-btn" title="Compress & Optimize PDF File Size" aria-label="Compress & Optimize PDF File Size">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="M12 12v9"></path><path d="m8 17 4 4 4-4"></path></svg>
             <span>Compress</span>
           </button>
 
-          <button class="btn" id="export-text-btn" title="Extract Full Document Text / Markdown">
+          <button class="btn" id="export-text-btn" title="Extract Full Document Text / Markdown" aria-label="Extract Full Document Text / Markdown">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
             <span>Extract Text</span>
           </button>
@@ -301,12 +301,12 @@ export class AppToolbar {
             <option value="REJECTED">REJECTED</option>
           </select>
 
-          <button class="btn" id="sig-btn" title="Create or Place Signature (g)">
+          <button class="btn" id="sig-btn" title="Create or Place Signature (g)" aria-label="Create or Place Signature (g)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 2s-6 7-6 10 3 4 5 4 4-2 4-5-3-9-3-9z"></path></svg>
             <span>Signature</span>
           </button>
 
-          <button class="btn" id="image-insert-btn" title="Insert Image / Logo (i)">
+          <button class="btn" id="image-insert-btn" title="Insert Image / Logo (i)" aria-label="Insert Image / Logo (i)">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
             <span>Image</span>
           </button>

@@ -36,7 +36,7 @@ export class ShortcutsDialog {
     card.innerHTML = `
       <div class="modal-header">
         <h3>Keyboard Shortcuts</h3>
-        <button class="icon-btn" id="close-shortcuts-btn">✕</button>
+        <button class="icon-btn" id="close-shortcuts-btn" aria-label="Close dialog" title="Close dialog">✕</button>
       </div>
       <div class="modal-body">
         <h4 style="margin: 8px 0 12px; color: var(--accent-color); font-size: 0.95rem;">Navigation & View</h4>
@@ -72,6 +72,7 @@ export class ShortcutsDialog {
         <div class="shortcut-row"><span>Arrow / Line</span><span class="shortcut-kbd">a</span></div>
         <div class="shortcut-row"><span>Permanent Redaction</span><span class="shortcut-kbd">x</span></div>
         <div class="shortcut-row"><span>Ruler / Measure</span><span class="shortcut-kbd">u</span></div>
+        <div class="shortcut-row"><span>Place Stamp</span><span class="shortcut-kbd">m</span></div>
         <div class="shortcut-row"><span>Magnifier Lens</span><span class="shortcut-kbd">z</span></div>
         <div class="shortcut-row"><span>Marquee Snapshot</span><span class="shortcut-kbd">c</span></div>
 

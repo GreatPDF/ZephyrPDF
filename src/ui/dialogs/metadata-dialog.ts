@@ -56,7 +56,7 @@ export class MetadataDialog {
         <div style="display: flex; align-items: center; gap: 8px;">
           <h3 style="margin: 0; font-size: 1.15rem;">Document Properties & Metadata</h3>
         </div>
-        <button class="icon-btn" id="close-meta-btn">✕</button>
+        <button class="icon-btn" id="close-meta-btn" aria-label="Close dialog" title="Close dialog">✕</button>
       </div>
 
       <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">

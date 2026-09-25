@@ -196,10 +196,13 @@ export class PdfExporter {
               opacity: 0.1
             });
             const textToDraw = ann.customText || ann.stampType;
+            const fontSize = 16;
+            const textWidth = fontHelveticaBold.widthOfTextAtSize(textToDraw, fontSize);
+            const textX = ann.x + Math.max(4, (ann.width - textWidth) / 2);
             targetPage.drawText(textToDraw, {
-              x: ann.x + 12,
+              x: textX,
               y: pageHeight - (ann.y + ann.height / 2 + 5),
-              size: 16,
+              size: fontSize,
               font: fontHelveticaBold,
               color: rgb(stampColor.r, stampColor.g, stampColor.b)
             });

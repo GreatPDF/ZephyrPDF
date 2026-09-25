@@ -242,6 +242,16 @@ export class PageAnnotationOverlay {
     // Direct placement tools
     if (tool === 'stamp') {
       const stampType = this.getActiveStamp() as any;
+      let color = this.getActiveColor();
+      if (!color || color === '#facc15' || color === '#ffeb3b') {
+        if (stampType === 'APPROVED' || stampType === 'FINAL') {
+          color = '#10b981';
+        } else if (stampType === 'REJECTED' || stampType === 'CONFIDENTIAL') {
+          color = '#ef4444';
+        } else if (stampType === 'DRAFT') {
+          color = '#3b82f6';
+        }
+      }
       const stampAnn: StampAnnotation = {
         id: 'stamp_' + Math.random().toString(36).substring(2, 9),
         type: 'stamp',
@@ -251,7 +261,7 @@ export class PageAnnotationOverlay {
         y: coords.y - 25,
         width: 150,
         height: 50,
-        color: this.getActiveColor(),
+        color,
         createdAt: Date.now(),
         updatedAt: Date.now()
       };

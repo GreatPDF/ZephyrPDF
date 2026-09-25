@@ -50,7 +50,7 @@ export class WatermarkDialog {
     card.innerHTML = `
       <div class="modal-header">
         <h3>Watermark & Page Numbers</h3>
-        <button class="icon-btn" id="close-wm-btn">✕</button>
+        <button class="icon-btn" id="close-wm-btn" aria-label="Close dialog" title="Close dialog">✕</button>
       </div>
 
       <div class="modal-body" style="display: flex; flex-direction: column; gap: 20px;">

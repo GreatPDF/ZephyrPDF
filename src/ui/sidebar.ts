@@ -173,7 +173,7 @@ export class AppSidebar {
           <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">${label}</span>
           <span style="font-size: 0.7rem; color: var(--text-muted);">Page ${pageNum}</span>
         </div>
-        <button class="icon-btn del-ann-btn" title="Delete" style="width: 24px; height: 24px; color: var(--danger-color);">✕</button>
+        <button class="icon-btn del-ann-btn" title="Delete" aria-label="Delete annotation" style="width: 24px; height: 24px; color: var(--danger-color);">✕</button>
       `;
 
       card.addEventListener('click', () => {
@@ -222,7 +222,7 @@ export class AppSidebar {
           <div class="sidebar-tab" data-tab="annotations" title="Annotations List">Markup</div>
           <div class="sidebar-tab" data-tab="search" title="Search Text">Search</div>
         </div>
-        <button class="icon-btn sidebar-close-btn" id="sidebar-close-btn" title="Close Sidebar">✕</button>
+        <button class="icon-btn sidebar-close-btn" id="sidebar-close-btn" title="Close Sidebar" aria-label="Close Sidebar">✕</button>
       </div>
 
       <div class="sidebar-content">
@@ -259,14 +259,14 @@ export class AppSidebar {
           <div style="display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; gap: 6px; align-items: center;">
               <input type="text" id="sidebar-search-input" class="search-input" placeholder="Search document..." style="flex: 1; width: 100%;" />
-              <button class="icon-btn" id="search-case-btn" title="Match Case" style="width: 28px; height: 28px; font-size: 0.75rem; font-weight: bold;">Aa</button>
-              <button class="icon-btn" id="search-word-btn" title="Match Whole Words" style="width: 28px; height: 28px; font-size: 0.75rem; font-family: monospace;">\\b</button>
+              <button class="icon-btn" id="search-case-btn" title="Match Case" aria-label="Match Case" style="width: 28px; height: 28px; font-size: 0.75rem; font-weight: bold;">Aa</button>
+              <button class="icon-btn" id="search-word-btn" title="Match Whole Words" aria-label="Match Whole Words" style="width: 28px; height: 28px; font-size: 0.75rem; font-family: monospace;">\\b</button>
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between;">
               <span id="search-count-label" style="font-size: 0.75rem; color: var(--text-muted);">0 matches</span>
               <div style="display: flex; gap: 4px;">
-                <button class="icon-btn" id="search-prev-btn" style="width: 28px; height: 28px;" title="Previous Match">▲</button>
-                <button class="icon-btn" id="search-next-btn" style="width: 28px; height: 28px;" title="Next Match">▼</button>
+                <button class="icon-btn" id="search-prev-btn" style="width: 28px; height: 28px;" title="Previous Match" aria-label="Previous Match">▲</button>
+                <button class="icon-btn" id="search-next-btn" style="width: 28px; height: 28px;" title="Next Match" aria-label="Next Match">▼</button>
               </div>
             </div>
             <button class="btn" id="export-search-citations-btn" style="height: 28px; font-size: 0.75rem; width: 100%; margin-top: 4px; justify-content: center; gap: 6px;">

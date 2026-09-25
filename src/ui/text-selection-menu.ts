@@ -42,24 +42,24 @@ export class TextSelectionMenu {
   private render(): void {
     this.menuEl.innerHTML = `
       <div style="display: flex; align-items: center; gap: 6px; background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(8px); padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg);">
-        <button class="icon-btn text-act-btn" data-action="highlight" data-color="#ffeb3b" title="Highlight Yellow" style="width: 28px; height: 28px;">
+        <button class="icon-btn text-act-btn" data-action="highlight" data-color="#ffeb3b" title="Highlight Yellow" aria-label="Highlight Yellow" style="width: 28px; height: 28px;">
           <span style="display: block; width: 14px; height: 14px; background: #ffeb3b; border-radius: 50%;"></span>
         </button>
-        <button class="icon-btn text-act-btn" data-action="highlight" data-color="#69f0ae" title="Highlight Green" style="width: 28px; height: 28px;">
+        <button class="icon-btn text-act-btn" data-action="highlight" data-color="#69f0ae" title="Highlight Green" aria-label="Highlight Green" style="width: 28px; height: 28px;">
           <span style="display: block; width: 14px; height: 14px; background: #69f0ae; border-radius: 50%;"></span>
         </button>
-        <button class="icon-btn text-act-btn" data-action="highlight" data-color="#ff80ab" title="Highlight Pink" style="width: 28px; height: 28px;">
+        <button class="icon-btn text-act-btn" data-action="highlight" data-color="#ff80ab" title="Highlight Pink" aria-label="Highlight Pink" style="width: 28px; height: 28px;">
           <span style="display: block; width: 14px; height: 14px; background: #ff80ab; border-radius: 50%;"></span>
         </button>
         <div style="width: 1px; height: 18px; background: var(--border-color);"></div>
-        <button class="icon-btn text-act-btn" data-action="underline" title="Underline" style="width: 28px; height: 28px; font-weight: bold; text-decoration: underline; font-size: 0.85rem;">
+        <button class="icon-btn text-act-btn" data-action="underline" title="Underline" aria-label="Underline" style="width: 28px; height: 28px; font-weight: bold; text-decoration: underline; font-size: 0.85rem;">
           U
         </button>
-        <button class="icon-btn text-act-btn" data-action="strikeout" title="Strikethrough" style="width: 28px; height: 28px; font-weight: bold; text-decoration: line-through; font-size: 0.85rem;">
+        <button class="icon-btn text-act-btn" data-action="strikeout" title="Strikethrough" aria-label="Strikethrough" style="width: 28px; height: 28px; font-weight: bold; text-decoration: line-through; font-size: 0.85rem;">
           S
         </button>
         <div style="width: 1px; height: 18px; background: var(--border-color);"></div>
-        <button class="icon-btn text-act-btn" data-action="copy" title="Copy Text" style="width: 28px; height: 28px;">
+        <button class="icon-btn text-act-btn" data-action="copy" title="Copy Text" aria-label="Copy Text" style="width: 28px; height: 28px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
         </button>
       </div>
