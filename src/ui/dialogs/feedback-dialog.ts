@@ -1,4 +1,5 @@
 import { NotificationService } from '../notification';
+import { APP_VERSION } from '../../version';
 
 export interface FeedbackContext {
   version?: string;
@@ -20,7 +21,7 @@ export class FeedbackDialog {
 
   constructor(context: FeedbackContext = {}) {
     this.context = {
-      version: '2.9.0',
+      version: APP_VERSION,
       currentPage: 1,
       pageCount: 1,
       zoom: 1,

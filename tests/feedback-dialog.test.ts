@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { FeedbackDialog } from '../src/ui/dialogs/feedback-dialog';
+import { APP_VERSION } from '../src/version';
 
 describe('FeedbackDialog', () => {
   it('formats report with default and custom context', () => {
@@ -44,7 +45,7 @@ describe('FeedbackDialog', () => {
     const dialog = new FeedbackDialog();
     const diagText = dialog.getDiagnosticsText();
 
-    expect(diagText).toContain('App: ZephyrPDF v2.9.0');
+    expect(diagText).toContain(`App: ZephyrPDF v${APP_VERSION}`);
     expect(diagText).toContain('Document State: Page 1 / 1, Zoom: 100%');
     expect(diagText).toContain('Theme: dark, View Mode: continuous');
 

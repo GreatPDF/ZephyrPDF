@@ -33,6 +33,7 @@ import { MeasureUnit, ToolType, ImageAnnotation } from './types/annotations';
 import { processImageFile, ProcessedImage } from './utils/image';
 import { ThemeMode, ViewMode, WatermarkOptions, PageNumberOptions } from './types/document';
 import { PRESET_COLORS } from './utils/color';
+import { APP_VERSION } from './version';
 
 // Global polyfill for environments missing Promise.withResolvers
 if (typeof (Promise as any).withResolvers !== 'function') {
@@ -1543,7 +1544,7 @@ class ZephyrPDFApp {
     const viewSelect = document.getElementById('view-mode-select') as HTMLSelectElement;
     const viewMode = viewSelect?.value || 'continuous';
     new FeedbackDialog({
-      version: '2.9.0',
+      version: APP_VERSION,
       currentPage: this.currentPageNumber,
       pageCount: this.pageManager.getPageCount() || 1,
       zoom: this.currentScale,
