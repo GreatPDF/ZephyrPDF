@@ -62,6 +62,7 @@ export class ShortcutsDialog {
         <div class="shortcut-row"><span>Delete Selected Item</span><div><span class="shortcut-kbd">Delete</span> / <span class="shortcut-kbd">Backspace</span></div></div>
         <div class="shortcut-row"><span>Pixel Nudge Selected Item</span><div><span class="shortcut-kbd">Arrow Keys</span> (Shift: 10px)</div></div>
         <div class="shortcut-row"><span>Constrain Proportions / Ratio</span><div><span class="shortcut-kbd">Shift + Drag Handle</span></div></div>
+        <div class="shortcut-row"><span>Insert Image / Logo</span><span class="shortcut-kbd">i</span></div>
         <div class="shortcut-row"><span>Paste Image from Clipboard</span><span class="shortcut-kbd">Ctrl + V</span></div>
         <div class="shortcut-row"><span>Text Highlighter</span><span class="shortcut-kbd">l</span></div>
         <div class="shortcut-row"><span>Freehand Pen</span><span class="shortcut-kbd">p</span></div>

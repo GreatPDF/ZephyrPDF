@@ -986,6 +986,10 @@ class ZephyrPDFApp {
         this.setActiveTool('stamp');
       } else if (e.key.toLowerCase() === 'n' && !e.ctrlKey && !e.metaKey) {
         this.setActiveTool('sticky_note');
+      } else if (e.key.toLowerCase() === 'i' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        const imgInput = document.getElementById('image-insert-input') as HTMLInputElement | null;
+        imgInput?.click();
       } else if (e.key === 'Escape') {
         const orgOverlay = document.querySelector('.organizer-overlay');
         if (orgOverlay) {
