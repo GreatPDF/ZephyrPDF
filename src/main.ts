@@ -82,6 +82,7 @@ class ZephyrPDFApp {
   private currentTheme: ThemeMode = 'dark';
   private currentPageNumber: number = 1;
   private lastGKeyTime: number = 0;
+  private gKeyTimeout: any = null;
 
   private watermarkOptions: WatermarkOptions = {
     enabled: false,
@@ -1005,12 +1006,17 @@ class ZephyrPDFApp {
         this.scrollToPage(this.pageManager.getPageCount());
       } else if (e.key === 'g' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
         const now = Date.now();
-        if (now - this.lastGKeyTime < 450) {
+        if (now - this.lastGKeyTime < 400) {
+          clearTimeout(this.gKeyTimeout);
           this.scrollToPage(1);
           this.lastGKeyTime = 0;
           return;
         }
         this.lastGKeyTime = now;
+        clearTimeout(this.gKeyTimeout);
+        this.gKeyTimeout = setTimeout(() => {
+          this.openSignatureDialog();
+        }, 400);
       } else if (e.key === '?') {
         new ShortcutsDialog(() => this.showFeedbackDialog()).open();
       }

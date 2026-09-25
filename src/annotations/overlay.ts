@@ -115,7 +115,9 @@ export class PageAnnotationOverlay {
   }
 
   public setTool(tool: ToolType): void {
+    const isInteracting = tool !== 'hand' && tool !== 'select';
     this.svgLayer.style.pointerEvents = (tool === 'hand' || tool === 'select') ? 'none' : 'all';
+    this.svgLayer.style.zIndex = isInteracting ? '20' : '10';
   }
 
   private attachEvents(): void {
