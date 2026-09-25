@@ -32,7 +32,9 @@ export class PageRenderer {
       this.activeRenderTasks.delete(pageIndex);
     }
 
-    const rotation = ((page.rotate || 0) + (options.rotation || 0)) % 360;
+    const rotation = options.rotation !== undefined
+      ? ((options.rotation % 360) + 360) % 360
+      : (page.rotate || 0);
     const viewport = page.getViewport({ scale: options.scale, rotation });
 
     const dpr = window.devicePixelRatio || 1;
