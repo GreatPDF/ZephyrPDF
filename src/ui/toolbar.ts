@@ -75,6 +75,14 @@ export class AppToolbar {
     });
   }
 
+  public setActiveStrokeWidth(width: number): void {
+    this.activeStrokeWidth = width;
+    const strokeSelect = this.container.querySelector('#stroke-width-select') as HTMLSelectElement | null;
+    if (strokeSelect) {
+      strokeSelect.value = width.toString();
+    }
+  }
+
   public setZoom(zoom: number): void {
     this.activeZoom = zoom;
     const zoomText = this.container.querySelector('#zoom-label');

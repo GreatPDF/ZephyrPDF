@@ -146,9 +146,26 @@ class ZephyrPDFApp {
       },
       onColorChange: (color) => {
         this.activeColor = color;
+        const selectedId = this.annotationManager.getSelectedId();
+        if (selectedId) {
+          const selected = this.annotationManager.getAnnotation(selectedId);
+          if (selected) {
+            const updates: any = {};
+            if ('strokeColor' in selected) updates.strokeColor = color;
+            if ('color' in selected) updates.color = color;
+            this.annotationManager.updateAnnotation(selectedId, updates);
+          }
+        }
       },
       onStrokeWidthChange: (width) => {
         this.activeStrokeWidth = width;
+        const selectedId = this.annotationManager.getSelectedId();
+        if (selectedId) {
+          const selected = this.annotationManager.getAnnotation(selectedId);
+          if (selected && 'strokeWidth' in selected) {
+            this.annotationManager.updateAnnotation(selectedId, { strokeWidth: width });
+          }
+        }
       },
       onStampChange: (stamp) => {
         this.activeStamp = stamp;
@@ -462,6 +479,22 @@ class ZephyrPDFApp {
 
     this.annotationManager.subscribe(() => {
       this.sidebar.setAnnotations(this.annotationManager.getAllAnnotations());
+      const selectedId = this.annotationManager.getSelectedId();
+      if (selectedId) {
+        const selected = this.annotationManager.getAnnotation(selectedId);
+        if (selected) {
+          const color = (selected as any).color || (selected as any).strokeColor;
+          if (color) {
+            this.activeColor = color;
+            this.toolbar.setActiveColor(color);
+          }
+          const width = (selected as any).strokeWidth;
+          if (typeof width === 'number') {
+            this.activeStrokeWidth = width;
+            this.toolbar.setActiveStrokeWidth(width);
+          }
+        }
+      }
     });
 
     // Wire HUD
