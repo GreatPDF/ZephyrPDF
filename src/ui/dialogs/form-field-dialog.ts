@@ -5,7 +5,9 @@ export interface FormFieldDialogProps {
   currentPage: number;
   pageWidth: number;
   pageHeight: number;
+  existingFields?: FormFieldInfo[];
   onAddField: (field: FormFieldInfo) => void;
+  onDeleteField?: (name: string) => void;
 }
 
 export class FormFieldDialog {
@@ -88,6 +90,24 @@ export class FormFieldDialog {
             </select>
           </div>
         </div>
+
+        ${this.props.existingFields && this.props.existingFields.length > 0 ? `
+          <div style="border-top: 1px solid var(--border-color); padding-top: 12px;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;">Existing Form Fields (${this.props.existingFields.length}):</label>
+            <div style="max-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;">
+              ${this.props.existingFields.map(f => `
+                <div class="existing-field-row" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: var(--bg-secondary); border-radius: 6px; font-size: 0.85rem;">
+                  <div style="display: flex; align-items: center; gap: 8px; overflow: hidden;">
+                    <span style="font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${f.name}</span>
+                    <span style="font-size: 0.72rem; background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; color: var(--text-secondary); text-transform: uppercase;">${f.type}</span>
+                    <span style="font-size: 0.75rem; color: var(--text-secondary);">Page ${f.pageIndex + 1}</span>
+                  </div>
+                  <button class="icon-btn btn-delete-ff" data-name="${f.name}" aria-label="Delete field ${f.name}" title="Delete field" style="color: var(--danger-color); padding: 2px 6px;">✕</button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
       </div>
 
       <div class="modal-footer">
@@ -105,6 +125,33 @@ export class FormFieldDialog {
     const closeBtn = card.querySelector('#close-ff-btn');
     const cancelBtn = card.querySelector('#cancel-ff-btn');
     const applyBtn = card.querySelector('#apply-ff-btn');
+    const nameInput = card.querySelector('#ff-name-input') as HTMLInputElement;
+    const valInput = card.querySelector('#ff-val-input') as HTMLInputElement;
+
+    const handleEnter = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        (applyBtn as HTMLButtonElement)?.click();
+      }
+    };
+    nameInput?.addEventListener('keydown', handleEnter);
+    valInput?.addEventListener('keydown', handleEnter);
+
+    setTimeout(() => {
+      nameInput?.focus();
+      nameInput?.select();
+    }, 50);
+
+    card.querySelectorAll('.btn-delete-ff').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const name = btn.getAttribute('data-name');
+        if (name && this.props.onDeleteField) {
+          this.props.onDeleteField(name);
+          btn.closest('.existing-field-row')?.remove();
+        }
+      });
+    });
 
     closeBtn?.addEventListener('click', () => this.close());
     cancelBtn?.addEventListener('click', () => this.close());

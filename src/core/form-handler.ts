@@ -110,6 +110,10 @@ export class FormHandler {
     return this.fields.size > 0;
   }
 
+  public getAllFields(): FormFieldInfo[] {
+    return Array.from(this.fields.values());
+  }
+
   public createField(info: FormFieldInfo): void {
     this.fields.set(info.name, info);
     this.values.set(info.name, info.value);

@@ -86,4 +86,32 @@ describe('Form Builder and Chisel Highlighting', () => {
     expect(field.getText()).toBe('Line 1: Observations\nLine 2: Recommendations');
     expect(field.isMultiline()).toBe(true);
   });
+
+  it('should retrieve all fields via getAllFields and support field deletion', () => {
+    const formHandler = new FormHandler();
+    formHandler.createField({
+      name: 'field_a',
+      type: 'text',
+      value: 'val A',
+      pageIndex: 0,
+      bounds: { x: 10, y: 10, width: 100, height: 20 }
+    });
+    formHandler.createField({
+      name: 'field_b',
+      type: 'checkbox',
+      value: true,
+      pageIndex: 1,
+      bounds: { x: 20, y: 20, width: 15, height: 15 }
+    });
+
+    const all = formHandler.getAllFields();
+    expect(all.length).toBe(2);
+    expect(all.map(f => f.name)).toContain('field_a');
+    expect(all.map(f => f.name)).toContain('field_b');
+
+    formHandler.deleteField('field_a');
+    expect(formHandler.getAllFields().length).toBe(1);
+    expect(formHandler.getAllFields()[0].name).toBe('field_b');
+    expect(formHandler.getValue('field_a')).toBeUndefined();
+  });
 });

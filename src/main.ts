@@ -302,10 +302,16 @@ class ZephyrPDFApp {
           currentPage: this.currentPageNumber,
           pageWidth: dims.width,
           pageHeight: dims.height,
+          existingFields: this.formHandler.getAllFields(),
           onAddField: (field) => {
             this.formHandler.createField(field);
             this.renderDocument();
             NotificationService.show(`Interactive ${field.type} field "${field.name}" added to Page ${field.pageIndex + 1}!`);
+          },
+          onDeleteField: (name) => {
+            this.formHandler.deleteField(name);
+            this.renderDocument();
+            NotificationService.show(`Form field "${name}" removed.`);
           }
         }).open();
       }

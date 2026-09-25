@@ -75,6 +75,7 @@ export class ShortcutsDialog {
         <div class="shortcut-row"><span>Permanent Redaction</span><span class="shortcut-kbd">x</span></div>
         <div class="shortcut-row"><span>Ruler / Measure</span><span class="shortcut-kbd">u</span></div>
         <div class="shortcut-row"><span>Place Stamp</span><span class="shortcut-kbd">m</span></div>
+        <div class="shortcut-row"><span>Place Signature</span><span class="shortcut-kbd">g</span></div>
         <div class="shortcut-row"><span>Magnifier Lens</span><span class="shortcut-kbd">z</span></div>
         <div class="shortcut-row"><span>Marquee Snapshot</span><span class="shortcut-kbd">c</span></div>
 
