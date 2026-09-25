@@ -1696,11 +1696,7 @@ class ZephyrPDFApp {
         const activePages = this.pageManager.getPages();
         const extractedItems = indices.map(idx => activePages[idx]).filter(Boolean);
 
-        tempManager.initFromDocument(extractedItems.length, extractedItems.map(p => ({
-          width: p.width,
-          height: p.height,
-          rotation: p.rotation
-        })));
+        tempManager.restorePages(extractedItems.map(p => ({ ...p })));
 
         const extractedBytes = await PdfExporter.exportDocument(
           this.currentDoc.data,

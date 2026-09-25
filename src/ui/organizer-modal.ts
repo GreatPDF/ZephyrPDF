@@ -132,9 +132,15 @@ export class OrganizerModal {
       // Select toggle
       const check = card.querySelector('.org-select-check') as HTMLInputElement;
       check?.addEventListener('change', () => {
-        if (check.checked) this.selectedIndices.add(index);
-        else this.selectedIndices.delete(index);
-        this.renderGrid();
+        if (check.checked) {
+          this.selectedIndices.add(index);
+          card.classList.add('selected');
+          card.style.borderColor = 'var(--accent-color)';
+        } else {
+          this.selectedIndices.delete(index);
+          card.classList.remove('selected');
+          card.style.borderColor = 'var(--border-color)';
+        }
       });
 
       // Drag & Drop reordering
