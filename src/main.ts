@@ -1406,6 +1406,9 @@ class ZephyrPDFApp {
       pageContainer.appendChild(canvas);
       wrapper.appendChild(pageContainer);
 
+      let overlayWidth = 0;
+      let overlayHeight = 0;
+
       if (pageItem.isBlank) {
         const w = (pageItem.width || 595.28) * this.currentScale;
         const h = (pageItem.height || 841.89) * this.currentScale;
@@ -1418,6 +1421,8 @@ class ZephyrPDFApp {
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(0, 0, w, h);
         }
+        overlayWidth = w;
+        overlayHeight = h;
       } else {
         let fromDoc = this.currentDoc.pdfjsDoc;
         if (pageItem.sourceDocId && this.loadedMergedPdfjsDocs.has(pageItem.sourceDocId)) {
@@ -1438,71 +1443,76 @@ class ZephyrPDFApp {
         pageContainer.appendChild(textLayerDiv);
         this.renderer.renderTextLayer(pageProxy, textLayerDiv, viewport).catch(() => {});
 
-        const overlay = new PageAnnotationOverlay(pageContainer, pageItem.originalIndex, this.annotationManager, {
-          getScale: () => this.currentScale,
-          getActiveTool: () => this.activeTool,
-          getActiveColor: () => this.activeColor,
-          getActiveStrokeWidth: () => this.activeStrokeWidth,
-          getActiveStamp: () => this.activeStamp,
-          getActiveSignature: () => this.activeSignature,
-          getActiveMeasureUnit: () => this.activeMeasureUnit,
-          getActiveImage: () => this.activeImage,
-          getActiveWatermark: () => this.watermarkOptions,
-          contextMenu: this.contextMenu,
-          onResetTool: () => {
-            this.setActiveTool('select');
-          }
-        });
-        overlay.updateSize(viewport.width, viewport.height);
-        this.pageOverlays.set(pageItem.originalIndex, overlay);
+        overlayWidth = viewport.width;
+        overlayHeight = viewport.height;
+      }
 
-        // Render interactive AcroForm fields if present
-        const fields = this.formHandler.getFieldsForPage(pageItem.originalIndex);
-        if (fields.length > 0) {
-          const formLayer = document.createElement('div');
-          formLayer.className = 'form-fields-layer';
-          const pageHeight = viewport.height / this.currentScale;
+      const effectivePageIndex = pageItem.originalIndex >= 0 ? pageItem.originalIndex : i;
 
-          for (const f of fields) {
-            const topPx = (pageHeight - (f.bounds.y + f.bounds.height)) * this.currentScale;
-            const leftPx = f.bounds.x * this.currentScale;
-            const widthPx = f.bounds.width * this.currentScale;
-            const heightPx = f.bounds.height * this.currentScale;
-
-            if (f.type === 'checkbox') {
-              const cb = document.createElement('input');
-              cb.type = 'checkbox';
-              cb.className = 'pdf-acro-checkbox';
-              cb.setAttribute('aria-label', f.name);
-              cb.checked = Boolean(f.value);
-              cb.style.left = `${leftPx}px`;
-              cb.style.top = `${topPx}px`;
-              cb.style.width = `${Math.max(16, widthPx)}px`;
-              cb.style.height = `${Math.max(16, heightPx)}px`;
-              cb.addEventListener('change', () => {
-                this.formHandler.setValue(f.name, cb.checked);
-              });
-              formLayer.appendChild(cb);
-            } else {
-              const isMultiline = f.bounds.height > 35;
-              const input = document.createElement(isMultiline ? 'textarea' : 'input');
-              if (!isMultiline) (input as HTMLInputElement).type = 'text';
-              input.className = 'pdf-acro-input';
-              if (isMultiline) input.classList.add('pdf-acro-textarea');
-              input.setAttribute('aria-label', f.name);
-              input.value = typeof f.value === 'string' ? f.value : '';
-              input.style.left = `${leftPx}px`;
-              input.style.top = `${topPx}px`;
-              input.style.width = `${widthPx}px`;
-              input.style.height = `${heightPx}px`;
-              input.addEventListener('input', () => {
-                this.formHandler.setValue(f.name, input.value);
-              });
-              formLayer.appendChild(input);
-            }
-          }
-          pageContainer.appendChild(formLayer);
+      const overlay = new PageAnnotationOverlay(pageContainer, effectivePageIndex, this.annotationManager, {
+        getScale: () => this.currentScale,
+        getActiveTool: () => this.activeTool,
+        getActiveColor: () => this.activeColor,
+        getActiveStrokeWidth: () => this.activeStrokeWidth,
+        getActiveStamp: () => this.activeStamp,
+        getActiveSignature: () => this.activeSignature,
+        getActiveMeasureUnit: () => this.activeMeasureUnit,
+        getActiveImage: () => this.activeImage,
+        getActiveWatermark: () => this.watermarkOptions,
+        contextMenu: this.contextMenu,
+        onResetTool: () => {
+          this.setActiveTool('select');
         }
+      });
+      overlay.updateSize(overlayWidth, overlayHeight);
+      this.pageOverlays.set(effectivePageIndex, overlay);
+
+      // Render interactive AcroForm fields if present
+      const fields = this.formHandler.getFieldsForPage(effectivePageIndex);
+      if (fields.length > 0) {
+        const formLayer = document.createElement('div');
+        formLayer.className = 'form-fields-layer';
+        const docPageHeight = overlayHeight / this.currentScale;
+
+        for (const f of fields) {
+          const topPx = (docPageHeight - (f.bounds.y + f.bounds.height)) * this.currentScale;
+          const leftPx = f.bounds.x * this.currentScale;
+          const widthPx = f.bounds.width * this.currentScale;
+          const heightPx = f.bounds.height * this.currentScale;
+
+          if (f.type === 'checkbox') {
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.className = 'pdf-acro-checkbox';
+            cb.setAttribute('aria-label', f.name);
+            cb.checked = Boolean(f.value);
+            cb.style.left = `${leftPx}px`;
+            cb.style.top = `${topPx}px`;
+            cb.style.width = `${Math.max(16, widthPx)}px`;
+            cb.style.height = `${Math.max(16, heightPx)}px`;
+            cb.addEventListener('change', () => {
+              this.formHandler.setValue(f.name, cb.checked);
+            });
+            formLayer.appendChild(cb);
+          } else {
+            const isMultiline = f.bounds.height > 35;
+            const input = document.createElement(isMultiline ? 'textarea' : 'input');
+            if (!isMultiline) (input as HTMLInputElement).type = 'text';
+            input.className = 'pdf-acro-input';
+            if (isMultiline) input.classList.add('pdf-acro-textarea');
+            input.setAttribute('aria-label', f.name);
+            input.value = typeof f.value === 'string' ? f.value : '';
+            input.style.left = `${leftPx}px`;
+            input.style.top = `${topPx}px`;
+            input.style.width = `${widthPx}px`;
+            input.style.height = `${heightPx}px`;
+            input.addEventListener('input', () => {
+              this.formHandler.setValue(f.name, input.value);
+            });
+            formLayer.appendChild(input);
+          }
+        }
+        pageContainer.appendChild(formLayer);
       }
     }
 

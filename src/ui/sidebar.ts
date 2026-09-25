@@ -77,9 +77,13 @@ export class AppSidebar {
       item.className = `thumbnail-item ${thumb.pageNumber === this.currentPage ? 'active' : ''}`;
       item.setAttribute('data-page', thumb.pageNumber.toString());
 
+      const imgContent = thumb.dataUrl
+        ? `<img class="thumbnail-image" src="${thumb.dataUrl}" alt="Page ${thumb.pageNumber}" />`
+        : `<div class="thumbnail-blank-placeholder" style="width: 100%; height: 100%; min-height: 120px; background: #ffffff; border: 1px dashed var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.75rem; border-radius: 4px;">Blank Page</div>`;
+
       item.innerHTML = `
         <div class="thumbnail-image-wrapper">
-          <img class="thumbnail-image" src="${thumb.dataUrl}" alt="Page ${thumb.pageNumber}" />
+          ${imgContent}
         </div>
         <span class="thumbnail-label">Page ${thumb.pageNumber}</span>
       `;
