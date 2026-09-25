@@ -111,16 +111,56 @@ export class AppSidebar {
 
     const renderItems = (items: OutlineItem[], parentEl: HTMLElement) => {
       for (const it of items) {
+        const hasChildren = Boolean(it.children && it.children.length > 0);
         const li = document.createElement('li');
         li.className = 'outline-item';
+        li.setAttribute('tabindex', '0');
+        li.setAttribute('role', 'treeitem');
+        if (hasChildren) {
+          li.setAttribute('aria-expanded', 'true');
+        }
+
+        const chevronHtml = hasChildren
+          ? `<button class="outline-chevron-btn" aria-label="Toggle section" style="display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; padding: 0; background: none; border: none; cursor: pointer; color: var(--text-muted); transition: transform 0.15s ease;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>`
+          : `<span style="display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; color: var(--text-muted); opacity: 0.7;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+            </span>`;
+
         li.innerHTML = `
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-          <span>${it.title}</span>
-          ${it.pageNumber ? `<span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted);">p.${it.pageNumber}</span>` : ''}
+          ${chevronHtml}
+          <span class="outline-title" style="flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; ${it.bold ? 'font-weight: 600;' : ''} ${it.italic ? 'font-style: italic;' : ''}">${it.title}</span>
+          ${it.pageNumber ? `<span class="outline-page-num" style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted); padding-left: 6px;">p.${it.pageNumber}</span>` : ''}
         `;
 
-        li.addEventListener('click', (e) => {
-          e.stopPropagation();
+        const subUl = hasChildren ? document.createElement('ul') : null;
+        if (subUl && it.children) {
+          subUl.className = 'outline-subtree';
+          subUl.style.listStyle = 'none';
+          subUl.style.paddingLeft = '14px';
+          renderItems(it.children, subUl);
+        }
+
+        const chevronBtn = li.querySelector('.outline-chevron-btn') as HTMLButtonElement | null;
+        if (chevronBtn && subUl) {
+          chevronBtn.style.transform = 'rotate(90deg)';
+          chevronBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isCollapsed = subUl.style.display === 'none';
+            if (isCollapsed) {
+              subUl.style.display = 'block';
+              chevronBtn.style.transform = 'rotate(90deg)';
+              li.setAttribute('aria-expanded', 'true');
+            } else {
+              subUl.style.display = 'none';
+              chevronBtn.style.transform = 'rotate(0deg)';
+              li.setAttribute('aria-expanded', 'false');
+            }
+          });
+        }
+
+        const navigateToBookmark = () => {
           if (it.pageNumber) {
             this.setCurrentPage(it.pageNumber);
             this.events.onPageSelect(it.pageNumber);
@@ -128,15 +168,35 @@ export class AppSidebar {
               this.close();
             }
           }
+        };
+
+        li.addEventListener('click', (e) => {
+          e.stopPropagation();
+          navigateToBookmark();
+        });
+
+        li.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            e.stopPropagation();
+            navigateToBookmark();
+          } else if (e.key === 'ArrowRight' && hasChildren && subUl) {
+            e.preventDefault();
+            e.stopPropagation();
+            subUl.style.display = 'block';
+            if (chevronBtn) chevronBtn.style.transform = 'rotate(90deg)';
+            li.setAttribute('aria-expanded', 'true');
+          } else if (e.key === 'ArrowLeft' && hasChildren && subUl) {
+            e.preventDefault();
+            e.stopPropagation();
+            subUl.style.display = 'none';
+            if (chevronBtn) chevronBtn.style.transform = 'rotate(0deg)';
+            li.setAttribute('aria-expanded', 'false');
+          }
         });
 
         parentEl.appendChild(li);
-
-        if (it.children && it.children.length > 0) {
-          const subUl = document.createElement('ul');
-          subUl.style.listStyle = 'none';
-          subUl.style.paddingLeft = '16px';
-          renderItems(it.children, subUl);
+        if (subUl) {
           parentEl.appendChild(subUl);
         }
       }

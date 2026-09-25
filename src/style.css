@@ -536,11 +536,17 @@ button.btn.btn-primary:hover {
   align-items: center;
   gap: 6px;
   color: var(--text-secondary);
+  user-select: none;
 }
 
 .outline-item:hover {
   background-color: var(--bg-tertiary);
   color: var(--text-primary);
+}
+
+.outline-item:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: -1px;
 }
 
 /* Annotations Sidebar List */

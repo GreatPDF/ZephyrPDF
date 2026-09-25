@@ -95,4 +95,36 @@ describe('Document Session Manager', () => {
     expect(sessA.annotationManager.getAllAnnotations().length).toBe(0);
     expect(sessB.annotationManager.getAllAnnotations().length).toBe(0);
   });
+
+  it('should store and preserve document outline across session switching', async () => {
+    const sessionManager = new SessionManager();
+    const docWithOutline = {
+      pdfjsDoc: { numPages: 3 } as any,
+      pdfLibDoc: await PDFDocument.create(),
+      data: new Uint8Array([7, 8, 9]),
+      metadata: { pageCount: 3, fileSize: 120, fileName: 'Manual.pdf' },
+      outline: [
+        {
+          title: 'Section 1',
+          pageNumber: 1,
+          bold: true,
+          children: [{ title: '1.1 Intro', pageNumber: 2 }]
+        },
+        {
+          title: 'Section 2',
+          pageNumber: 3
+        }
+      ],
+      pageDimensions: [
+        { pageNumber: 1, width: 595, height: 842, rotation: 0, scale: 1 },
+        { pageNumber: 2, width: 595, height: 842, rotation: 0, scale: 1 },
+        { pageNumber: 3, width: 595, height: 842, rotation: 0, scale: 1 }
+      ]
+    } as LoadedDocument;
+
+    const sess = sessionManager.createSession(docWithOutline);
+    expect(sess.doc.outline.length).toBe(2);
+    expect(sess.doc.outline[0].children?.length).toBe(1);
+    expect(sess.doc.outline[0].children?.[0].pageNumber).toBe(2);
+  });
 });
