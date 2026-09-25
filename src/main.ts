@@ -356,7 +356,11 @@ class ZephyrPDFApp {
           md += `- **Page ${m.pageIndex + 1}**: "...${m.text}..."\n`;
         }
 
-        navigator.clipboard?.writeText(md);
+        try {
+          navigator.clipboard?.writeText(md)?.catch?.(() => {});
+        } catch {
+          // Ignore clipboard permission errors
+        }
         const blob = new Blob([md], { type: 'text/markdown' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -407,7 +411,11 @@ class ZephyrPDFApp {
           md += `\n`;
         }
 
-        navigator.clipboard?.writeText(md);
+        try {
+          navigator.clipboard?.writeText(md)?.catch?.(() => {});
+        } catch {
+          // Ignore clipboard permission errors
+        }
         const blob = new Blob([md], { type: 'text/markdown' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
