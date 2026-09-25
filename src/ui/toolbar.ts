@@ -320,7 +320,7 @@ export class AppToolbar {
           </button>
           <input type="file" id="image-insert-input" accept="image/png, image/jpeg" style="display: none;" />
 
-          <button class="icon-btn tool-btn" data-tool="sticky_note" title="Add Sticky Comment" aria-label="Add Sticky Comment">
+          <button class="icon-btn tool-btn" data-tool="sticky_note" title="Add Sticky Comment (n)" aria-label="Add Sticky Comment (n)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"></path><path d="M15 3v6h6"></path></svg>
           </button>
         </div>

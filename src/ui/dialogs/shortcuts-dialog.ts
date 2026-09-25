@@ -67,6 +67,7 @@ export class ShortcutsDialog {
         <div class="shortcut-row"><span>Freehand Pen</span><span class="shortcut-kbd">p</span></div>
         <div class="shortcut-row"><span>Eraser</span><span class="shortcut-kbd">e</span></div>
         <div class="shortcut-row"><span>Add Text Box</span><span class="shortcut-kbd">t</span></div>
+        <div class="shortcut-row"><span>Add Sticky Note / Comment</span><span class="shortcut-kbd">n</span></div>
         <div class="shortcut-row"><span>Rectangle Shape</span><span class="shortcut-kbd">r</span></div>
         <div class="shortcut-row"><span>Ellipse Shape</span><span class="shortcut-kbd">o</span></div>
         <div class="shortcut-row"><span>Arrow / Line</span><span class="shortcut-kbd">a</span></div>
