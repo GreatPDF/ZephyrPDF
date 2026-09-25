@@ -1044,11 +1044,11 @@ class ZephyrPDFApp {
       <div class="modal-card" style="max-width: 320px; text-align: center;">
         <div class="modal-header">
           <h3>Go to Page</h3>
-          <button class="icon-btn close-modal-btn">✕</button>
+          <button class="icon-btn close-modal-btn" aria-label="Close dialog" title="Close dialog">✕</button>
         </div>
         <div class="modal-body" style="padding: 16px;">
           <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">Enter page number (1 – ${totalPages})</p>
-          <input type="number" id="goto-page-input" min="1" max="${totalPages}" value="${this.currentPageNumber}" style="width: 100%; height: 38px; text-align: center; font-size: 1.15rem; font-weight: 600; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); outline: none;" />
+          <input type="number" id="goto-page-input" aria-label="Target page number" min="1" max="${totalPages}" value="${this.currentPageNumber}" style="width: 100%; height: 38px; text-align: center; font-size: 1.15rem; font-weight: 600; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); outline: none;" />
         </div>
         <div class="modal-footer" style="justify-content: center; gap: 8px;">
           <button class="btn cancel-btn">Cancel</button>
