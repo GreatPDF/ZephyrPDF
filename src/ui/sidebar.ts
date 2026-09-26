@@ -120,6 +120,8 @@ export class AppSidebar {
     wrapper.innerHTML = '';
     const tree = document.createElement('ul');
     tree.className = 'outline-tree';
+    tree.setAttribute('role', 'tree');
+    tree.setAttribute('aria-label', 'Document Bookmarks');
 
     const renderItems = (items: OutlineItem[], parentEl: HTMLElement) => {
       for (const it of items) {
@@ -149,6 +151,7 @@ export class AppSidebar {
         const subUl = hasChildren ? document.createElement('ul') : null;
         if (subUl && it.children) {
           subUl.className = 'outline-subtree';
+          subUl.setAttribute('role', 'group');
           subUl.style.listStyle = 'none';
           subUl.style.paddingLeft = '14px';
           renderItems(it.children, subUl);

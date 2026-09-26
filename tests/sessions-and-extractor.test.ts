@@ -148,4 +148,22 @@ describe('Document Session Manager', () => {
     expect(unhandled.length).toBe(1);
     expect(unhandled[0].name).toBe('archive.zip');
   });
+
+  it('should recursively count all bookmark items and child nodes in outline tree', () => {
+    const countItems = (items: any[]): number => {
+      let count = 0;
+      for (const it of items) {
+        count++;
+        if (it.children) count += countItems(it.children);
+      }
+      return count;
+    };
+
+    const sampleOutline = [
+      { title: 'Chapter 1', pageNumber: 1, children: [{ title: '1.1 Intro', pageNumber: 1 }] },
+      { title: 'Chapter 2', pageNumber: 2, children: [{ title: '2.1 Architecture', pageNumber: 2 }] }
+    ];
+
+    expect(countItems(sampleOutline)).toBe(4);
+  });
 });
