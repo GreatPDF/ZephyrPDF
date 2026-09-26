@@ -1216,6 +1216,8 @@ class ZephyrPDFApp {
 
   public async promptPassword(file: File, isRetry: boolean = false): Promise<void> {
     return new Promise((resolve) => {
+      document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+
       const modalBackdrop = document.createElement('div');
       modalBackdrop.className = 'modal-backdrop';
 
@@ -1233,18 +1235,34 @@ class ZephyrPDFApp {
               ${isRetry ? '<span style="color: var(--danger-color); font-weight: 600;">Incorrect password.</span> ' : ''}
               This document is encrypted. Please enter the password to open <b>${file.name}</b>:
             </p>
-            <input type="password" id="pdf-password-input" aria-label="Document password" placeholder="Enter password..." style="width: 100%; height: 38px; padding: 0 12px; font-size: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); outline: none;" />
+            <div style="position: relative; display: flex; align-items: center;">
+              <input type="password" id="pdf-password-input" aria-label="Document password" placeholder="Enter password..." style="width: 100%; height: 38px; padding: 0 38px 0 12px; font-size: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); outline: none;" />
+              <button type="button" class="icon-btn" id="toggle-pw-visibility" aria-label="Show password" title="Show password" style="position: absolute; right: 6px; width: 28px; height: 28px; font-size: 0.95rem; cursor: pointer; z-index: 2;">👁️</button>
+            </div>
           </div>
           <div class="modal-footer" style="justify-content: flex-end; gap: 8px;">
-            <button class="btn cancel-btn">Cancel</button>
-            <button class="btn btn-primary unlock-btn">Unlock & Open</button>
+            <button class="btn cancel-btn" aria-label="Cancel">Cancel</button>
+            <button class="btn btn-primary unlock-btn" aria-label="Unlock and Open">Unlock & Open</button>
           </div>
         </div>
       `;
 
       document.body.appendChild(modalBackdrop);
       const input = modalBackdrop.querySelector('#pdf-password-input') as HTMLInputElement;
-      input?.focus();
+      const toggleBtn = modalBackdrop.querySelector('#toggle-pw-visibility') as HTMLButtonElement;
+
+      setTimeout(() => {
+        input?.focus();
+      }, 50);
+
+      toggleBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isPw = input.type === 'password';
+        input.type = isPw ? 'text' : 'password';
+        toggleBtn.setAttribute('aria-label', isPw ? 'Hide password' : 'Show password');
+        toggleBtn.setAttribute('title', isPw ? 'Hide password' : 'Show password');
+        input.focus();
+      });
 
       const doUnlock = async () => {
         const password = input.value;
@@ -1267,6 +1285,17 @@ class ZephyrPDFApp {
         }
       };
 
+      input?.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          doUnlock();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          modalBackdrop.remove();
+          resolve();
+        }
+      });
+
       modalBackdrop.querySelector('.unlock-btn')?.addEventListener('click', doUnlock);
       modalBackdrop.querySelector('.cancel-btn')?.addEventListener('click', () => {
         modalBackdrop.remove();
@@ -1278,13 +1307,6 @@ class ZephyrPDFApp {
       });
       modalBackdrop.addEventListener('click', (e) => {
         if (e.target === modalBackdrop) {
-          modalBackdrop.remove();
-          resolve();
-        }
-      });
-      input?.addEventListener('keydown', (ke) => {
-        if (ke.key === 'Enter') doUnlock();
-        else if (ke.key === 'Escape') {
           modalBackdrop.remove();
           resolve();
         }
