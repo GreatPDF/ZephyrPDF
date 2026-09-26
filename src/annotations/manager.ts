@@ -141,20 +141,53 @@ export class AnnotationManager {
     return JSON.stringify(this.getAllAnnotations(), null, 2);
   }
 
-  public importJson(jsonStr: string): void {
-    try {
-      const parsed = JSON.parse(jsonStr);
-      if (Array.isArray(parsed)) {
-        for (const item of parsed) {
-          if (item && item.id && item.type) {
+  public importJson(jsonStr: string, trackHistory: boolean = true): number {
+    const parsed = JSON.parse(jsonStr);
+    if (!Array.isArray(parsed)) {
+      throw new Error('Annotations file must contain a JSON array of annotations');
+    }
+    const validItems: Annotation[] = [];
+    for (const item of parsed) {
+      if (item && item.id && item.type) {
+        validItems.push(item);
+      }
+    }
+    if (validItems.length === 0) {
+      return 0;
+    }
+
+    if (trackHistory) {
+      const prevEntries = new Map<string, Annotation | undefined>();
+      for (const item of validItems) {
+        prevEntries.set(item.id, this.annotations.get(item.id));
+      }
+      this.history.execute({
+        description: `Import ${validItems.length} annotation${validItems.length === 1 ? '' : 's'}`,
+        execute: () => {
+          for (const item of validItems) {
             this.annotations.set(item.id, item);
           }
+          this.notify();
+        },
+        undo: () => {
+          for (const [id, prev] of prevEntries.entries()) {
+            if (prev) {
+              this.annotations.set(id, prev);
+            } else {
+              this.annotations.delete(id);
+              if (this.selectedId === id) this.selectedId = null;
+            }
+          }
+          this.notify();
         }
-        this.notify();
+      });
+    } else {
+      for (const item of validItems) {
+        this.annotations.set(item.id, item);
       }
-    } catch (e) {
-      console.error('Failed to import annotations:', e);
+      this.notify();
     }
+    return validItems.length;
   }
 
   public subscribe(callback: () => void): () => void {

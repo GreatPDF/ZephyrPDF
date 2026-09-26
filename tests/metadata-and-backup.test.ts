@@ -96,4 +96,30 @@ describe('Document Metadata and Annotation Backup', () => {
     expect(restoreManager.getAnnotation('t_bak_1')?.type).toBe('text');
     expect(restoreManager.getAnnotation('h_bak_1')?.type).toBe('highlight');
   });
+
+  it('supports undo and redo for imported annotations and validates input JSON', () => {
+    const history = new HistoryManager();
+    const manager = new AnnotationManager(history);
+
+    expect(manager.importJson('[]')).toBe(0);
+    expect(() => manager.importJson('{"invalid": true}')).toThrow('Annotations file must contain a JSON array of annotations');
+
+    const sampleJson = JSON.stringify([
+      { id: 'ann-1', type: 'stamp', pageIndex: 0, stampType: 'APPROVED' },
+      { id: 'ann-2', type: 'sticky_note', pageIndex: 1, title: 'Check specs' }
+    ]);
+
+    const count = manager.importJson(sampleJson, true);
+    expect(count).toBe(2);
+    expect(manager.getAllAnnotations().length).toBe(2);
+    expect(history.canUndo()).toBe(true);
+
+    history.undo();
+    expect(manager.getAllAnnotations().length).toBe(0);
+
+    history.redo();
+    expect(manager.getAllAnnotations().length).toBe(2);
+    expect(manager.getAnnotation('ann-1')?.type).toBe('stamp');
+    expect(manager.getAnnotation('ann-2')?.type).toBe('sticky_note');
+  });
 });

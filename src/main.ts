@@ -461,6 +461,11 @@ class ZephyrPDFApp {
         NotificationService.show('Annotation report copied & downloaded!');
       },
       onExportAnnotationJson: () => {
+        const all = this.annotationManager.getAllAnnotations();
+        if (all.length === 0) {
+          NotificationService.show('No annotations to backup.', 3000, true);
+          return;
+        }
         const jsonStr = this.annotationManager.exportJson();
         const fileName = this.currentDoc?.metadata.fileName || 'document.pdf';
         const base = fileName.replace(/\.pdf$/i, '');
@@ -473,14 +478,18 @@ class ZephyrPDFApp {
         a.click();
         document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(url), 2000);
-        NotificationService.show('Annotations exported to JSON!');
+        NotificationService.show(`Exported ${all.length} annotation${all.length === 1 ? '' : 's'} to JSON!`);
       },
       onImportAnnotationJson: async (file: File) => {
         try {
           const text = await file.text();
-          this.annotationManager.importJson(text);
+          const count = this.annotationManager.importJson(text, true);
+          if (count === 0) {
+            NotificationService.show('No valid annotations found in file.', 4000, true);
+            return;
+          }
           await this.renderDocument();
-          NotificationService.show(`Imported annotations from ${file.name}!`);
+          NotificationService.show(`Successfully restored ${count} annotation${count === 1 ? '' : 's'} from ${file.name}!`);
         } catch (e: any) {
           NotificationService.show('Failed to import annotations: ' + (e?.message || 'Invalid JSON format'), 4000, true);
         }
