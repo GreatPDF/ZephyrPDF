@@ -53,6 +53,8 @@ export class PageAnnotationOverlay {
   private resizingAnnotationId: string | null = null;
   private resizeHandle: 'nw' | 'ne' | 'se' | 'sw' | null = null;
   private resizeOrigRect: { x: number; y: number; width: number; height: number } | null = null;
+  private lineEndpointHandle: 'endpoint1' | 'endpoint2' | null = null;
+  private lineOrigEndpoints: { x1: number; y1: number; x2: number; y2: number } | null = null;
   private onResetTool?: () => void;
 
   constructor(
@@ -206,10 +208,17 @@ export class PageAnnotationOverlay {
       return;
     }
 
-    // Check if clicked an active corner resize handle
+    // Check if clicked an active corner resize handle or endpoint handle
     const handleType = target?.getAttribute('data-handle') as any;
     if (handleType && selectedId) {
       const ann = this.manager.getAnnotation(selectedId);
+      if (ann && (ann.type === 'line' || ann.type === 'arrow' || ann.type === 'measure')) {
+        this.resizingAnnotationId = ann.id;
+        this.lineEndpointHandle = handleType;
+        this.lineOrigEndpoints = { x1: ann.x1, y1: ann.y1, x2: ann.x2, y2: ann.y2 };
+        this.startPoint = coords;
+        return;
+      }
       if (ann && 'x' in ann && 'y' in ann && 'width' in ann && 'height' in ann) {
         this.resizingAnnotationId = ann.id;
         this.resizeHandle = handleType;
@@ -228,6 +237,10 @@ export class PageAnnotationOverlay {
           this.manager.selectAnnotation(ann.id);
           this.draggingAnnotationId = ann.id;
           this.dragOffset = this.getAnnotationOffset(ann, coords);
+          this.startPoint = coords;
+          if ('x1' in ann && 'y1' in ann && 'x2' in ann && 'y2' in ann) {
+            this.lineOrigEndpoints = { x1: ann.x1, y1: ann.y1, x2: ann.x2, y2: ann.y2 };
+          }
           return;
         }
       }
@@ -395,6 +408,32 @@ export class PageAnnotationOverlay {
     }
 
     // Handle corner handle resizing
+    if (this.resizingAnnotationId && this.lineEndpointHandle && this.lineOrigEndpoints && this.startPoint) {
+      const coords = this.getEventCoords(e);
+      const dx = coords.x - this.startPoint.x;
+      const dy = coords.y - this.startPoint.y;
+      if (this.lineEndpointHandle === 'endpoint1') {
+        this.manager.updateAnnotation(
+          this.resizingAnnotationId,
+          {
+            x1: Math.round(this.lineOrigEndpoints.x1 + dx),
+            y1: Math.round(this.lineOrigEndpoints.y1 + dy)
+          },
+          false
+        );
+      } else if (this.lineEndpointHandle === 'endpoint2') {
+        this.manager.updateAnnotation(
+          this.resizingAnnotationId,
+          {
+            x2: Math.round(this.lineOrigEndpoints.x2 + dx),
+            y2: Math.round(this.lineOrigEndpoints.y2 + dy)
+          },
+          false
+        );
+      }
+      return;
+    }
+
     if (this.resizingAnnotationId && this.resizeOrigRect && this.startPoint) {
       const coords = this.getEventCoords(e);
       const dx = coords.x - this.startPoint.x;
@@ -478,6 +517,19 @@ export class PageAnnotationOverlay {
             {
               x: coords.x - this.dragOffset.x,
               y: coords.y - this.dragOffset.y
+            },
+            false
+          );
+        } else if ('x1' in ann && 'y1' in ann && 'x2' in ann && 'y2' in ann && this.lineOrigEndpoints && this.startPoint) {
+          const dx = coords.x - this.startPoint.x;
+          const dy = coords.y - this.startPoint.y;
+          this.manager.updateAnnotation(
+            ann.id,
+            {
+              x1: Math.round(this.lineOrigEndpoints.x1 + dx),
+              y1: Math.round(this.lineOrigEndpoints.y1 + dy),
+              x2: Math.round(this.lineOrigEndpoints.x2 + dx),
+              y2: Math.round(this.lineOrigEndpoints.y2 + dy)
             },
             false
           );
@@ -616,11 +668,14 @@ export class PageAnnotationOverlay {
       this.resizingAnnotationId = null;
       this.resizeHandle = null;
       this.resizeOrigRect = null;
+      this.lineEndpointHandle = null;
+      this.lineOrigEndpoints = null;
       return;
     }
 
     if (this.draggingAnnotationId) {
       this.draggingAnnotationId = null;
+      this.lineOrigEndpoints = null;
       return;
     }
 
@@ -1017,6 +1072,65 @@ export class PageAnnotationOverlay {
           head.setAttribute('fill', ann.strokeColor);
           g.appendChild(head);
         }
+
+        if (isSelected) {
+          g.setAttribute('filter', 'drop-shadow(0 0 3px #1976d2)');
+
+          // Render endpoint selection handles
+          const handle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          handle1.setAttribute('cx', (ann.x1 * scale).toString());
+          handle1.setAttribute('cy', (ann.y1 * scale).toString());
+          handle1.setAttribute('r', (5 * scale).toString());
+          handle1.setAttribute('fill', '#ffffff');
+          handle1.setAttribute('stroke', '#1976d2');
+          handle1.setAttribute('stroke-width', (2 * scale).toString());
+          handle1.setAttribute('data-handle', 'endpoint1');
+          handle1.style.cursor = 'move';
+          g.appendChild(handle1);
+
+          const handle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          handle2.setAttribute('cx', (ann.x2 * scale).toString());
+          handle2.setAttribute('cy', (ann.y2 * scale).toString());
+          handle2.setAttribute('r', (5 * scale).toString());
+          handle2.setAttribute('fill', '#ffffff');
+          handle2.setAttribute('stroke', '#1976d2');
+          handle2.setAttribute('stroke-width', (2 * scale).toString());
+          handle2.setAttribute('data-handle', 'endpoint2');
+          handle2.style.cursor = 'move';
+          g.appendChild(handle2);
+
+          // Delete badge
+          const delBadge = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          delBadge.setAttribute('data-action', 'delete-annotation');
+          delBadge.style.cursor = 'pointer';
+          delBadge.style.pointerEvents = 'all';
+
+          const midX = ((ann.x1 + ann.x2) / 2) * scale;
+          const midY = ((ann.y1 + ann.y2) / 2) * scale - 14;
+
+          const badgeCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          badgeCircle.setAttribute('cx', midX.toString());
+          badgeCircle.setAttribute('cy', midY.toString());
+          badgeCircle.setAttribute('r', '8');
+          badgeCircle.setAttribute('fill', '#ef4444');
+          badgeCircle.setAttribute('stroke', '#ffffff');
+          badgeCircle.setAttribute('stroke-width', '1.5');
+
+          const badgeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          badgeText.setAttribute('x', midX.toString());
+          badgeText.setAttribute('y', (midY + 3.5).toString());
+          badgeText.setAttribute('text-anchor', 'middle');
+          badgeText.setAttribute('fill', '#ffffff');
+          badgeText.setAttribute('font-size', '10px');
+          badgeText.setAttribute('font-weight', 'bold');
+          badgeText.setAttribute('pointer-events', 'none');
+          badgeText.textContent = '✕';
+
+          delBadge.appendChild(badgeCircle);
+          delBadge.appendChild(badgeText);
+          g.appendChild(delBadge);
+        }
+
         this.svgLayer.appendChild(g);
       } else if (ann.type === 'text') {
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');

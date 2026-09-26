@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { AnnotationManager } from '../src/annotations/manager';
 import { HistoryManager } from '../src/core/history';
-import { HighlightAnnotation, TextAnnotation, StampAnnotation, MarkupAnnotation } from '../src/types/annotations';
+import { HighlightAnnotation, TextAnnotation, StampAnnotation, MarkupAnnotation, LineAnnotation } from '../src/types/annotations';
+import { PdfExporter } from '../src/export/pdf-exporter';
+import { PageManager } from '../src/organizer/page-manager';
+import { createSamplePdf } from '../src/utils/samples';
+import { PDFDocument } from 'pdf-lib';
 
 describe('AnnotationManager', () => {
   let history: HistoryManager;
@@ -140,5 +144,36 @@ describe('AnnotationManager', () => {
     expect(hitTest(underlineAnn, { x: 10, y: 105 })).toBe(false);
     expect(hitTest(strikeAnn, { x: 180, y: 107 })).toBe(true);
     expect(hitTest(strikeAnn, { x: 220, y: 107 })).toBe(false);
+  });
+
+  it('should support arrow and line annotations and bake them into exported PDF', async () => {
+    const arrowAnn: LineAnnotation = {
+      id: 'arrow_1',
+      type: 'arrow',
+      pageIndex: 0,
+      x1: 50,
+      y1: 50,
+      x2: 250,
+      y2: 150,
+      strokeColor: '#3b82f6',
+      strokeWidth: 3,
+      arrowHead: true,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    manager.addAnnotation(arrowAnn);
+    expect(manager.getAnnotation('arrow_1')).toBeDefined();
+    expect(manager.getAnnotationsForPage(0).length).toBe(1);
+
+    const sourceBytes = await createSamplePdf();
+    const pm = new PageManager(history);
+    pm.initFromDocument(1, [{ width: 595, height: 842, rotation: 0 }]);
+
+    const exported = await PdfExporter.exportDocument(sourceBytes, pm, manager);
+    expect(exported).toBeInstanceOf(Uint8Array);
+
+    const doc = await PDFDocument.load(exported);
+    expect(doc.getPageCount()).toBe(1);
   });
 });
