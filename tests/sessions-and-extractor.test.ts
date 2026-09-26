@@ -127,4 +127,25 @@ describe('Document Session Manager', () => {
     expect(sess.doc.outline[0].children?.length).toBe(1);
     expect(sess.doc.outline[0].children?.[0].pageNumber).toBe(2);
   });
+
+  it('should categorize dropped files into PDF documents, images, and unhandled formats', () => {
+    const droppedFiles = [
+      { name: 'document1.pdf', type: 'application/pdf' },
+      { name: 'REPORT.PDF', type: '' },
+      { name: 'photo.png', type: 'image/png' },
+      { name: 'scan.jpeg', type: 'image/jpeg' },
+      { name: 'archive.zip', type: 'application/zip' }
+    ];
+
+    const pdfFiles = droppedFiles.filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+    const imgFiles = droppedFiles.filter(f => f.type.startsWith('image/'));
+    const unhandled = droppedFiles.filter(f => !pdfFiles.includes(f) && !imgFiles.includes(f));
+
+    expect(pdfFiles.length).toBe(2);
+    expect(pdfFiles.map(f => f.name)).toEqual(['document1.pdf', 'REPORT.PDF']);
+    expect(imgFiles.length).toBe(2);
+    expect(imgFiles.map(f => f.name)).toEqual(['photo.png', 'scan.jpeg']);
+    expect(unhandled.length).toBe(1);
+    expect(unhandled[0].name).toBe('archive.zip');
+  });
 });

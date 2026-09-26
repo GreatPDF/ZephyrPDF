@@ -683,28 +683,46 @@ class ZephyrPDFApp {
 
   private initDropzone(): void {
     const dropzone = document.getElementById('dropzone');
+    const globalOverlay = document.getElementById('global-drag-overlay');
+    let dragCounter = 0;
 
     const handleDrag = (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
     };
 
-    ['dragenter', 'dragover'].forEach(name => {
-      window.addEventListener(name, (e: any) => {
-        handleDrag(e);
+    window.addEventListener('dragenter', (e: DragEvent) => {
+      handleDrag(e);
+      dragCounter++;
+      if (this.currentDoc) {
+        if (globalOverlay) globalOverlay.style.display = 'flex';
+      } else {
         dropzone?.classList.add('dragover');
-      });
+      }
     });
 
-    ['dragleave', 'drop'].forEach(name => {
-      window.addEventListener(name, (e: any) => {
-        handleDrag(e);
+    window.addEventListener('dragover', (e: DragEvent) => {
+      handleDrag(e);
+      if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = 'copy';
+      }
+    });
+
+    window.addEventListener('dragleave', (e: DragEvent) => {
+      handleDrag(e);
+      dragCounter--;
+      if (dragCounter <= 0) {
+        dragCounter = 0;
         dropzone?.classList.remove('dragover');
-      });
+        if (globalOverlay) globalOverlay.style.display = 'none';
+      }
     });
 
     window.addEventListener('drop', async (e: DragEvent) => {
       handleDrag(e);
+      dragCounter = 0;
+      dropzone?.classList.remove('dragover');
+      if (globalOverlay) globalOverlay.style.display = 'none';
       const files = Array.from(e.dataTransfer?.files || []);
       const pdfFiles = files.filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
       const imgFiles = files.filter(f => f.type.startsWith('image/'));

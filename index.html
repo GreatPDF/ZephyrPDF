@@ -52,6 +52,19 @@
       </div>
     </div>
 
+    <!-- Global Drag & Drop Overlay -->
+    <div id="global-drag-overlay" class="global-drag-overlay" style="display: none;">
+      <div class="drag-overlay-box">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+        <h3 style="font-size: 1.25rem; font-weight: 600; margin: 8px 0 4px;">Drop File to Open</h3>
+        <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0;">Drop PDF to open in a new tab · Drop image to insert onto page</p>
+      </div>
+    </div>
+
     <!-- Hidden file input for open action -->
     <input type="file" id="file-input" accept="application/pdf" multiple style="display: none;" />
 
