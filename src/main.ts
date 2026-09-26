@@ -252,6 +252,10 @@ class ZephyrPDFApp {
         }
       },
       onWatermarkClick: () => {
+        if (!this.currentDoc) {
+          NotificationService.show('Open a PDF document first before adding watermarks.');
+          return;
+        }
         new WatermarkDialog(this.watermarkOptions, this.pageNumberOptions, {
           onSave: (wm, pn) => {
             this.watermarkOptions = wm;

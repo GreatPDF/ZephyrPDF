@@ -121,4 +121,48 @@ describe('Watermark and Page Numbering', () => {
     const doc = await PDFDocument.load(exported);
     expect(doc.getPageCount()).toBe(2);
   });
+
+  it('should export PDF with 0-degree horizontal centered watermark and top-right page numbering', async () => {
+    const sourceBytes = await createSamplePdf();
+    const history = new HistoryManager();
+    const pageManager = new PageManager(history);
+    const annotationManager = new AnnotationManager(history);
+
+    pageManager.initFromDocument(1, [
+      { width: 612, height: 792, rotation: 0 }
+    ]);
+
+    const watermark: WatermarkOptions = {
+      enabled: true,
+      text: 'CENTERED HORIZONTAL WATERMARK',
+      opacity: 0.25,
+      fontSize: 36,
+      rotationDegrees: 0,
+      color: '#f59e0b'
+    };
+
+    const pageNumbers: PageNumberOptions = {
+      enabled: true,
+      format: 'Page X of Y',
+      position: 'top-right',
+      fontSize: 10,
+      color: '#000000'
+    };
+
+    const exported = await PdfExporter.exportDocument(
+      sourceBytes,
+      pageManager,
+      annotationManager,
+      undefined,
+      undefined,
+      false,
+      watermark,
+      pageNumbers
+    );
+
+    expect(exported).toBeInstanceOf(Uint8Array);
+    const doc = await PDFDocument.load(exported);
+    expect(doc.getPageCount()).toBe(1);
+    expect(doc.getPage(0).getSize().width).toBeCloseTo(595.28, 1);
+  });
 });

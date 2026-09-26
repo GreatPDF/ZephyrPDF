@@ -134,8 +134,8 @@ export class WatermarkDialog {
       </div>
 
       <div class="modal-footer">
-        <button class="btn" id="cancel-wm-btn">Cancel</button>
-        <button class="btn btn-primary" id="save-wm-btn">Apply Settings</button>
+        <button class="btn" id="cancel-wm-btn" aria-label="Cancel">Cancel</button>
+        <button class="btn btn-primary" id="save-wm-btn" aria-label="Apply Settings">Apply Settings</button>
       </div>
     `;
 
@@ -155,15 +155,26 @@ export class WatermarkDialog {
     const closeBtn = card.querySelector('#close-wm-btn');
     const cancelBtn = card.querySelector('#cancel-wm-btn');
     const saveBtn = card.querySelector('#save-wm-btn');
+    const textInput = card.querySelector('#wm-text-input') as HTMLInputElement;
 
     closeBtn?.addEventListener('click', () => this.close());
     cancelBtn?.addEventListener('click', () => this.close());
+
+    textInput?.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        (saveBtn as HTMLButtonElement)?.click();
+      }
+    });
 
     const wmCheck = card.querySelector('#wm-enable-check') as HTMLInputElement;
     const wmContainer = card.querySelector('#wm-options-container') as HTMLElement;
     wmCheck?.addEventListener('change', () => {
       this.watermark.enabled = wmCheck.checked;
       wmContainer.style.display = wmCheck.checked ? 'flex' : 'none';
+      if (wmCheck.checked) {
+        setTimeout(() => textInput?.focus(), 50);
+      }
     });
 
     const pnCheck = card.querySelector('#pn-enable-check') as HTMLInputElement;
@@ -173,7 +184,6 @@ export class WatermarkDialog {
       pnContainer.style.display = pnCheck.checked ? 'grid' : 'none';
     });
 
-    const textInput = card.querySelector('#wm-text-input') as HTMLInputElement;
     const opacityRange = card.querySelector('#wm-opacity-range') as HTMLInputElement;
     const opacityLabel = card.querySelector('#wm-opacity-label');
     const rotSelect = card.querySelector('#wm-rotation-select') as HTMLSelectElement;

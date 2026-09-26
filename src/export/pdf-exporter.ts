@@ -359,14 +359,24 @@ export class PdfExporter {
         const wmColor = hexToPdfRgb(watermarkOptions.color || '#94a3b8');
         const { width: pageWidth, height: pHeight } = targetPage.getSize();
         const fontSize = watermarkOptions.fontSize || 48;
+        const wmTextWidth = fontHelveticaBold.widthOfTextAtSize(watermarkOptions.text, fontSize);
+        const rotDeg = watermarkOptions.rotationDegrees ?? -45;
+        const rad = (rotDeg * Math.PI) / 180;
+        const cos = Math.cos(rad);
+        const sin = Math.sin(rad);
+
+        // Center watermark text box precisely at page center
+        const originX = pageWidth / 2 - (wmTextWidth / 2) * cos + (fontSize / 3) * sin;
+        const originY = pHeight / 2 - (wmTextWidth / 2) * sin - (fontSize / 3) * cos;
+
         targetPage.drawText(watermarkOptions.text, {
-          x: pageWidth / 2 - (watermarkOptions.text.length * fontSize * 0.28),
-          y: pHeight / 2,
+          x: originX,
+          y: originY,
           size: fontSize,
           font: fontHelveticaBold,
           color: rgb(wmColor.r, wmColor.g, wmColor.b),
           opacity: watermarkOptions.opacity || 0.15,
-          rotate: degrees(watermarkOptions.rotationDegrees || -45)
+          rotate: degrees(rotDeg)
         });
       }
 
