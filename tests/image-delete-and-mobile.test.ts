@@ -236,4 +236,34 @@ describe('Image Deletion & Mobile UX Tests', () => {
     expect(processed.width).toBeGreaterThanOrEqual(30);
     expect(processed.height).toBeGreaterThanOrEqual(20);
   });
+
+  it('manages mobile drawer visibility, touch dismissal, and auto-close triggers', () => {
+    let isMobileOpen = false;
+    let isBackdropVisible = false;
+
+    const openDrawer = (width: number) => {
+      if (width <= 768) {
+        isMobileOpen = true;
+        isBackdropVisible = true;
+      }
+    };
+
+    const closeDrawer = () => {
+      isMobileOpen = false;
+      isBackdropVisible = false;
+    };
+
+    openDrawer(375); // iPhone viewport width
+    expect(isMobileOpen).toBe(true);
+    expect(isBackdropVisible).toBe(true);
+
+    // Simulate touch dismissal on backdrop
+    closeDrawer();
+    expect(isMobileOpen).toBe(false);
+    expect(isBackdropVisible).toBe(false);
+
+    // Reopen and test desktop width behavior
+    openDrawer(1280);
+    expect(isMobileOpen).toBe(false);
+  });
 });

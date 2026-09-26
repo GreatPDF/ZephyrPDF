@@ -358,6 +358,10 @@ class ZephyrPDFApp {
     backdropEl?.addEventListener('click', () => {
       this.sidebar.close();
     });
+    backdropEl?.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      this.sidebar.close();
+    });
 
     this.sidebar = new AppSidebar(sidebarEl, {
       onPageSelect: (pageNumber) => this.scrollToPage(pageNumber),
@@ -1032,6 +1036,11 @@ class ZephyrPDFApp {
         const imgInput = document.getElementById('image-insert-input') as HTMLInputElement | null;
         imgInput?.click();
       } else if (e.key === 'Escape') {
+        if (this.sidebar.isMobileOpen()) {
+          this.sidebar.close();
+          return;
+        }
+
         const orgOverlay = document.querySelector('.organizer-overlay');
         if (orgOverlay) {
           const cancelBtn = orgOverlay.querySelector('#org-cancel-btn') as HTMLButtonElement | null;
