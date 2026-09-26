@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zephyrpdf-v2.12.51';
+const CACHE_NAME = 'zephyrpdf-v2.12.52';
 
 const STATIC_ASSETS = [
   './',

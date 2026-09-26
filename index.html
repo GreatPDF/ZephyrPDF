@@ -41,11 +41,14 @@
 
       <!-- Floating Page Navigation HUD -->
       <div class="floating-hud" id="floating-hud" style="display: none;">
-        <button class="icon-btn" id="hud-prev-page" title="Previous Page (k)">▲</button>
-        <input type="number" id="hud-current-page" class="page-counter-input" min="1" value="1" />
+        <button class="icon-btn" id="hud-prev-page" title="Previous Page (k)" aria-label="Previous Page">▲</button>
+        <input type="number" id="hud-current-page" class="page-counter-input" min="1" value="1" aria-label="Current Page Number" />
         <span style="font-size: 0.85rem; color: var(--text-secondary);">/</span>
         <span id="hud-total-pages" style="font-size: 0.85rem; font-weight: 600;">1</span>
-        <button class="icon-btn" id="hud-next-page" title="Next Page (j)">▼</button>
+        <button class="icon-btn" id="hud-next-page" title="Next Page (j)" aria-label="Next Page">▼</button>
+        <div style="width: 1px; height: 16px; background: var(--border-color); margin: 0 2px;"></div>
+        <button class="icon-btn" id="hud-rotate-ccw" title="Rotate Page 90° CCW (Ctrl+[)" aria-label="Rotate Page 90° Counter-Clockwise">↺</button>
+        <button class="icon-btn" id="hud-rotate-cw" title="Rotate Page 90° CW (Ctrl+])" aria-label="Rotate Page 90° Clockwise">↻</button>
       </div>
     </div>
 

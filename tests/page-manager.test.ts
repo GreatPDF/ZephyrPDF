@@ -48,6 +48,20 @@ describe('PageManager', () => {
     expect(pageManager.getPages()[0].rotation).toBe(90);
   });
 
+  it('should support counter-clockwise rotation and normalize angles modulo 360', () => {
+    pageManager.rotatePage(0, -90);
+    expect(pageManager.getPages()[0].rotation).toBe(270);
+
+    pageManager.rotatePage(0, -90);
+    expect(pageManager.getPages()[0].rotation).toBe(180);
+
+    pageManager.rotatePage(0, 180);
+    expect(pageManager.getPages()[0].rotation).toBe(0);
+
+    pageManager.rotatePage(0, 90);
+    expect(pageManager.getPages()[0].rotation).toBe(90);
+  });
+
   it('should insert blank pages at specified position', () => {
     pageManager.insertBlankPage(1, 600, 800);
     expect(pageManager.getPageCount()).toBe(4);

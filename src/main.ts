@@ -534,6 +534,23 @@ class ZephyrPDFApp {
       if (!isNaN(page)) this.scrollToPage(page);
     });
 
+    const hudRotateCcw = document.getElementById('hud-rotate-ccw');
+    const hudRotateCw = document.getElementById('hud-rotate-cw');
+
+    hudRotateCcw?.addEventListener('click', () => {
+      if (!this.currentDoc) return;
+      this.pageManager.rotatePage(this.currentPageNumber - 1, -90);
+      this.renderDocument();
+      NotificationService.show(`Page ${this.currentPageNumber} rotated 90° CCW`);
+    });
+
+    hudRotateCw?.addEventListener('click', () => {
+      if (!this.currentDoc) return;
+      this.pageManager.rotatePage(this.currentPageNumber - 1, 90);
+      this.renderDocument();
+      NotificationService.show(`Page ${this.currentPageNumber} rotated 90° CW`);
+    });
+
     // Mobile Pinch-to-Zoom Gesture Support
     const viewerContainer = document.getElementById('viewer-container');
     const pagesWrapper = document.getElementById('pages-wrapper');
@@ -1376,12 +1393,12 @@ class ZephyrPDFApp {
   private updateSidebarThumbnails(): void {
     if (!this.currentDoc) return;
     const pages = this.pageManager.getPages();
-    const thumbs: { pageNumber: number; dataUrl: string }[] = [];
+    const thumbs: { pageNumber: number; dataUrl: string; rotation?: number }[] = [];
 
     for (let i = 0; i < pages.length; i++) {
       const p = pages[i];
       const url = this.pageThumbnails.get(p.id) || '';
-      thumbs.push({ pageNumber: p.pageNumber, dataUrl: url });
+      thumbs.push({ pageNumber: p.pageNumber, dataUrl: url, rotation: p.rotation });
     }
 
     this.sidebar.setThumbnails(thumbs);
