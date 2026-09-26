@@ -2,6 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { SessionManager } from '../src/core/document-session';
 import { LoadedDocument } from '../src/core/pdf-loader';
 import { PDFDocument } from 'pdf-lib';
+import { TextExtractor } from '../src/core/text-extractor';
+import { PageManager } from '../src/organizer/page-manager';
+import { AnnotationManager } from '../src/annotations/manager';
+import { HistoryManager } from '../src/core/history';
 
 describe('Document Session Manager', () => {
   it('should create and switch document sessions cleanly', async () => {
@@ -165,5 +169,62 @@ describe('Document Session Manager', () => {
     ];
 
     expect(countItems(sampleOutline)).toBe(4);
+  });
+
+  it('extracts structured Markdown and plain text respecting page reordering, blank pages, and annotations', async () => {
+    const mockPdfjsDoc = {
+      numPages: 2,
+      getPage: async (pageNo: number) => ({
+        getTextContent: async () => ({
+          items: [
+            { str: pageNo === 1 ? 'Introduction to ZephyrPDF.' : 'Advanced technical specifications.', transform: [1, 0, 0, 1, 0, 100] }
+          ]
+        })
+      })
+    } as any;
+
+    const history = new HistoryManager();
+    const pageManager = new PageManager(history);
+    const annotationManager = new AnnotationManager(history);
+
+    // Initialize 2 pages, add a blank page in between
+    pageManager.initFromDocument(2, [
+      { width: 595, height: 842, rotation: 0 },
+      { width: 595, height: 842, rotation: 0 }
+    ]);
+    pageManager.insertBlankPage(1); // Page 1: orig 1, Page 2: blank, Page 3: orig 2
+
+    // Add a text annotation on the blank page (page index 1)
+    annotationManager.addAnnotation({
+      id: 'ann_text_blank',
+      pageIndex: 1,
+      type: 'text',
+      x: 50,
+      y: 100,
+      width: 150,
+      height: 30,
+      text: 'Meeting notes on newly inserted blank page.',
+      fontSize: 12,
+      fontFamily: 'Helvetica',
+      color: '#000000',
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    });
+
+    const result = await TextExtractor.extractText(
+      mockPdfjsDoc,
+      'Whitepaper.pdf',
+      pageManager,
+      annotationManager
+    );
+
+    expect(result.pageCount).toBe(3);
+    expect(result.fileName).toBe('Whitepaper.pdf');
+    expect(result.markdownText).toContain('# Whitepaper');
+    expect(result.markdownText).toContain('## Page 1\n\nIntroduction to ZephyrPDF.');
+    expect(result.markdownText).toContain('## Page 2\n\nMeeting notes on newly inserted blank page.');
+    expect(result.markdownText).toContain('## Page 3\n\nAdvanced technical specifications.');
+    expect(result.totalWords).toBeGreaterThan(10);
+    expect(result.totalCharacters).toBeGreaterThan(50);
   });
 });

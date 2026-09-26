@@ -282,13 +282,15 @@ class ZephyrPDFApp {
       },
       onExtractText: async () => {
         if (!this.currentDoc) {
-          NotificationService.show('Open a PDF document first.');
+          NotificationService.show('Open a PDF document first.', 3000, true);
           return;
         }
         NotificationService.show('Extracting document text...');
         const result = await TextExtractor.extractText(
           this.currentDoc.pdfjsDoc,
-          this.currentDoc.metadata.fileName
+          this.currentDoc.metadata.fileName,
+          this.pageManager,
+          this.annotationManager
         );
         const base = this.currentDoc.metadata.fileName.replace(/\.pdf$/i, '');
         TextExtractor.downloadTextFile(result.markdownText, `${base}_extracted.md`, 'text/markdown');
