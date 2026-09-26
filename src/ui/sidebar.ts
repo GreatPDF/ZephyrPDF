@@ -8,6 +8,7 @@ export interface SidebarEvents {
   onSearch: (query: string, caseSensitive: boolean, matchWholeWords: boolean) => void;
   onSearchNext: () => void;
   onSearchPrevious: () => void;
+  onSelectSearchMatch?: (index: number) => void;
   onExportCitations?: () => void;
   onExportAnnotationReport?: () => void;
   onExportAnnotationJson?: () => void;
@@ -297,6 +298,65 @@ export class AppSidebar {
     if (countEl) {
       countEl.textContent = matches.length > 0 ? `${currentIndex + 1} of ${matches.length}` : '0 matches';
     }
+
+    const list = this.container.querySelector('#sidebar-search-results-list');
+    if (!list) return;
+
+    if (matches.length === 0) {
+      list.innerHTML = '';
+      return;
+    }
+
+    list.innerHTML = '';
+    for (let i = 0; i < matches.length; i++) {
+      const match = matches[i];
+      const card = document.createElement('div');
+      card.className = `search-result-card ${i === currentIndex ? 'active' : ''}`;
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      const pageNum = match.pageIndex + 1;
+      const snippet = match.snippet || `"...${match.text}..."`;
+      card.setAttribute('aria-label', `Match ${i + 1} of ${matches.length} on Page ${pageNum}: ${snippet}`);
+
+      const headerRow = document.createElement('div');
+      headerRow.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;';
+      headerRow.innerHTML = `
+        <span style="font-size: 0.75rem; font-weight: 600; color: var(--accent-color);">Page ${pageNum}</span>
+        <span style="font-size: 0.7rem; color: var(--text-muted); font-variant-numeric: tabular-nums;">#${i + 1}</span>
+      `;
+
+      const snippetEl = document.createElement('div');
+      snippetEl.className = 'search-snippet';
+      snippetEl.style.cssText = 'font-size: 0.75rem; color: var(--text-secondary); line-height: 1.35; word-break: break-word;';
+      snippetEl.textContent = snippet;
+
+      card.appendChild(headerRow);
+      card.appendChild(snippetEl);
+
+      card.addEventListener('click', () => {
+        this.events.onSelectSearchMatch?.(i);
+        if (window.innerWidth <= 768) {
+          this.close();
+        }
+      });
+
+      card.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.events.onSelectSearchMatch?.(i);
+          if (window.innerWidth <= 768) {
+            this.close();
+          }
+        }
+      });
+
+      list.appendChild(card);
+    }
+
+    const activeEl = list.children[currentIndex] as HTMLElement;
+    if (activeEl) {
+      activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
   }
 
   public setCurrentPage(pageNumber: number): void {
@@ -372,6 +432,7 @@ export class AppSidebar {
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               <span>Export Citations (.md)</span>
             </button>
+            <div class="search-results-list" id="sidebar-search-results-list" style="margin-top: 10px;"></div>
           </div>
         </div>
       </div>

@@ -572,6 +572,38 @@ button.btn.btn-primary:hover {
   border-color: var(--accent-color);
 }
 
+.search-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  max-height: 480px;
+  padding-right: 2px;
+}
+
+.search-result-card {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.search-result-card:hover {
+  border-color: var(--accent-color);
+  background-color: var(--bg-hover);
+}
+
+.search-result-card.active {
+  border-color: var(--accent-color);
+  background-color: rgba(59, 130, 246, 0.12);
+  box-shadow: 0 0 0 1px var(--accent-color);
+}
+
 /* Viewer Container & Pages */
 .viewer-viewport {
   flex: 1;

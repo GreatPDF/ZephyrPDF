@@ -372,6 +372,7 @@ class ZephyrPDFApp {
       },
       onSearchNext: () => this.searchNext(),
       onSearchPrevious: () => this.searchPrevious(),
+      onSelectSearchMatch: (index) => this.searchGoToMatch(index),
       onExportCitations: () => {
         const state = this.searchEngine.getState();
         if (!state.query || state.matches.length === 0) {
@@ -1700,6 +1701,18 @@ class ZephyrPDFApp {
     if (newActive) {
       newActive.classList.add('active');
       newActive.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  public searchGoToMatch(index: number): void {
+    const match = this.searchEngine.selectMatch(index);
+    if (match) {
+      const state = this.searchEngine.getState();
+      this.sidebar.setSearchResults(state.matches, state.currentMatchIndex);
+      if (this.currentPageNumber !== match.pageIndex + 1) {
+        this.scrollToPage(match.pageIndex + 1);
+      }
+      this.setActiveSearchMatch(state.currentMatchIndex);
     }
   }
 

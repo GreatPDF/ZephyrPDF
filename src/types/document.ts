@@ -39,6 +39,7 @@ export interface SearchMatch {
   pageIndex: number;
   matchIndex: number;
   text: string;
+  snippet?: string;
   bounds: {
     left: number;
     top: number;

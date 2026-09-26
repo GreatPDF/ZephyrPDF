@@ -75,11 +75,18 @@ export class TextSearchEngine {
     for (const page of this.pageTexts) {
       let match: RegExpExecArray | null;
       while ((match = regex.exec(page.text)) !== null) {
-        // Find rough bounds from matched text
+        // Extract surrounding context snippet
+        const start = Math.max(0, match.index - 35);
+        const end = Math.min(page.text.length, match.index + match[0].length + 35);
+        let snippet = page.text.slice(start, end).replace(/\s+/g, ' ').trim();
+        if (start > 0) snippet = '...' + snippet;
+        if (end < page.text.length) snippet = snippet + '...';
+
         matches.push({
           pageIndex: page.pageIndex,
           matchIndex: globalMatchCount,
           text: match[0],
+          snippet,
           bounds: [
             {
               left: 50, // default approximate coordinate before exact glyph mapping
@@ -121,6 +128,13 @@ export class TextSearchEngine {
       this.state.matches.length;
     this.notify();
     return this.state.matches[this.state.currentMatchIndex];
+  }
+
+  public selectMatch(index: number): SearchMatch | null {
+    if (index < 0 || index >= this.state.matches.length) return null;
+    this.state.currentMatchIndex = index;
+    this.notify();
+    return this.state.matches[index];
   }
 
   public reset(): void {
