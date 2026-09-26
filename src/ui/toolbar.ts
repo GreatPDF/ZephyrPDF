@@ -87,7 +87,10 @@ export class AppToolbar {
     this.activeZoom = zoom;
     const zoomText = this.container.querySelector('#zoom-label');
     if (zoomText) {
-      zoomText.textContent = `${Math.round(zoom * 100)}%`;
+      const pct = Math.round(zoom * 100);
+      zoomText.textContent = `${pct}%`;
+      zoomText.setAttribute('aria-label', `Zoom level ${pct}%. Click to reset to 100%`);
+      zoomText.setAttribute('title', `Current zoom: ${pct}%. Click to reset to 100%`);
     }
   }
 

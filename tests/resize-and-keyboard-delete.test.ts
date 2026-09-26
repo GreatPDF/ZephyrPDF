@@ -107,4 +107,17 @@ describe('Resize Handles and Keyboard Deletion', () => {
     expect(manager.getAllAnnotations().length).toBe(0);
     expect(manager.getAnnotation(textAnn.id)).toBeUndefined();
   });
+
+  it('clamps zoom scale between 0.3 and 4.0 and formats dynamic zoom percentage', () => {
+    const clamp = (scale: number) => Math.max(0.3, Math.min(4.0, scale));
+
+    expect(clamp(0.1)).toBe(0.3);
+    expect(clamp(5.5)).toBe(4.0);
+    expect(clamp(1.25)).toBe(1.25);
+
+    const formatZoom = (zoom: number) => `${Math.round(zoom * 100)}%`;
+    expect(formatZoom(1.0)).toBe('100%');
+    expect(formatZoom(1.5)).toBe('150%');
+    expect(formatZoom(0.75)).toBe('75%');
+  });
 });

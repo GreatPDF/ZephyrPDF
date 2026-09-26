@@ -983,6 +983,7 @@ class ZephyrPDFApp {
           this.fitToPage();
         }
       } else if (e.key === '9') {
+        if (e.ctrlKey || e.metaKey) e.preventDefault();
         this.fitToWidth();
       } else if (e.key.toLowerCase() === 'j' || e.key === 'PageDown') {
         e.preventDefault();
