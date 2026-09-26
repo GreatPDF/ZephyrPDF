@@ -221,6 +221,23 @@ export class AppSidebar {
     wrapper.appendChild(tree);
   }
 
+  public formatAnnotationLabel(ann: Annotation): string {
+    if (ann.type === 'text') return `Text: "${ann.text.substring(0, 18)}${ann.text.length > 18 ? '...' : ''}"`;
+    if (ann.type === 'stamp') return `Stamp: ${ann.stampType}`;
+    if (ann.type === 'image') return `Image (${Math.round(ann.width)}×${Math.round(ann.height)})`;
+    if (ann.type === 'signature') return `Signature`;
+    if (ann.type === 'sticky_note') return `Note: "${ann.title || 'Comment'}"`;
+    if (ann.type === 'measure') return `Measure: ${ann.formattedValue || (ann.distancePt + ' pt')}`;
+    if (ann.type === 'redaction') return `Redaction (Blackout)`;
+    if (ann.type === 'highlight') return `Highlight (${ann.rects?.length || 1} text)`;
+    if (ann.type === 'arrow') return `Arrow`;
+    if (ann.type === 'line') return `Line`;
+    if (ann.type === 'rectangle') return `Rectangle (${Math.round(ann.width)}×${Math.round(ann.height)})`;
+    if (ann.type === 'ellipse') return `Ellipse (${Math.round(ann.width)}×${Math.round(ann.height)})`;
+    if (ann.type === 'freehand') return `Pen Drawing (${ann.points?.length || 0} pts)`;
+    return ann.type.toUpperCase();
+  }
+
   public setAnnotations(annotations: Annotation[]): void {
     const list = this.container.querySelector('#sidebar-annotations-list');
     if (!list) return;
@@ -234,14 +251,11 @@ export class AppSidebar {
     for (const ann of annotations) {
       const card = document.createElement('div');
       card.className = 'annotation-card';
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
       const pageNum = ann.pageIndex + 1;
-
-      let label = ann.type.toUpperCase();
-      if (ann.type === 'text') label = `Text: "${ann.text.substring(0, 15)}..."`;
-      if (ann.type === 'stamp') label = `Stamp: ${ann.stampType}`;
-      if (ann.type === 'image') label = `Image (${Math.round(ann.width)}×${Math.round(ann.height)})`;
-      if (ann.type === 'signature') label = `Signature`;
-      if (ann.type === 'sticky_note') label = `Note: "${ann.title || 'Note'}"`;
+      const label = this.formatAnnotationLabel(ann);
+      card.setAttribute('aria-label', `${label} on Page ${pageNum}. Click to jump to annotation`);
 
       card.innerHTML = `
         <div style="display: flex; flex-direction: column; gap: 2px;">
@@ -255,6 +269,16 @@ export class AppSidebar {
         this.events.onAnnotationSelect(ann.id, pageNum);
         if (window.innerWidth <= 768) {
           this.close();
+        }
+      });
+
+      card.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.events.onAnnotationSelect(ann.id, pageNum);
+          if (window.innerWidth <= 768) {
+            this.close();
+          }
         }
       });
 

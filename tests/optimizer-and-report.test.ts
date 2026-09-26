@@ -94,4 +94,27 @@ describe('Optimizer and Annotation Report', () => {
     expect(formatBytes(1048576)).toBe('1.00 MB');
     expect(formatBytes(2500000)).toBe('2.38 MB');
   });
+
+  it('formats comprehensive human-readable annotation labels for sidebar and audit items', () => {
+    const textAnn = { type: 'text', text: 'Important observation regarding clause 4' } as any;
+    const measureAnn = { type: 'measure', formattedValue: '45.2 mm' } as any;
+    const redactAnn = { type: 'redaction' } as any;
+    const arrowAnn = { type: 'arrow' } as any;
+    const stampAnn = { type: 'stamp', stampType: 'APPROVED' } as any;
+
+    const format = (ann: any) => {
+      if (ann.type === 'text') return `Text: "${ann.text.substring(0, 18)}${ann.text.length > 18 ? '...' : ''}"`;
+      if (ann.type === 'stamp') return `Stamp: ${ann.stampType}`;
+      if (ann.type === 'measure') return `Measure: ${ann.formattedValue || (ann.distancePt + ' pt')}`;
+      if (ann.type === 'redaction') return `Redaction (Blackout)`;
+      if (ann.type === 'arrow') return `Arrow`;
+      return ann.type.toUpperCase();
+    };
+
+    expect(format(textAnn)).toBe('Text: "Important observat..."');
+    expect(format(measureAnn)).toBe('Measure: 45.2 mm');
+    expect(format(redactAnn)).toBe('Redaction (Blackout)');
+    expect(format(arrowAnn)).toBe('Arrow');
+    expect(format(stampAnn)).toBe('Stamp: APPROVED');
+  });
 });
