@@ -83,6 +83,7 @@ class ZephyrPDFApp {
   private currentPageNumber: number = 1;
   private lastGKeyTime: number = 0;
   private gKeyTimeout: any = null;
+  private prePresentationViewMode: ViewMode = 'continuous';
 
   private watermarkOptions: WatermarkOptions = {
     enabled: false,
@@ -174,6 +175,9 @@ class ZephyrPDFApp {
       onSignatureClick: () => this.openSignatureDialog(),
       onThemeToggle: (theme) => this.setTheme(theme),
       onViewModeChange: (mode: ViewMode) => {
+        if (mode !== 'presentation' && document.body.classList.contains('presentation-mode')) {
+          this.applyPresentationMode(false);
+        }
         const viewerContainer = document.getElementById('viewer-container');
         viewerContainer?.classList.remove('mode-single', 'mode-two-page');
 
@@ -656,16 +660,7 @@ class ZephyrPDFApp {
 
     document.addEventListener('fullscreenchange', () => {
       const isFullscreen = Boolean(document.fullscreenElement);
-      document.body.classList.toggle('presentation-mode', isFullscreen);
-      const select = document.getElementById('view-mode-select') as HTMLSelectElement;
-      if (isFullscreen) {
-        this.fitToPage();
-        if (select) select.value = 'presentation';
-      } else {
-        if (select && select.value === 'presentation') {
-          select.value = 'continuous';
-        }
-      }
+      this.applyPresentationMode(isFullscreen);
     });
   }
 
@@ -1631,10 +1626,51 @@ class ZephyrPDFApp {
   }
 
   public togglePresentationMode(): void {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.().catch(() => {});
+    const isEntering = !document.fullscreenElement && !document.body.classList.contains('presentation-mode');
+    if (isEntering) {
+      const select = document.getElementById('view-mode-select') as HTMLSelectElement;
+      if (select && select.value !== 'presentation') {
+        this.prePresentationViewMode = (select.value as ViewMode) || 'continuous';
+      }
+      const promise = document.documentElement.requestFullscreen?.();
+      if (promise) {
+        promise.catch(() => {
+          this.applyPresentationMode(true);
+        });
+      } else {
+        this.applyPresentationMode(true);
+      }
     } else {
-      document.exitFullscreen?.().catch(() => {});
+      if (document.fullscreenElement) {
+        document.exitFullscreen?.().catch(() => {});
+      }
+      this.applyPresentationMode(false);
+    }
+  }
+
+  public applyPresentationMode(active: boolean): void {
+    document.body.classList.toggle('presentation-mode', active);
+    const viewerContainer = document.getElementById('viewer-container');
+    const select = document.getElementById('view-mode-select') as HTMLSelectElement;
+
+    if (active) {
+      viewerContainer?.classList.remove('mode-two-page');
+      viewerContainer?.classList.add('mode-single');
+      this.updateSinglePageVisibility();
+      this.fitToPage();
+      if (select) select.value = 'presentation';
+    } else {
+      viewerContainer?.classList.remove('mode-single');
+      viewerContainer?.classList.remove('mode-two-page');
+
+      if (this.prePresentationViewMode === 'two-page') {
+        viewerContainer?.classList.add('mode-two-page');
+      } else if (this.prePresentationViewMode === 'single') {
+        viewerContainer?.classList.add('mode-single');
+        this.updateSinglePageVisibility();
+      }
+      if (select) select.value = this.prePresentationViewMode;
+      this.scrollToPage(this.currentPageNumber);
     }
   }
 

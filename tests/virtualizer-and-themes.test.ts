@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ViewportVirtualizer } from '../src/core/virtualizer';
-import { ThemeMode } from '../src/types/document';
+import { ThemeMode, ViewMode } from '../src/types/document';
 
 describe('Viewport Virtualizer and Themes', () => {
   it('should track and manage observed page elements cleanly', () => {
@@ -51,5 +51,13 @@ describe('Viewport Virtualizer and Themes', () => {
     expect(getFilterForTheme('oled')).toBe('none');
     expect(getFilterForTheme('high-contrast')).toContain('invert');
     expect(getFilterForTheme('sepia')).toContain('sepia');
+  });
+
+  it('should support all standard document view modes including presentation mode', () => {
+    const supportedModes: ViewMode[] = ['continuous', 'single', 'two-page', 'presentation'];
+    expect(supportedModes).toContain('presentation');
+    expect(supportedModes).toContain('single');
+    expect(supportedModes).toContain('two-page');
+    expect(supportedModes.length).toBe(4);
   });
 });

@@ -1217,6 +1217,20 @@ body.presentation-mode #app-header:hover {
   opacity: 1;
 }
 
+body.presentation-mode .floating-hud {
+  opacity: 0.15;
+  transition: opacity 0.3s ease;
+}
+
+body.presentation-mode .floating-hud:hover {
+  opacity: 1;
+}
+
+body.presentation-mode .viewer-viewport {
+  padding: 12px 0 !important;
+  justify-content: center !important;
+}
+
 body.presentation-mode .sidebar,
 body.presentation-mode .sidebar-backdrop,
 body.presentation-mode .doc-tab-strip {
