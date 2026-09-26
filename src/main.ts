@@ -1967,7 +1967,7 @@ class ZephyrPDFApp {
 
   public async exportPdf(flattenForm: boolean = false): Promise<void> {
     if (!this.currentDoc) {
-      NotificationService.show('No document open to save.');
+      NotificationService.show('No document open to save.', 3000, true);
       return;
     }
 

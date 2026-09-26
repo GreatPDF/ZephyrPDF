@@ -105,4 +105,51 @@ describe('PDF Engine End-to-End', () => {
     const verifyDoc = await PDFDocument.load(exportedBytes);
     expect(verifyDoc.getPageCount()).toBe(3);
   });
+
+  it('preserves complete document metadata, producer, and page geometry across export and reload', async () => {
+    const sourceBytes = await createSamplePdf();
+    const history = new HistoryManager();
+    const pageManager = new PageManager(history);
+    const annotationManager = new AnnotationManager(history);
+
+    pageManager.initFromDocument(2, [
+      { width: 595.28, height: 841.89, rotation: 0 },
+      { width: 595.28, height: 841.89, rotation: 0 }
+    ]);
+
+    const metadata = {
+      title: 'Full Lifecycle Verification Doc',
+      author: 'QA Lead',
+      subject: 'Regression Testing',
+      keywords: 'reopen, export, regression',
+      creator: 'ZephyrPDF Test Suite',
+      pageCount: 2,
+      fileSize: sourceBytes.length,
+      fileName: 'Lifecycle.pdf'
+    };
+
+    const exportedBytes = await PdfExporter.exportDocument(
+      sourceBytes,
+      pageManager,
+      annotationManager,
+      undefined,
+      undefined,
+      false,
+      undefined,
+      undefined,
+      metadata
+    );
+
+    const reloaded = await PDFDocument.load(exportedBytes);
+    expect(reloaded.getPageCount()).toBe(2);
+    expect(reloaded.getTitle()).toBe('Full Lifecycle Verification Doc');
+    expect(reloaded.getAuthor()).toBe('QA Lead');
+    expect(reloaded.getSubject()).toBe('Regression Testing');
+    expect(reloaded.getCreator()).toBe('ZephyrPDF Test Suite');
+
+    // Verify page dimensions
+    const p1 = reloaded.getPage(0);
+    expect(p1.getSize().width).toBeCloseTo(595.28, 1);
+    expect(p1.getSize().height).toBeCloseTo(841.89, 1);
+  });
 });
