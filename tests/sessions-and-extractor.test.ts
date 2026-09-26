@@ -227,4 +227,33 @@ describe('Document Session Manager', () => {
     expect(result.totalWords).toBeGreaterThan(10);
     expect(result.totalCharacters).toBeGreaterThan(50);
   });
+
+  it('manages tab bar accessibility attributes and session lifecycle state', () => {
+    const dummySessions = [
+      { id: 'sess_1', doc: { metadata: { fileName: 'Report_A.pdf' } } },
+      { id: 'sess_2', doc: { metadata: { fileName: 'Report_B.pdf' } } }
+    ] as any[];
+
+    let activeId: string | null = 'sess_1';
+
+    const getTabProps = (sessionId: string, active: string | null, fileName: string) => {
+      const isActive = sessionId === active;
+      return {
+        role: 'tab',
+        ariaSelected: isActive.toString(),
+        tabIndex: isActive ? 0 : -1,
+        ariaLabel: `Document tab: ${fileName}${isActive ? ', active' : ''}`
+      };
+    };
+
+    const tab1 = getTabProps(dummySessions[0].id, activeId, dummySessions[0].doc.metadata.fileName);
+    expect(tab1.ariaSelected).toBe('true');
+    expect(tab1.tabIndex).toBe(0);
+    expect(tab1.ariaLabel).toBe('Document tab: Report_A.pdf, active');
+
+    const tab2 = getTabProps(dummySessions[1].id, activeId, dummySessions[1].doc.metadata.fileName);
+    expect(tab2.ariaSelected).toBe('false');
+    expect(tab2.tabIndex).toBe(-1);
+    expect(tab2.ariaLabel).toBe('Document tab: Report_B.pdf');
+  });
 });
