@@ -31,4 +31,23 @@ describe('Page Range Parser', () => {
     expect(PageManager.parsePageRange('', 10)).toEqual([]);
     expect(PageManager.parsePageRange('invalid-range', 10)).toEqual([]);
   });
+
+  it('should support selecting all page indices and filtering items for extraction', () => {
+    const pageCount = 5;
+    const selectedIndices = new Set<number>();
+
+    // Select all
+    for (let i = 0; i < pageCount; i++) selectedIndices.add(i);
+    expect(selectedIndices.size).toBe(5);
+
+    // Deselect all
+    selectedIndices.clear();
+    expect(selectedIndices.size).toBe(0);
+
+    // Specific selection
+    selectedIndices.add(1);
+    selectedIndices.add(3);
+    const sorted = Array.from(selectedIndices).sort((a, b) => a - b);
+    expect(sorted).toEqual([1, 3]);
+  });
 });

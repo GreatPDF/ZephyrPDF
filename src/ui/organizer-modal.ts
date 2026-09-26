@@ -71,6 +71,7 @@ export class OrganizerModal {
           <button class="btn" id="org-rotate-all-btn" aria-label="Rotate All 90°">Rotate All 90°</button>
           <button class="btn" id="org-add-blank-btn" aria-label="Add Blank Page">+ Blank Page</button>
           <button class="btn" id="org-merge-btn" aria-label="Merge PDF">📎 Merge PDF</button>
+          <button class="btn" id="org-select-all-btn" aria-label="Select All Pages">Select All</button>
           <button class="btn" id="org-extract-btn" title="Extract selected pages into separate PDF" aria-label="Extract selected pages into separate PDF">Extract Selected</button>
           <div style="display: flex; align-items: center; gap: 4px; background: var(--bg-tertiary); padding: 2px 6px; border-radius: 6px;">
             <input type="text" id="org-range-input" placeholder="Range: 1-3, 5" aria-label="Page range to export (e.g. 1-3, 5)" style="background: transparent; border: none; color: var(--text-primary); font-size: 0.8rem; width: 100px; outline: none;" />
@@ -103,7 +104,7 @@ export class OrganizerModal {
     pages.forEach((page: PageItem, index: number) => {
       const card = document.createElement('div');
       const isSelected = this.selectedIndices.has(index);
-      card.className = `organizer-card ${isSelected ? 'active' : ''}`;
+      card.className = `organizer-card ${isSelected ? 'selected' : ''}`;
       if (isSelected) {
         card.style.borderColor = 'var(--accent-color)';
         card.style.backgroundColor = 'var(--accent-light)';
@@ -141,6 +142,7 @@ export class OrganizerModal {
           card.classList.remove('selected');
           card.style.borderColor = 'var(--border-color)';
         }
+        this.updateSelectButtons();
       });
 
       // Drag & Drop reordering
@@ -219,6 +221,25 @@ export class OrganizerModal {
 
       grid.appendChild(card);
     });
+
+    this.updateSelectButtons();
+  }
+
+  private updateSelectButtons(): void {
+    const selectAllBtn = this.overlay?.querySelector('#org-select-all-btn');
+    const extractBtn = this.overlay?.querySelector('#org-extract-btn');
+    const total = this.pageManager.getPageCount();
+
+    if (selectAllBtn) {
+      const allSelected = total > 0 && this.selectedIndices.size === total;
+      selectAllBtn.textContent = allSelected ? 'Deselect All' : 'Select All';
+    }
+
+    if (extractBtn) {
+      extractBtn.textContent = this.selectedIndices.size > 0
+        ? `Extract Selected (${this.selectedIndices.size})`
+        : 'Extract Selected';
+    }
   }
 
   private setupListeners(): void {
@@ -271,6 +292,20 @@ export class OrganizerModal {
           mergeInput.value = '';
         }
       }
+    });
+
+    const selectAllBtn = this.overlay?.querySelector('#org-select-all-btn');
+    selectAllBtn?.addEventListener('click', () => {
+      const total = this.pageManager.getPageCount();
+      if (this.selectedIndices.size === total) {
+        this.selectedIndices.clear();
+      } else {
+        this.selectedIndices.clear();
+        for (let i = 0; i < total; i++) {
+          this.selectedIndices.add(i);
+        }
+      }
+      this.renderGrid();
     });
 
     const extractBtn = this.overlay?.querySelector('#org-extract-btn');

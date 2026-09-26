@@ -1887,7 +1887,11 @@ class ZephyrPDFApp {
           tempManager,
           this.annotationManager,
           this.formHandler,
-          this.mergedDocs
+          this.mergedDocs,
+          false,
+          this.watermarkOptions,
+          this.pageNumberOptions,
+          this.currentDoc.metadata
         );
 
         const baseName = this.currentDoc.metadata.fileName.replace(/\.pdf$/i, '');
