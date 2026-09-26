@@ -114,9 +114,9 @@ export class OptimizerDialog {
       </div>
 
       <div class="modal-footer">
-        <button class="btn" id="cancel-opt-btn">Cancel</button>
-        <button class="btn btn-primary" id="run-opt-btn">Start Optimization</button>
-        <button class="btn btn-primary" id="download-opt-btn" style="display: none;">Download Optimized PDF</button>
+        <button class="btn" id="cancel-opt-btn" aria-label="Cancel">Cancel</button>
+        <button class="btn btn-primary" id="run-opt-btn" aria-label="Start Optimization">Start Optimization</button>
+        <button class="btn btn-primary" id="download-opt-btn" aria-label="Download Optimized PDF" style="display: none;">Download Optimized PDF</button>
       </div>
     `;
 
@@ -132,6 +132,11 @@ export class OptimizerDialog {
     });
 
     this.setupListeners(card);
+
+    setTimeout(() => {
+      const runBtn = card.querySelector('#run-opt-btn') as HTMLButtonElement | null;
+      runBtn?.focus();
+    }, 50);
   }
 
   private setupListeners(card: HTMLElement): void {
@@ -153,6 +158,16 @@ export class OptimizerDialog {
     card.querySelectorAll('input[name="opt-level"]').forEach((radio: any) => {
       radio.addEventListener('change', () => {
         this.selectedLevel = radio.value as CompressionLevel;
+        card.querySelectorAll('input[name="opt-level"]').forEach((r: any) => {
+          const lbl = r.closest('label');
+          if (lbl) {
+            const isChecked = r.checked;
+            lbl.style.borderColor = isChecked ? 'var(--accent-color)' : 'var(--border-color)';
+            lbl.style.backgroundColor = isChecked ? 'var(--accent-light)' : 'var(--bg-primary)';
+            const titleEl = lbl.querySelector('strong');
+            if (titleEl) titleEl.style.color = isChecked ? 'var(--accent-color)' : 'var(--text-primary)';
+          }
+        });
       });
     });
 
@@ -189,6 +204,7 @@ export class OptimizerDialog {
 
         runBtn.style.display = 'none';
         downloadBtn.style.display = 'inline-flex';
+        downloadBtn.focus();
       } catch (err: any) {
         NotificationService.show('Optimization error: ' + (err?.message || 'Compression failed'), 4000, true);
         runBtn.disabled = false;

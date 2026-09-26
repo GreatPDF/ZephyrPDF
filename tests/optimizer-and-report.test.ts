@@ -79,4 +79,19 @@ describe('Optimizer and Annotation Report', () => {
 
     expect(percent).toBe(75);
   });
+
+  it('formats byte quantities into clean human-readable strings', () => {
+    const formatBytes = (bytes: number) => {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+    };
+
+    expect(formatBytes(0)).toBe('0 B');
+    expect(formatBytes(1024)).toBe('1.00 KB');
+    expect(formatBytes(1048576)).toBe('1.00 MB');
+    expect(formatBytes(2500000)).toBe('2.38 MB');
+  });
 });
