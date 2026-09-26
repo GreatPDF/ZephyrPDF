@@ -208,17 +208,19 @@ class ZephyrPDFApp {
       onShowShortcuts: () => new ShortcutsDialog(() => this.showFeedbackDialog()).open(),
       onShowFeedback: () => this.showFeedbackDialog(),
       onShowMetadata: () => {
-        if (this.currentDoc) {
-          new MetadataDialog(this.currentDoc.metadata, {
-            onSave: (updated) => {
-              this.currentDoc!.metadata = updated;
-              if (updated.title) {
-                document.title = `${updated.title} · ZephyrPDF`;
-              }
-              NotificationService.show('Document properties & metadata saved!');
-            }
-          }).open();
+        if (!this.currentDoc) {
+          NotificationService.show('Open a PDF document first.', 3000, true);
+          return;
         }
+        new MetadataDialog(this.currentDoc.metadata, {
+          onSave: (updated) => {
+            this.currentDoc!.metadata = updated;
+            if (updated.title) {
+              document.title = `${updated.title} · ZephyrPDF`;
+            }
+            NotificationService.show('Document properties & metadata saved!');
+          }
+        }).open();
       },
       onMeasureUnitChange: (unit) => {
         this.activeMeasureUnit = unit;

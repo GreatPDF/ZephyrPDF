@@ -48,13 +48,16 @@ export class MetadataDialog {
     const card = document.createElement('div');
     card.className = 'modal-card';
     card.style.maxWidth = '580px';
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('aria-modal', 'true');
+    card.setAttribute('aria-labelledby', 'meta-dialog-title');
 
     const m = this.metadata;
 
     card.innerHTML = `
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <h3 style="margin: 0; font-size: 1.15rem;">Document Properties & Metadata</h3>
+          <h3 id="meta-dialog-title" style="margin: 0; font-size: 1.15rem;">Document Properties & Metadata</h3>
         </div>
         <button class="icon-btn" id="close-meta-btn" aria-label="Close dialog" title="Close dialog">✕</button>
       </div>
@@ -71,35 +74,35 @@ export class MetadataDialog {
         <!-- Editable Metadata -->
         <div style="display: flex; flex-direction: column; gap: 8px;">
           <div>
-            <label style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px;">Document Title:</label>
+            <label for="meta-title-input" style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px;">Document Title:</label>
             <input type="text" id="meta-title-input" value="${m.title || ''}" placeholder="Document title" style="width: 100%; padding: 6px 10px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-size: 0.85rem;" />
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div>
-              <label style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px;">Author:</label>
+              <label for="meta-author-input" style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px;">Author:</label>
               <input type="text" id="meta-author-input" value="${m.author || ''}" placeholder="Author name" style="width: 100%; padding: 6px 10px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-size: 0.85rem;" />
             </div>
             <div>
-              <label style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px;">Subject:</label>
+              <label for="meta-subject-input" style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px;">Subject:</label>
               <input type="text" id="meta-subject-input" value="${m.subject || ''}" placeholder="Subject or category" style="width: 100%; padding: 6px 10px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-size: 0.85rem;" />
             </div>
           </div>
 
           <div>
-            <label style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px;">Keywords:</label>
+            <label for="meta-keywords-input" style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px;">Keywords:</label>
             <input type="text" id="meta-keywords-input" value="${m.keywords || ''}" placeholder="Comma separated keywords" style="width: 100%; padding: 6px 10px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-size: 0.85rem;" />
           </div>
 
           <div>
-            <label style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px;">Creator Application:</label>
+            <label for="meta-creator-input" style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px;">Creator Application:</label>
             <input type="text" id="meta-creator-input" value="${m.creator || ''}" placeholder="Creator" style="width: 100%; padding: 6px 10px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-size: 0.85rem;" />
           </div>
         </div>
 
-        <button class="btn" id="sanitize-meta-btn" style="border: 1px dashed var(--danger-color); color: var(--danger-color); font-size: 0.8rem; height: 32px; justify-content: center; gap: 6px;">
+        <button class="btn" id="sanitize-meta-btn" aria-label="Sanitize metadata and remove personal traces" style="border: 1px dashed var(--danger-color); color: var(--danger-color); font-size: 0.8rem; height: 32px; justify-content: center; gap: 6px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-          <span>Sanitize Metadata (Remove Personal & Author Traces)</span>
+          <span id="sanitize-label">Sanitize Metadata (Remove Personal & Author Traces)</span>
         </button>
       </div>
 
@@ -133,6 +136,19 @@ export class MetadataDialog {
     const keywordsInput = card.querySelector('#meta-keywords-input') as HTMLInputElement;
     const creatorInput = card.querySelector('#meta-creator-input') as HTMLInputElement;
 
+    titleInput?.focus();
+    titleInput?.select();
+
+    const textInputs = card.querySelectorAll<HTMLInputElement>('input[type="text"]');
+    textInputs.forEach(input => {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          saveBtn?.dispatchEvent(new MouseEvent('click'));
+        }
+      });
+    });
+
     closeBtn?.addEventListener('click', () => this.close());
     cancelBtn?.addEventListener('click', () => this.close());
 
@@ -141,6 +157,10 @@ export class MetadataDialog {
       if (creatorInput) creatorInput.value = 'ZephyrPDF';
       if (keywordsInput) keywordsInput.value = '';
       if (subjectInput) subjectInput.value = '';
+      const label = card.querySelector('#sanitize-label');
+      if (label) {
+        label.textContent = 'Metadata sanitized! Click "Save Changes" to apply.';
+      }
     });
 
     saveBtn?.addEventListener('click', () => {

@@ -122,4 +122,39 @@ describe('Document Metadata and Annotation Backup', () => {
     expect(manager.getAnnotation('ann-1')?.type).toBe('stamp');
     expect(manager.getAnnotation('ann-2')?.type).toBe('sticky_note');
   });
+
+  it('sanitizes personal traces and author metadata while preserving technical specs', () => {
+    const originalMeta: DocumentMetadata = {
+      title: 'Confidential Internal Review',
+      author: 'Jane Doe <jane@company.com>',
+      subject: 'Financial Disclosures Q3',
+      keywords: 'q3, confidential, finances',
+      creator: 'Microsoft Word for Mac 16.5',
+      pageCount: 12,
+      fileSize: 1048576,
+      fileName: 'Financials.pdf',
+      pdfVersion: 'PDF 1.7'
+    };
+
+    const sanitizeMetadata = (meta: DocumentMetadata): DocumentMetadata => {
+      return {
+        ...meta,
+        author: undefined,
+        subject: undefined,
+        keywords: undefined,
+        creator: 'ZephyrPDF',
+        modificationDate: new Date()
+      };
+    };
+
+    const sanitized = sanitizeMetadata(originalMeta);
+    expect(sanitized.title).toBe('Confidential Internal Review');
+    expect(sanitized.author).toBeUndefined();
+    expect(sanitized.subject).toBeUndefined();
+    expect(sanitized.keywords).toBeUndefined();
+    expect(sanitized.creator).toBe('ZephyrPDF');
+    expect(sanitized.pageCount).toBe(12);
+    expect(sanitized.fileSize).toBe(1048576);
+    expect(sanitized.modificationDate).toBeInstanceOf(Date);
+  });
 });
