@@ -38,20 +38,23 @@ export class SignatureDialog {
     const card = document.createElement('div');
     card.className = 'modal-card';
     card.style.maxWidth = '550px';
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('aria-modal', 'true');
+    card.setAttribute('aria-labelledby', 'sig-dialog-title');
 
     card.innerHTML = `
       <div class="modal-header">
-        <h3>Create Signature</h3>
+        <h3 id="sig-dialog-title" style="margin: 0; font-size: 1.15rem;">Create Signature</h3>
         <button class="icon-btn" id="close-sig-btn" aria-label="Close dialog" title="Close dialog">✕</button>
       </div>
       <div class="modal-body">
-        <div style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
-          <button class="btn ${this.activeTab === 'draw' ? 'btn-primary' : ''}" id="tab-draw-btn">Draw</button>
-          <button class="btn ${this.activeTab === 'type' ? 'btn-primary' : ''}" id="tab-type-btn">Type</button>
-          <button class="btn ${this.activeTab === 'upload' ? 'btn-primary' : ''}" id="tab-upload-btn">Upload Image</button>
+        <div role="tablist" aria-label="Signature Creation Methods" style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+          <button class="btn ${this.activeTab === 'draw' ? 'btn-primary' : ''}" role="tab" id="tab-draw-btn" aria-selected="${this.activeTab === 'draw'}" aria-controls="sig-panel-draw">Draw</button>
+          <button class="btn ${this.activeTab === 'type' ? 'btn-primary' : ''}" role="tab" id="tab-type-btn" aria-selected="${this.activeTab === 'type'}" aria-controls="sig-panel-type">Type</button>
+          <button class="btn ${this.activeTab === 'upload' ? 'btn-primary' : ''}" role="tab" id="tab-upload-btn" aria-selected="${this.activeTab === 'upload'}" aria-controls="sig-panel-upload">Upload Image</button>
         </div>
 
-        <div id="sig-panel-draw" style="display: ${this.activeTab === 'draw' ? 'block' : 'none'};">
+        <div id="sig-panel-draw" role="tabpanel" aria-labelledby="tab-draw-btn" style="display: ${this.activeTab === 'draw' ? 'block' : 'none'};">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <span style="font-size: 0.85rem; color: var(--text-secondary);">Draw your signature below using mouse or pen</span>
             <div style="display: flex; gap: 6px;">
@@ -63,16 +66,16 @@ export class SignatureDialog {
           </div>
         </div>
 
-        <div id="sig-panel-type" style="display: ${this.activeTab === 'type' ? 'block' : 'none'};">
-          <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px;">Your Name:</label>
+        <div id="sig-panel-type" role="tabpanel" aria-labelledby="tab-type-btn" style="display: ${this.activeTab === 'type' ? 'block' : 'none'};">
+          <label for="type-name-input" style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px;">Your Name:</label>
           <input type="text" id="type-name-input" placeholder="e.g. Jane Doe" style="width: 100%; padding: 8px 12px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-size: 1rem; margin-bottom: 16px;" value="Alex Mercer" />
           <div style="background: white; padding: 24px; border-radius: 6px; text-align: center; border: 1px solid var(--border-color);">
             <span id="cursive-preview" style="font-family: 'Brush Script MT', 'Dancing Script', cursive, sans-serif; font-size: 2.2rem; color: #1565c0;">Alex Mercer</span>
           </div>
         </div>
 
-        <div id="sig-panel-upload" style="display: ${this.activeTab === 'upload' ? 'block' : 'none'};">
-          <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px;">Upload PNG or JPG image of signature:</label>
+        <div id="sig-panel-upload" role="tabpanel" aria-labelledby="tab-upload-btn" style="display: ${this.activeTab === 'upload' ? 'block' : 'none'};">
+          <label for="upload-sig-input" style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px;">Upload PNG or JPG image of signature:</label>
           <input type="file" id="upload-sig-input" accept="image/png, image/jpeg" style="margin-bottom: 12px;" />
           <div id="upload-preview-wrapper" style="text-align: center; background: white; padding: 16px; border-radius: 6px; display: none;">
             <img id="upload-preview-img" style="max-height: 120px; max-width: 100%;" />
@@ -123,6 +126,9 @@ export class SignatureDialog {
       tabDraw.classList.add('btn-primary');
       tabType?.classList.remove('btn-primary');
       tabUpload?.classList.remove('btn-primary');
+      tabDraw.setAttribute('aria-selected', 'true');
+      tabType?.setAttribute('aria-selected', 'false');
+      tabUpload?.setAttribute('aria-selected', 'false');
       panelDraw.style.display = 'block';
       panelType.style.display = 'none';
       panelUpload.style.display = 'none';
@@ -133,9 +139,16 @@ export class SignatureDialog {
       tabType.classList.add('btn-primary');
       tabDraw?.classList.remove('btn-primary');
       tabUpload?.classList.remove('btn-primary');
+      tabType.setAttribute('aria-selected', 'true');
+      tabDraw?.setAttribute('aria-selected', 'false');
+      tabUpload?.setAttribute('aria-selected', 'false');
       panelDraw.style.display = 'none';
       panelType.style.display = 'block';
       panelUpload.style.display = 'none';
+      setTimeout(() => {
+        typeInput?.focus();
+        typeInput?.select();
+      }, 50);
     });
 
     tabUpload?.addEventListener('click', () => {
@@ -143,9 +156,19 @@ export class SignatureDialog {
       tabUpload.classList.add('btn-primary');
       tabDraw?.classList.remove('btn-primary');
       tabType?.classList.remove('btn-primary');
+      tabUpload.setAttribute('aria-selected', 'true');
+      tabDraw?.setAttribute('aria-selected', 'false');
+      tabType?.setAttribute('aria-selected', 'false');
       panelDraw.style.display = 'none';
       panelType.style.display = 'none';
       panelUpload.style.display = 'block';
+    });
+
+    typeInput?.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        (saveBtn as HTMLButtonElement)?.click();
+      }
     });
 
     // Drawing Canvas

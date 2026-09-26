@@ -1905,6 +1905,10 @@ class ZephyrPDFApp {
   }
 
   public openSignatureDialog(): void {
+    if (!this.currentDoc) {
+      NotificationService.show('Open a PDF document first before creating signatures.', 3000, true);
+      return;
+    }
     new SignatureDialog((dataUrl) => {
       this.activeSignature = dataUrl;
       this.setActiveTool('signature');

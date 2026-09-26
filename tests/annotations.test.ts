@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { AnnotationManager } from '../src/annotations/manager';
 import { HistoryManager } from '../src/core/history';
-import { HighlightAnnotation, TextAnnotation, StampAnnotation, MarkupAnnotation, LineAnnotation } from '../src/types/annotations';
+import { HighlightAnnotation, TextAnnotation, StampAnnotation, MarkupAnnotation, LineAnnotation, SignatureAnnotation } from '../src/types/annotations';
 import { PdfExporter } from '../src/export/pdf-exporter';
 import { PageManager } from '../src/organizer/page-manager';
 import { createSamplePdf } from '../src/utils/samples';
@@ -175,5 +175,35 @@ describe('AnnotationManager', () => {
 
     const doc = await PDFDocument.load(exported);
     expect(doc.getPageCount()).toBe(1);
+  });
+
+  it('should create, select, and manage digital signature annotations with history', () => {
+    const sigAnn: SignatureAnnotation = {
+      id: 'sig_test_1',
+      type: 'signature',
+      pageIndex: 0,
+      dataUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+      x: 120,
+      y: 350,
+      width: 160,
+      height: 60,
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    manager.addAnnotation(sigAnn);
+    manager.selectAnnotation('sig_test_1');
+
+    expect(manager.getAnnotation('sig_test_1')).toBeDefined();
+    expect(manager.getSelectedId()).toBe('sig_test_1');
+    expect(manager.getAnnotationsForPage(0).length).toBe(1);
+
+    history.undo();
+    expect(manager.getAllAnnotations().length).toBe(0);
+    expect(manager.getSelectedId()).toBeNull();
+
+    history.redo();
+    expect(manager.getAllAnnotations().length).toBe(1);
+    expect(manager.getAnnotation('sig_test_1')?.type).toBe('signature');
   });
 });
