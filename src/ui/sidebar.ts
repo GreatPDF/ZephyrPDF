@@ -82,8 +82,13 @@ export class AppSidebar {
     list.innerHTML = '';
     for (const thumb of thumbnails) {
       const item = document.createElement('div');
-      item.className = `thumbnail-item ${thumb.pageNumber === this.currentPage ? 'active' : ''}`;
+      const isCurrent = thumb.pageNumber === this.currentPage;
+      item.className = `thumbnail-item ${isCurrent ? 'active' : ''}`;
       item.setAttribute('data-page', thumb.pageNumber.toString());
+      item.setAttribute('role', 'button');
+      item.setAttribute('tabindex', '0');
+      item.setAttribute('aria-label', `Page ${thumb.pageNumber}${isCurrent ? ', current page' : ''}. Click to jump to page`);
+      item.setAttribute('aria-current', isCurrent ? 'page' : 'false');
 
       const rot = thumb.rotation || 0;
       const imgContent = thumb.dataUrl
@@ -102,6 +107,27 @@ export class AppSidebar {
         this.events.onPageSelect(thumb.pageNumber);
         if (window.innerWidth <= 768) {
           this.close();
+        }
+      });
+
+      item.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          item.click();
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const next = item.nextElementSibling as HTMLElement;
+          if (next && next.classList.contains('thumbnail-item')) {
+            next.focus();
+            next.click();
+          }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          const prev = item.previousElementSibling as HTMLElement;
+          if (prev && prev.classList.contains('thumbnail-item')) {
+            prev.focus();
+            prev.click();
+          }
         }
       });
 
@@ -365,6 +391,9 @@ export class AppSidebar {
     this.container.querySelectorAll('.thumbnail-item').forEach(item => {
       const isActive = item.getAttribute('data-page') === pageNumber.toString();
       item.classList.toggle('active', isActive);
+      item.setAttribute('aria-current', isActive ? 'page' : 'false');
+      const pageNum = item.getAttribute('data-page');
+      item.setAttribute('aria-label', `Page ${pageNum}${isActive ? ', current page' : ''}. Click to jump to page`);
       if (isActive) activeItem = item as HTMLElement;
     });
     if (activeItem) {

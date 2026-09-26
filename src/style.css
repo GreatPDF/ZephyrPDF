@@ -503,6 +503,11 @@ button.btn.btn-primary:hover {
   background-color: var(--accent-light);
 }
 
+.thumbnail-item:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
 .thumbnail-image-wrapper {
   background: white;
   box-shadow: var(--shadow-md);

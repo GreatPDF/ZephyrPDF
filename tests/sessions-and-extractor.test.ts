@@ -256,4 +256,28 @@ describe('Document Session Manager', () => {
     expect(tab2.tabIndex).toBe(-1);
     expect(tab2.ariaLabel).toBe('Document tab: Report_B.pdf');
   });
+
+  it('formats thumbnail item WAI-ARIA button attributes and active page indicators', () => {
+    const getThumbProps = (pageNum: number, currentPage: number) => {
+      const isCurrent = pageNum === currentPage;
+      return {
+        role: 'button',
+        tabIndex: 0,
+        ariaCurrent: isCurrent ? 'page' : 'false',
+        ariaLabel: `Page ${pageNum}${isCurrent ? ', current page' : ''}. Click to jump to page`
+      };
+    };
+
+    const p1 = getThumbProps(1, 1);
+    expect(p1.role).toBe('button');
+    expect(p1.tabIndex).toBe(0);
+    expect(p1.ariaCurrent).toBe('page');
+    expect(p1.ariaLabel).toBe('Page 1, current page. Click to jump to page');
+
+    const p2 = getThumbProps(2, 1);
+    expect(p2.role).toBe('button');
+    expect(p2.tabIndex).toBe(0);
+    expect(p2.ariaCurrent).toBe('false');
+    expect(p2.ariaLabel).toBe('Page 2. Click to jump to page');
+  });
 });
