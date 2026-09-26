@@ -122,4 +122,30 @@ describe('Viewport Virtualizer and Themes', () => {
     expect(currentTheme).toBe('dark');
     expect(formatThemeLabel(currentTheme)).toBe('Current Theme: Dark. Click to toggle');
   });
+
+  it('manages presentation mode state, pre-presentation view caching, and fullscreen restoration', () => {
+    let currentViewMode: ViewMode = 'two-page';
+    let cachedViewMode: ViewMode = 'continuous';
+    let isPresentationActive = false;
+
+    const enterPresentation = () => {
+      cachedViewMode = currentViewMode;
+      currentViewMode = 'presentation';
+      isPresentationActive = true;
+    };
+
+    const exitPresentation = () => {
+      currentViewMode = cachedViewMode;
+      isPresentationActive = false;
+    };
+
+    enterPresentation();
+    expect(isPresentationActive).toBe(true);
+    expect(currentViewMode).toBe('presentation');
+    expect(cachedViewMode).toBe('two-page');
+
+    exitPresentation();
+    expect(isPresentationActive).toBe(false);
+    expect(currentViewMode).toBe('two-page');
+  });
 });

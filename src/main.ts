@@ -200,6 +200,12 @@ class ZephyrPDFApp {
           this.scrollToPage(this.currentPageNumber);
           NotificationService.show('Single Page View enabled');
         } else if (mode === 'presentation') {
+          if (!this.currentDoc) {
+            NotificationService.show('Open a PDF document first.', 3000, true);
+            const select = document.getElementById('view-mode-select') as HTMLSelectElement;
+            if (select) select.value = 'continuous';
+            return;
+          }
           this.togglePresentationMode();
           NotificationService.show('Presentation Mode enabled');
         } else {
@@ -1779,6 +1785,10 @@ class ZephyrPDFApp {
   }
 
   public togglePresentationMode(): void {
+    if (!this.currentDoc) {
+      NotificationService.show('Open a PDF document first.', 3000, true);
+      return;
+    }
     const isEntering = !document.fullscreenElement && !document.body.classList.contains('presentation-mode');
     if (isEntering) {
       const select = document.getElementById('view-mode-select') as HTMLSelectElement;
