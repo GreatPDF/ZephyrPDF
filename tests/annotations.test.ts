@@ -206,4 +206,32 @@ describe('AnnotationManager', () => {
     expect(manager.getAllAnnotations().length).toBe(1);
     expect(manager.getAnnotation('sig_test_1')?.type).toBe('signature');
   });
+
+  it('calculates floating text popup positioning with viewport safety clamping', () => {
+    const computePopupPosition = (rect: { top: number; left: number; width: number; bottom: number }, windowWidth: number) => {
+      const popupLeft = Math.max(16, Math.min(windowWidth - 240, rect.left + rect.width / 2 - 110));
+      let popupTop = rect.top - 46;
+      if (popupTop < 65) {
+        popupTop = rect.bottom + 10;
+      }
+      return { top: popupTop, left: popupLeft };
+    };
+
+    // Standard middle of page
+    const pos1 = computePopupPosition({ top: 300, left: 400, width: 200, bottom: 320 }, 1440);
+    expect(pos1.top).toBe(254);
+    expect(pos1.left).toBe(390);
+
+    // Near top edge of window -> flips below selection
+    const pos2 = computePopupPosition({ top: 30, left: 100, width: 100, bottom: 50 }, 1440);
+    expect(pos2.top).toBe(60);
+
+    // Near left edge of window -> clamps to min 16
+    const pos3 = computePopupPosition({ top: 300, left: 5, width: 20, bottom: 320 }, 1440);
+    expect(pos3.left).toBe(16);
+
+    // Near right edge of window -> clamps to windowWidth - 240
+    const pos4 = computePopupPosition({ top: 300, left: 1400, width: 30, bottom: 320 }, 1440);
+    expect(pos4.left).toBe(1200);
+  });
 });

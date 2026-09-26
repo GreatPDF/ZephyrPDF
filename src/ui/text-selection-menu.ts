@@ -22,6 +22,8 @@ export class TextSelectionMenu {
     this.menuEl.style.display = 'none';
     this.menuEl.style.position = 'fixed';
     this.menuEl.style.zIndex = '50';
+    this.menuEl.setAttribute('role', 'toolbar');
+    this.menuEl.setAttribute('aria-label', 'Text selection actions');
     document.body.appendChild(this.menuEl);
 
     this.render();
@@ -102,6 +104,12 @@ export class TextSelectionMenu {
         this.hide();
       }
     }, { passive: true });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.menuEl.style.display !== 'none') {
+        this.hide();
+      }
+    });
   }
 
   private checkSelection(): void {
