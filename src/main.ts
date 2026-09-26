@@ -1904,6 +1904,7 @@ class ZephyrPDFApp {
   public setTheme(theme: ThemeMode): void {
     this.currentTheme = theme;
     document.documentElement.setAttribute('data-theme', theme);
+    this.toolbar.setTheme(theme);
     this.renderDocument();
     NotificationService.show(`Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)}`);
   }

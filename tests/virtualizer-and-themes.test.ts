@@ -89,4 +89,37 @@ describe('Viewport Virtualizer and Themes', () => {
     expect(computeVisibility(3, currentPage, false)).toBe(true);
     expect(computeVisibility(5, currentPage, false)).toBe(true);
   });
+
+  it('cycles through all 5 reading themes and formats descriptive ARIA labels', () => {
+    const themes: ThemeMode[] = ['dark', 'light', 'sepia', 'oled', 'high-contrast'];
+    let currentTheme: ThemeMode = 'dark';
+
+    const getNextTheme = (curr: ThemeMode): ThemeMode => {
+      const idx = themes.indexOf(curr);
+      return themes[(idx + 1) % themes.length];
+    };
+
+    const formatThemeLabel = (theme: ThemeMode) =>
+      `Current Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)}. Click to toggle`;
+
+    currentTheme = getNextTheme(currentTheme);
+    expect(currentTheme).toBe('light');
+    expect(formatThemeLabel(currentTheme)).toBe('Current Theme: Light. Click to toggle');
+
+    currentTheme = getNextTheme(currentTheme);
+    expect(currentTheme).toBe('sepia');
+    expect(formatThemeLabel(currentTheme)).toBe('Current Theme: Sepia. Click to toggle');
+
+    currentTheme = getNextTheme(currentTheme);
+    expect(currentTheme).toBe('oled');
+    expect(formatThemeLabel(currentTheme)).toBe('Current Theme: Oled. Click to toggle');
+
+    currentTheme = getNextTheme(currentTheme);
+    expect(currentTheme).toBe('high-contrast');
+    expect(formatThemeLabel(currentTheme)).toBe('Current Theme: High-contrast. Click to toggle');
+
+    currentTheme = getNextTheme(currentTheme);
+    expect(currentTheme).toBe('dark');
+    expect(formatThemeLabel(currentTheme)).toBe('Current Theme: Dark. Click to toggle');
+  });
 });

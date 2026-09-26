@@ -61,6 +61,16 @@ export class AppToolbar {
   public getActiveTheme(): ThemeMode { return this.activeTheme; }
   public getActiveZoom(): number { return this.activeZoom; }
 
+  public setTheme(theme: ThemeMode): void {
+    this.activeTheme = theme;
+    const btn = document.getElementById('theme-toggle-btn');
+    if (btn) {
+      const label = `Current Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)}. Click to toggle`;
+      btn.setAttribute('aria-label', label);
+      btn.setAttribute('title', label);
+    }
+  }
+
   public setActiveTool(tool: ToolType): void {
     this.activeTool = tool;
     this.container.querySelectorAll('.tool-btn').forEach(btn => {
@@ -445,7 +455,7 @@ export class AppToolbar {
       const themes: ThemeMode[] = ['dark', 'light', 'sepia', 'oled', 'high-contrast'];
       const currentIdx = themes.indexOf(this.activeTheme);
       const nextTheme = themes[(currentIdx + 1) % themes.length];
-      this.activeTheme = nextTheme;
+      this.setTheme(nextTheme);
       this.events.onThemeToggle(nextTheme);
     });
 
