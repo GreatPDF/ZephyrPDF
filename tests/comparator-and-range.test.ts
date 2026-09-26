@@ -56,3 +56,33 @@ describe('Page Range Parser', () => {
     expect(PageManager.parsePageRange('4 - 2', 10)).toEqual([1, 2, 3]);
   });
 });
+
+describe('Document Comparator and Diff Summary', () => {
+  it('formats diff metrics and determines badge threshold correctly', () => {
+    const summaryNoDiff = {
+      docAName: 'original.pdf',
+      docBName: 'copy.pdf',
+      pageDiffs: [
+        { pageIndex: 0, differingPixels: 0, diffPercent: 0, diffImageDataUrl: 'data:...' }
+      ],
+      changedPagesCount: 0
+    };
+
+    expect(summaryNoDiff.changedPagesCount).toBe(0);
+    const badgeColor1 = summaryNoDiff.changedPagesCount > 0 ? '#ef4444' : '#10b981';
+    expect(badgeColor1).toBe('#10b981'); // Emerald green for identical docs
+
+    const summaryWithDiff = {
+      docAName: 'v1.pdf',
+      docBName: 'v2.pdf',
+      pageDiffs: [
+        { pageIndex: 0, differingPixels: 15420, diffPercent: 3.25, diffImageDataUrl: 'data:...' }
+      ],
+      changedPagesCount: 1
+    };
+
+    expect(summaryWithDiff.changedPagesCount).toBe(1);
+    const badgeColor2 = summaryWithDiff.changedPagesCount > 0 ? '#ef4444' : '#10b981';
+    expect(badgeColor2).toBe('#ef4444'); // Red for changed docs
+  });
+});

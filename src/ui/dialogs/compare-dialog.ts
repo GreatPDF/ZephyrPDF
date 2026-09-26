@@ -19,6 +19,19 @@ export class CompareDialog {
         const card = this.backdrop?.querySelector('.modal-card') as HTMLElement;
         if (card) this.updatePage(card);
       }
+    } else if (e.key === 'Home') {
+      if (this.currentPageIndex !== 0) {
+        this.currentPageIndex = 0;
+        const card = this.backdrop?.querySelector('.modal-card') as HTMLElement;
+        if (card) this.updatePage(card);
+      }
+    } else if (e.key === 'End') {
+      const last = this.summary.pageDiffs.length - 1;
+      if (this.currentPageIndex !== last && last >= 0) {
+        this.currentPageIndex = last;
+        const card = this.backdrop?.querySelector('.modal-card') as HTMLElement;
+        if (card) this.updatePage(card);
+      }
     }
   };
 
@@ -96,7 +109,7 @@ export class CompareDialog {
         <span style="font-size: 0.8rem; color: var(--text-muted);" id="diff-stats-label">
           ${currentDiff ? `Difference: ${currentDiff.diffPercent}% (${currentDiff.differingPixels.toLocaleString()} pixels)` : ''}
         </span>
-        <button class="btn btn-primary" id="ok-compare-btn">Done</button>
+        <button class="btn btn-primary" id="ok-compare-btn" aria-label="Done">Done</button>
       </div>
     `;
 
@@ -110,6 +123,12 @@ export class CompareDialog {
     });
 
     this.setupListeners(card);
+    this.updatePage(card);
+
+    setTimeout(() => {
+      const okBtn = card.querySelector('#ok-compare-btn') as HTMLButtonElement;
+      okBtn?.focus();
+    }, 50);
   }
 
   private updatePage(card: HTMLElement): void {
@@ -118,6 +137,11 @@ export class CompareDialog {
 
     const indicator = card.querySelector('#diff-page-indicator');
     if (indicator) indicator.textContent = `Page ${this.currentPageIndex + 1} of ${totalPages}`;
+
+    const prevBtn = card.querySelector('#prev-diff-page') as HTMLButtonElement | null;
+    const nextBtn = card.querySelector('#next-diff-page') as HTMLButtonElement | null;
+    if (prevBtn) prevBtn.disabled = this.currentPageIndex === 0;
+    if (nextBtn) nextBtn.disabled = this.currentPageIndex >= totalPages - 1;
 
     const stats = card.querySelector('#diff-stats-label');
     if (stats) {
