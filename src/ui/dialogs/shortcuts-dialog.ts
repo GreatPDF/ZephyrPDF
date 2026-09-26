@@ -83,6 +83,7 @@ export class ShortcutsDialog {
         <div class="shortcut-row"><span>Undo / Redo</span><div><span class="shortcut-kbd">Ctrl + Z</span> / <span class="shortcut-kbd">Ctrl + Y</span></div></div>
         <div class="shortcut-row"><span>Find / Search in Text</span><span class="shortcut-kbd">Ctrl + F</span></div>
         <div class="shortcut-row"><span>Save & Export PDF</span><span class="shortcut-kbd">Ctrl + S</span></div>
+        <div class="shortcut-row"><span>Flatten & Save Forms</span><span class="shortcut-kbd">Ctrl + Shift + S</span></div>
         <div class="shortcut-row"><span>Open New PDF</span><span class="shortcut-kbd">Ctrl + O</span></div>
         <div class="shortcut-row"><span>Print Document</span><span class="shortcut-kbd">Ctrl + P</span></div>
         <div class="shortcut-row"><span>Show Shortcuts</span><span class="shortcut-kbd">?</span></div>

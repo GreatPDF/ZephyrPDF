@@ -195,4 +195,43 @@ describe('Measurement and Flattening', () => {
     const exportedDoc = await PDFDocument.load(exportedBytes);
     expect(exportedDoc.getPageCount()).toBe(2);
   });
+
+  it('should permanently flatten AcroForm fields into static page content when flattenForm is true', async () => {
+    const doc = await PDFDocument.create();
+    const page = doc.addPage([595, 842]);
+    const form = doc.getForm();
+    const textField = form.createTextField('client_name');
+    textField.setText('Alex Maintainer');
+    textField.addToPage(page, { x: 50, y: 700, width: 200, height: 24 });
+
+    const checkbox = form.createCheckBox('agreement');
+    checkbox.check();
+    checkbox.addToPage(page, { x: 50, y: 650, width: 20, height: 20 });
+
+    const unflattenedBytes = await doc.save();
+
+    // Verify unflattened doc has interactive form fields
+    const testDoc = await PDFDocument.load(unflattenedBytes);
+    expect(testDoc.getForm().getFields().length).toBe(2);
+
+    // Export with flattenForm = true
+    const pm = new PageManager(new HistoryManager());
+    pm.initFromDocument(1, [{ width: 595, height: 842, rotation: 0 }]);
+    const am = new AnnotationManager(new HistoryManager());
+    const fh = new FormHandler();
+    fh.loadFromPdf(testDoc);
+
+    const flattenedBytes = await PdfExporter.exportDocument(
+      unflattenedBytes,
+      pm,
+      am,
+      fh,
+      undefined,
+      true // flattenForm = true
+    );
+
+    const reloaded = await PDFDocument.load(flattenedBytes);
+    // After flattening, AcroForm fields are removed from the interactive dictionary
+    expect(reloaded.getForm().getFields().length).toBe(0);
+  });
 });

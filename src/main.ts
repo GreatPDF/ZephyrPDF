@@ -920,7 +920,7 @@ class ZephyrPDFApp {
         this.history.redo();
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
-        this.exportPdf();
+        this.exportPdf(e.shiftKey);
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'o') {
         e.preventDefault();
         this.triggerFilePicker();
