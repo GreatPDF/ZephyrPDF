@@ -192,6 +192,7 @@ class ZephyrPDFApp {
               this.setZoom(targetScale);
             }
           }
+          this.scrollToPage(this.currentPageNumber);
           NotificationService.show('Two-Page Spread View enabled');
         } else if (mode === 'single') {
           viewerContainer?.classList.add('mode-single');
@@ -202,6 +203,9 @@ class ZephyrPDFApp {
           this.togglePresentationMode();
           NotificationService.show('Presentation Mode enabled');
         } else {
+          const allPages = document.querySelectorAll('.page-container');
+          allPages.forEach(p => p.classList.remove('active-single-page'));
+          this.scrollToPage(this.currentPageNumber);
           NotificationService.show('Continuous Scroll View enabled');
         }
       },

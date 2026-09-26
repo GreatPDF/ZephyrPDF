@@ -71,4 +71,22 @@ describe('Viewport Virtualizer and Themes', () => {
     expect(targetScale).toBeLessThanOrEqual(1.0);
     expect(targetScale * (pageWidth * 2 + 40)).toBeLessThanOrEqual(avail);
   });
+
+  it('toggles single-page active visibility and stabilizes current page on view mode transitions', () => {
+    const currentPage = 3;
+
+    const computeVisibility = (page: number, current: number, isSingle: boolean) => {
+      if (!isSingle) return true;
+      return page === current;
+    };
+
+    expect(computeVisibility(1, currentPage, true)).toBe(false);
+    expect(computeVisibility(3, currentPage, true)).toBe(true);
+    expect(computeVisibility(5, currentPage, true)).toBe(false);
+
+    // Continuous mode
+    expect(computeVisibility(1, currentPage, false)).toBe(true);
+    expect(computeVisibility(3, currentPage, false)).toBe(true);
+    expect(computeVisibility(5, currentPage, false)).toBe(true);
+  });
 });
