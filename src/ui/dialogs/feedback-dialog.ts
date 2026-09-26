@@ -13,6 +13,7 @@ export interface FeedbackContext {
 export class FeedbackDialog {
   private backdrop: HTMLElement | null = null;
   private context: FeedbackContext;
+  private recipient: string = 'greatpdf@ik.me';
   private onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       this.close();
@@ -72,6 +73,11 @@ export class FeedbackDialog {
     return { subject: cleanSubject, body };
   }
 
+  public buildMailtoUrl(type: string, subject: string, description: string, includeDiag: boolean): string {
+    const report = this.formatReport(type, subject, description, includeDiag);
+    return `mailto:${this.recipient}?subject=${encodeURIComponent(report.subject)}&body=${encodeURIComponent(report.body)}`;
+  }
+
   private render(): void {
     this.backdrop = document.createElement('div');
     this.backdrop.className = 'modal-backdrop';
@@ -88,7 +94,7 @@ export class FeedbackDialog {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><line x1="9" y1="10" x2="9.01" y2="10" stroke-width="3"></line><line x1="12" y1="10" x2="12.01" y2="10" stroke-width="3"></line><line x1="15" y1="10" x2="15.01" y2="10" stroke-width="3"></line></svg>
           <h3 style="margin: 0; font-size: 1.15rem;">Feedback & Bug Report</h3>
         </div>
-        <button class="icon-btn" id="close-feedback-btn" title="Close (Esc)">✕</button>
+        <button class="icon-btn" id="close-feedback-btn" aria-label="Close dialog" title="Close (Esc)">✕</button>
       </div>
       <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
         <p style="margin: 0; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.4;">
@@ -98,7 +104,7 @@ export class FeedbackDialog {
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
           <div style="flex: 1; min-width: 140px;">
             <label for="feedback-type" style="display: block; font-size: 0.78rem; font-weight: 600; margin-bottom: 4px; color: var(--text-secondary);">Type</label>
-            <select id="feedback-type" style="width: 100%; height: 32px; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; padding: 4px 8px; font-size: 0.85rem;">
+            <select id="feedback-type" aria-label="Feedback type" style="width: 100%; height: 32px; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; padding: 4px 8px; font-size: 0.85rem;">
               <option value="Bug Report">Bug Report</option>
               <option value="Feature Request">Feature Request</option>
               <option value="General Feedback">General Feedback</option>
@@ -106,17 +112,17 @@ export class FeedbackDialog {
           </div>
           <div style="flex: 2; min-width: 200px;">
             <label for="feedback-subject" style="display: block; font-size: 0.78rem; font-weight: 600; margin-bottom: 4px; color: var(--text-secondary);">Subject / Title</label>
-            <input type="text" id="feedback-subject" placeholder="Brief summary of the issue or idea..." style="width: 100%; height: 32px; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; padding: 4px 8px; font-size: 0.85rem; box-sizing: border-box;" />
+            <input type="text" id="feedback-subject" aria-label="Feedback subject" placeholder="Brief summary of the issue or idea..." style="width: 100%; height: 32px; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; padding: 4px 8px; font-size: 0.85rem; box-sizing: border-box;" />
           </div>
         </div>
 
         <div>
           <label for="feedback-desc" style="display: block; font-size: 0.78rem; font-weight: 600; margin-bottom: 4px; color: var(--text-secondary);">Details / Description</label>
-          <textarea id="feedback-desc" rows="5" placeholder="What happened? What did you expect to happen? Steps to reproduce..." style="width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; padding: 8px; font-size: 0.85rem; resize: vertical; box-sizing: border-box; font-family: inherit;"></textarea>
+          <textarea id="feedback-desc" aria-label="Feedback details" rows="5" placeholder="What happened? What did you expect to happen? Steps to reproduce..." style="width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; padding: 8px; font-size: 0.85rem; resize: vertical; box-sizing: border-box; font-family: inherit;"></textarea>
         </div>
 
         <div style="display: flex; align-items: center; gap: 8px;">
-          <input type="checkbox" id="feedback-include-diag" checked style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--accent-color);" />
+          <input type="checkbox" id="feedback-include-diag" aria-label="Include environment diagnostics" checked style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--accent-color);" />
           <label for="feedback-include-diag" style="font-size: 0.8rem; color: var(--text-secondary); cursor: pointer; user-select: none;">
             Include environment diagnostics (browser, OS, viewport, app state)
           </label>
@@ -133,11 +139,11 @@ export class FeedbackDialog {
         </div>
       </div>
       <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 8px;">
-        <button class="btn" id="feedback-cancel-btn">Cancel</button>
-        <button class="btn" id="feedback-copy-btn" title="Copy report to clipboard to paste into any email or chat">
+        <button class="btn" id="feedback-cancel-btn" aria-label="Cancel">Cancel</button>
+        <button class="btn" id="feedback-copy-btn" aria-label="Copy report to clipboard" title="Copy report to clipboard to paste into any email or chat">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy Report
         </button>
-        <button class="btn btn-primary" id="feedback-send-btn" title="Open your default email client with pre-filled report">
+        <button class="btn btn-primary" id="feedback-send-btn" aria-label="Send email report" title="Open your default email client with pre-filled report">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>Send Email
         </button>
       </div>
@@ -151,12 +157,23 @@ export class FeedbackDialog {
 
     const closeBtn = card.querySelector('#close-feedback-btn');
     const cancelBtn = card.querySelector('#feedback-cancel-btn');
-    const copyBtn = card.querySelector('#feedback-copy-btn');
-    const sendBtn = card.querySelector('#feedback-send-btn');
+    const copyBtn = card.querySelector('#feedback-copy-btn') as HTMLButtonElement;
+    const sendBtn = card.querySelector('#feedback-send-btn') as HTMLButtonElement;
     const typeSelect = card.querySelector('#feedback-type') as HTMLSelectElement;
     const subjectInput = card.querySelector('#feedback-subject') as HTMLInputElement;
     const descInput = card.querySelector('#feedback-desc') as HTMLTextAreaElement;
     const includeDiagCheckbox = card.querySelector('#feedback-include-diag') as HTMLInputElement;
+
+    setTimeout(() => {
+      subjectInput?.focus();
+    }, 50);
+
+    descInput?.addEventListener('keydown', (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        copyBtn?.click();
+      }
+    });
 
     const doClose = () => this.close();
     closeBtn?.addEventListener('click', doClose);
@@ -197,8 +214,7 @@ export class FeedbackDialog {
       const desc = descInput?.value || '';
       const includeDiag = includeDiagCheckbox?.checked ?? true;
 
-      const report = this.formatReport(type, subject, desc, includeDiag);
-      const mailtoUrl = `mailto:greatpdf@ik.me?subject=${encodeURIComponent(report.subject)}&body=${encodeURIComponent(report.body)}`;
+      const mailtoUrl = this.buildMailtoUrl(type, subject, desc, includeDiag);
 
       window.location.href = mailtoUrl;
       NotificationService.show('Opening email client...');

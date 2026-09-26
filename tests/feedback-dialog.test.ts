@@ -66,4 +66,13 @@ describe('FeedbackDialog', () => {
     expect(feature.subject).toBe('[ZephyrPDF Feature Request] Tabbed comparison');
     expect(general.subject).toBe('[ZephyrPDF General Feedback] Loving ZephyrPDF');
   });
+
+  it('builds encoded mailto URL targeting maintainer address', () => {
+    const dialog = new FeedbackDialog({ version: '2.12.55' });
+    const mailto = dialog.buildMailtoUrl('Bug Report', 'Canvas flickering', 'Flickers on resize', false);
+
+    expect(mailto.startsWith('mailto:greatpdf@ik.me?subject=')).toBe(true);
+    expect(mailto).toContain(encodeURIComponent('[ZephyrPDF Bug Report] Canvas flickering'));
+    expect(mailto).toContain(encodeURIComponent('Flickers on resize'));
+  });
 });
