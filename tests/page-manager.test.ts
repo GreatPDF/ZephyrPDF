@@ -190,4 +190,43 @@ describe('PageManager', () => {
     expect(reloaded.getPage(1).getSize().width).toBeCloseTo(612, 0);
     expect(reloaded.getPage(2).getSize().width).toBeCloseTo(612, 0);
   });
+
+  it('rotates pages clockwise and counter-clockwise with modulo 360 normalization and history', () => {
+    const history = new HistoryManager();
+    const pm = new PageManager(history);
+    pm.initFromDocument(2, [
+      { width: 595, height: 842, rotation: 0 },
+      { width: 595, height: 842, rotation: 0 }
+    ]);
+
+    expect(pm.getPages()[0].rotation).toBe(0);
+
+    // Rotate CW 90°
+    pm.rotatePage(0, 90);
+    expect(pm.getPages()[0].rotation).toBe(90);
+
+    // Rotate CW another 90° -> 180°
+    pm.rotatePage(0, 90);
+    expect(pm.getPages()[0].rotation).toBe(180);
+
+    // Rotate CCW 90° -> 90°
+    pm.rotatePage(0, -90);
+    expect(pm.getPages()[0].rotation).toBe(90);
+
+    // Rotate CCW another 90° -> 0°
+    pm.rotatePage(0, -90);
+    expect(pm.getPages()[0].rotation).toBe(0);
+
+    // Rotate CCW 90° from 0° -> 270°
+    pm.rotatePage(0, -90);
+    expect(pm.getPages()[0].rotation).toBe(270);
+
+    // Undo -> 0°
+    history.undo();
+    expect(pm.getPages()[0].rotation).toBe(0);
+
+    // Redo -> 270°
+    history.redo();
+    expect(pm.getPages()[0].rotation).toBe(270);
+  });
 });

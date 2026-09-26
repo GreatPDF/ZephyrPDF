@@ -532,14 +532,20 @@ class ZephyrPDFApp {
     const hudRotateCw = document.getElementById('hud-rotate-cw');
 
     hudRotateCcw?.addEventListener('click', () => {
-      if (!this.currentDoc) return;
+      if (!this.currentDoc) {
+        NotificationService.show('Open a PDF document first.', 3000, true);
+        return;
+      }
       this.pageManager.rotatePage(this.currentPageNumber - 1, -90);
       this.renderDocument();
       NotificationService.show(`Page ${this.currentPageNumber} rotated 90° CCW`);
     });
 
     hudRotateCw?.addEventListener('click', () => {
-      if (!this.currentDoc) return;
+      if (!this.currentDoc) {
+        NotificationService.show('Open a PDF document first.', 3000, true);
+        return;
+      }
       this.pageManager.rotatePage(this.currentPageNumber - 1, 90);
       this.renderDocument();
       NotificationService.show(`Page ${this.currentPageNumber} rotated 90° CW`);
@@ -954,11 +960,19 @@ class ZephyrPDFApp {
           }
         }
       } else if ((e.ctrlKey || e.metaKey) && e.key === '[') {
+        if (!this.currentDoc) {
+          NotificationService.show('Open a PDF document first.', 3000, true);
+          return;
+        }
         e.preventDefault();
         this.pageManager.rotatePage(this.currentPageNumber - 1, -90);
         this.renderDocument();
         NotificationService.show(`Page ${this.currentPageNumber} rotated 90° CCW`);
       } else if ((e.ctrlKey || e.metaKey) && e.key === ']') {
+        if (!this.currentDoc) {
+          NotificationService.show('Open a PDF document first.', 3000, true);
+          return;
+        }
         e.preventDefault();
         this.pageManager.rotatePage(this.currentPageNumber - 1, 90);
         this.renderDocument();
