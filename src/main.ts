@@ -1144,19 +1144,22 @@ class ZephyrPDFApp {
   }
 
   public openGoToPageDialog(): void {
-    if (!this.currentDoc) return;
+    if (!this.currentDoc) {
+      NotificationService.show('Open a PDF document first.', 3000, true);
+      return;
+    }
     const totalPages = this.pageManager.getPageCount();
     const modalBackdrop = document.createElement('div');
     modalBackdrop.className = 'modal-backdrop';
 
     modalBackdrop.innerHTML = `
-      <div class="modal-card" style="max-width: 320px; text-align: center;">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="goto-dialog-title" style="max-width: 320px; text-align: center;">
         <div class="modal-header">
-          <h3>Go to Page</h3>
+          <h3 id="goto-dialog-title" style="margin: 0; font-size: 1.15rem;">Go to Page</h3>
           <button class="icon-btn close-modal-btn" aria-label="Close dialog" title="Close dialog">✕</button>
         </div>
         <div class="modal-body" style="padding: 16px;">
-          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">Enter page number (1 – ${totalPages})</p>
+          <label for="goto-page-input" style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">Enter page number (1 – ${totalPages})</label>
           <input type="number" id="goto-page-input" aria-label="Target page number" min="1" max="${totalPages}" value="${this.currentPageNumber}" style="width: 100%; height: 38px; text-align: center; font-size: 1.15rem; font-weight: 600; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); outline: none;" />
         </div>
         <div class="modal-footer" style="justify-content: center; gap: 8px;">
@@ -1175,8 +1178,12 @@ class ZephyrPDFApp {
       const target = parseInt(input.value, 10);
       if (!isNaN(target) && target >= 1 && target <= totalPages) {
         this.scrollToPage(target);
+        modalBackdrop.remove();
+      } else {
+        NotificationService.show(`Please enter a valid page number between 1 and ${totalPages}.`, 3000, true);
+        input?.focus();
+        input?.select();
       }
-      modalBackdrop.remove();
     };
 
     modalBackdrop.querySelector('.jump-btn')?.addEventListener('click', doJump);

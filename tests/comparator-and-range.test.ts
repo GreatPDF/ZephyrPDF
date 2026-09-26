@@ -85,4 +85,24 @@ describe('Document Comparator and Diff Summary', () => {
     const badgeColor2 = summaryWithDiff.changedPagesCount > 0 ? '#ef4444' : '#10b981';
     expect(badgeColor2).toBe('#ef4444'); // Red for changed docs
   });
+
+  it('validates page jump targets against document total pages', () => {
+    const totalPages = 5;
+
+    const validateJumpTarget = (val: string, total: number): { valid: boolean; page?: number; error?: string } => {
+      const target = parseInt(val, 10);
+      if (!isNaN(target) && target >= 1 && target <= total) {
+        return { valid: true, page: target };
+      }
+      return { valid: false, error: `Please enter a valid page number between 1 and ${total}.` };
+    };
+
+    expect(validateJumpTarget('3', totalPages)).toEqual({ valid: true, page: 3 });
+    expect(validateJumpTarget('1', totalPages)).toEqual({ valid: true, page: 1 });
+    expect(validateJumpTarget('5', totalPages)).toEqual({ valid: true, page: 5 });
+
+    expect(validateJumpTarget('0', totalPages).valid).toBe(false);
+    expect(validateJumpTarget('6', totalPages).valid).toBe(false);
+    expect(validateJumpTarget('abc', totalPages).valid).toBe(false);
+  });
 });
