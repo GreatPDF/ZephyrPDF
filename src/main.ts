@@ -29,7 +29,7 @@ import { DocumentTabBar } from './ui/tab-bar';
 import { OrganizerModal } from './ui/organizer-modal';
 import { NotificationService } from './ui/notification';
 import { createSamplePdf } from './utils/samples';
-import { MeasureUnit, ToolType, ImageAnnotation } from './types/annotations';
+import { MeasureUnit, ToolType, ImageAnnotation, Annotation } from './types/annotations';
 import { processImageFile, ProcessedImage } from './utils/image';
 import { ThemeMode, ViewMode, WatermarkOptions, PageNumberOptions } from './types/document';
 import { PRESET_COLORS } from './utils/color';
@@ -408,40 +408,12 @@ class ZephyrPDFApp {
       onExportAnnotationReport: () => {
         const annotations = this.annotationManager.getAllAnnotations();
         if (annotations.length === 0) {
-          NotificationService.show('No annotations in document to export.');
+          NotificationService.show('No annotations in document to export.', 3000, true);
           return;
         }
 
         const fileName = this.currentDoc?.metadata.fileName || 'document.pdf';
-        let md = `# ZephyrPDF Annotation Report\n`;
-        md += `**Document:** ${fileName}\n`;
-        md += `**Export Date:** ${new Date().toLocaleString()}\n`;
-        md += `**Total Annotations:** ${annotations.length}\n\n`;
-
-        // Group by page
-        const byPage = new Map<number, any[]>();
-        for (const ann of annotations) {
-          const p = ann.pageIndex + 1;
-          if (!byPage.has(p)) byPage.set(p, []);
-          byPage.get(p)!.push(ann);
-        }
-
-        const sortedPages = Array.from(byPage.keys()).sort((a, b) => a - b);
-        for (const p of sortedPages) {
-          md += `## Page ${p}\n`;
-          for (const ann of byPage.get(p)!) {
-            let desc = '';
-            if (ann.type === 'text') desc = `"${ann.text}"`;
-            else if (ann.type === 'measure') desc = `Distance: ${ann.formattedValue}`;
-            else if (ann.type === 'stamp') desc = `Stamp: ${ann.stampType}`;
-            else if (ann.type === 'sticky_note') desc = `Comment: "${ann.content}"`;
-            else if (ann.type === 'redaction') desc = `Redaction: [${ann.overlayText || 'REDACTED'}]`;
-            else desc = `Color ${ann.color || ann.strokeColor || ''}`;
-
-            md += `- **[${ann.type.toUpperCase()}]** ${desc}\n`;
-          }
-          md += `\n`;
-        }
+        const md = this.generateAnnotationReport(annotations, fileName);
 
         try {
           navigator.clipboard?.writeText(md)?.catch?.(() => {});
@@ -458,7 +430,7 @@ class ZephyrPDFApp {
         document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(url), 2000);
 
-        NotificationService.show('Annotation report copied & downloaded!');
+        NotificationService.show(`Annotation report (${annotations.length} items) copied & downloaded!`);
       },
       onExportAnnotationJson: () => {
         const all = this.annotationManager.getAllAnnotations();
@@ -1343,6 +1315,47 @@ class ZephyrPDFApp {
         }
       });
     });
+  }
+
+  public generateAnnotationReport(annotations: Annotation[], fileName: string): string {
+    let md = `# ZephyrPDF Annotation Report\n\n`;
+    md += `**Document:** ${fileName}\n`;
+    md += `**Export Date:** ${new Date().toLocaleString()}\n`;
+    md += `**Total Annotations:** ${annotations.length}\n\n`;
+
+    // Group by page
+    const byPage = new Map<number, Annotation[]>();
+    for (const ann of annotations) {
+      const p = ann.pageIndex + 1;
+      if (!byPage.has(p)) byPage.set(p, []);
+      byPage.get(p)!.push(ann);
+    }
+
+    const sortedPages = Array.from(byPage.keys()).sort((a, b) => a - b);
+    for (const p of sortedPages) {
+      md += `## Page ${p}\n\n`;
+      for (const ann of byPage.get(p)!) {
+        let desc = '';
+        if (ann.type === 'text') desc = `"${ann.text}"`;
+        else if (ann.type === 'measure') desc = `Distance: ${ann.formattedValue || (ann.distancePt + ' pt')}`;
+        else if (ann.type === 'stamp') desc = `Stamp: ${ann.stampType}`;
+        else if (ann.type === 'sticky_note') desc = `Comment: "${ann.content || ann.title || 'Note'}"`;
+        else if (ann.type === 'redaction') desc = `Redaction: [${ann.overlayText || 'REDACTED'}]`;
+        else if (ann.type === 'highlight') desc = `Highlight (${ann.rects?.length || 1} text areas)`;
+        else if (ann.type === 'image') desc = `Image (${Math.round(ann.width)}×${Math.round(ann.height)})`;
+        else if (ann.type === 'signature') desc = `Signature`;
+        else if (ann.type === 'arrow') desc = `Arrow (${Math.round(ann.x1)}, ${Math.round(ann.y1)}) → (${Math.round(ann.x2)}, ${Math.round(ann.y2)})`;
+        else if (ann.type === 'line') desc = `Line (${Math.round(ann.x1)}, ${Math.round(ann.y1)}) → (${Math.round(ann.x2)}, ${Math.round(ann.y2)})`;
+        else if (ann.type === 'rectangle') desc = `Rectangle (${Math.round(ann.width)}×${Math.round(ann.height)})`;
+        else if (ann.type === 'ellipse') desc = `Ellipse (${Math.round(ann.width)}×${Math.round(ann.height)})`;
+        else if (ann.type === 'freehand') desc = `Pen Drawing (${ann.points?.length || 0} pts)`;
+        else desc = `Color ${(ann as any).color || (ann as any).strokeColor || ''}`;
+
+        md += `- **[${ann.type.toUpperCase()}]** ${desc}\n`;
+      }
+      md += `\n`;
+    }
+    return md;
   }
 
   public async loadSample(): Promise<void> {

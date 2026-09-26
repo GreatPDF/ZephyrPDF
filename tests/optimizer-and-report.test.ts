@@ -117,4 +117,58 @@ describe('Optimizer and Annotation Report', () => {
     expect(format(arrowAnn)).toBe('Arrow');
     expect(format(stampAnn)).toBe('Stamp: APPROVED');
   });
+
+  it('generates structured Markdown annotation summary reports grouped by page', () => {
+    const generateReport = (annotations: any[], fileName: string) => {
+      let md = `# ZephyrPDF Annotation Report\n\n`;
+      md += `**Document:** ${fileName}\n`;
+      md += `**Total Annotations:** ${annotations.length}\n\n`;
+
+      const byPage = new Map<number, any[]>();
+      for (const ann of annotations) {
+        const p = ann.pageIndex + 1;
+        if (!byPage.has(p)) byPage.set(p, []);
+        byPage.get(p)!.push(ann);
+      }
+
+      const sortedPages = Array.from(byPage.keys()).sort((a, b) => a - b);
+      for (const p of sortedPages) {
+        md += `## Page ${p}\n\n`;
+        for (const ann of byPage.get(p)!) {
+          let desc = '';
+          if (ann.type === 'text') desc = `"${ann.text}"`;
+          else if (ann.type === 'measure') desc = `Distance: ${ann.formattedValue || (ann.distancePt + ' pt')}`;
+          else if (ann.type === 'stamp') desc = `Stamp: ${ann.stampType}`;
+          else if (ann.type === 'sticky_note') desc = `Comment: "${ann.content || ann.title || 'Note'}"`;
+          else if (ann.type === 'redaction') desc = `Redaction: [${ann.overlayText || 'REDACTED'}]`;
+          else if (ann.type === 'arrow') desc = `Arrow (${Math.round(ann.x1)}, ${Math.round(ann.y1)}) → (${Math.round(ann.x2)}, ${Math.round(ann.y2)})`;
+          md += `- **[${ann.type.toUpperCase()}]** ${desc}\n`;
+        }
+        md += `\n`;
+      }
+      return md;
+    };
+
+    const items = [
+      { type: 'text', pageIndex: 0, text: 'Approved section 1' },
+      { type: 'stamp', pageIndex: 0, stampType: 'APPROVED' },
+      { type: 'arrow', pageIndex: 0, x1: 10, y1: 20, x2: 100, y2: 20 },
+      { type: 'sticky_note', pageIndex: 1, content: 'Needs revision' },
+      { type: 'measure', pageIndex: 1, formattedValue: '25.4 mm' },
+      { type: 'redaction', pageIndex: 1, overlayText: 'CONFIDENTIAL' }
+    ];
+
+    const report = generateReport(items, 'Contract.pdf');
+    expect(report).toContain('# ZephyrPDF Annotation Report');
+    expect(report).toContain('**Document:** Contract.pdf');
+    expect(report).toContain('**Total Annotations:** 6');
+    expect(report).toContain('## Page 1');
+    expect(report).toContain('- **[TEXT]** "Approved section 1"');
+    expect(report).toContain('- **[STAMP]** Stamp: APPROVED');
+    expect(report).toContain('- **[ARROW]** Arrow (10, 20) → (100, 20)');
+    expect(report).toContain('## Page 2');
+    expect(report).toContain('- **[STICKY_NOTE]** Comment: "Needs revision"');
+    expect(report).toContain('- **[MEASURE]** Distance: 25.4 mm');
+    expect(report).toContain('- **[REDACTION]** Redaction: [CONFIDENTIAL]');
+  });
 });
