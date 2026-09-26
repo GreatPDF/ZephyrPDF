@@ -73,7 +73,7 @@ export class OrganizerModal {
           <button class="btn" id="org-merge-btn" aria-label="Merge PDF">📎 Merge PDF</button>
           <button class="btn" id="org-select-all-btn" aria-label="Select All Pages">Select All</button>
           <button class="btn" id="org-extract-btn" title="Extract selected pages into separate PDF" aria-label="Extract selected pages into separate PDF">Extract Selected</button>
-          <div style="display: flex; align-items: center; gap: 4px; background: var(--bg-tertiary); padding: 2px 6px; border-radius: 6px;">
+          <div class="org-range-box" style="display: flex; align-items: center; gap: 4px; background: var(--bg-tertiary); padding: 2px 6px; border-radius: 6px; border: 1px solid var(--border-color); transition: border-color 0.2s ease;">
             <input type="text" id="org-range-input" placeholder="Range: 1-3, 5" aria-label="Page range to export (e.g. 1-3, 5)" style="background: transparent; border: none; color: var(--text-primary); font-size: 0.8rem; width: 100px; outline: none;" />
             <button class="btn" id="org-range-btn" style="height: 26px; padding: 0 8px; font-size: 0.75rem;" aria-label="Export page range">Export</button>
           </div>

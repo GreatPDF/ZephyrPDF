@@ -293,7 +293,8 @@ export class PageManager {
 
   public static parsePageRange(rangeStr: string, maxPages: number): number[] {
     const indices = new Set<number>();
-    const parts = rangeStr.split(/[,;\s]+/);
+    const normalized = rangeStr.replace(/\s*-\s*/g, '-').trim();
+    const parts = normalized.split(/[,;\s]+/);
 
     for (const part of parts) {
       const clean = part.trim();

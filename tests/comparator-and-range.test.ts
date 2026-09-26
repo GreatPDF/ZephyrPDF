@@ -50,4 +50,9 @@ describe('Page Range Parser', () => {
     const sorted = Array.from(selectedIndices).sort((a, b) => a - b);
     expect(sorted).toEqual([1, 3]);
   });
+
+  it('should parse ranges with extra spaces around hyphens and commas', () => {
+    expect(PageManager.parsePageRange(' 1 - 3 ,  5 ', 10)).toEqual([0, 1, 2, 4]);
+    expect(PageManager.parsePageRange('4 - 2', 10)).toEqual([1, 2, 3]);
+  });
 });

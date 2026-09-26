@@ -991,6 +991,10 @@ mark.search-highlight.active {
   align-items: center;
 }
 
+.org-range-box:focus-within {
+  border-color: var(--accent-color) !important;
+}
+
 .organizer-grid {
   flex: 1;
   padding: 24px;
