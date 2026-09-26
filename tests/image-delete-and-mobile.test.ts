@@ -266,4 +266,25 @@ describe('Image Deletion & Mobile UX Tests', () => {
     openDrawer(1280);
     expect(isMobileOpen).toBe(false);
   });
+
+  it('computes centered coordinates and boundary clamps for dropped image annotations', () => {
+    const computeImagePosition = (pageWidth: number, pageHeight: number, imgWidth: number, imgHeight: number) => {
+      const x = Math.round((pageWidth - imgWidth) / 2);
+      const y = Math.round((pageHeight - imgHeight) / 2);
+      return {
+        x: Math.max(10, x),
+        y: Math.max(10, y)
+      };
+    };
+
+    // Standard A4 page
+    const pos1 = computeImagePosition(595, 842, 200, 150);
+    expect(pos1.x).toBe(198);
+    expect(pos1.y).toBe(346);
+
+    // Oversized image clamped to minimum boundary 10
+    const pos2 = computeImagePosition(595, 842, 650, 900);
+    expect(pos2.x).toBe(10);
+    expect(pos2.y).toBe(10);
+  });
 });

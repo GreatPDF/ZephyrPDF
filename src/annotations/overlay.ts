@@ -544,6 +544,19 @@ export class PageAnnotationOverlay {
     if (tool === 'image' && !this.isDrawing) {
       const imgData = this.getActiveImage ? this.getActiveImage() : null;
       if (imgData) {
+        const coords = this.getEventCoords(e);
+        const svgW = parseFloat(this.svgLayer.getAttribute('width') || '0') || 595.28;
+        const svgH = parseFloat(this.svgLayer.getAttribute('height') || '0') || 841.89;
+        const isInsideThisPage = coords.x >= 0 && coords.x <= svgW && coords.y >= 0 && coords.y <= svgH;
+
+        if (!isInsideThisPage) {
+          if (this.previewElement && this.previewElement.id === 'image-placement-preview') {
+            this.previewElement.remove();
+            this.previewElement = null;
+          }
+          return;
+        }
+
         const dataUrl = typeof imgData === 'string' ? imgData : imgData.dataUrl;
         const baseW = typeof imgData === 'object' && imgData.width ? imgData.width : 150;
         const baseH = typeof imgData === 'object' && imgData.height ? imgData.height : 100;
@@ -552,6 +565,7 @@ export class PageAnnotationOverlay {
           if (this.previewElement) this.previewElement.remove();
           const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
           g.setAttribute('id', 'image-placement-preview');
+          g.style.pointerEvents = 'none';
           const img = document.createElementNS('http://www.w3.org/2000/svg', 'image');
           img.setAttribute('href', dataUrl);
           img.setAttribute('opacity', '0.65');
@@ -566,7 +580,6 @@ export class PageAnnotationOverlay {
           this.previewElement = g;
         }
 
-        const coords = this.getEventCoords(e);
         const w = baseW * scale;
         const h = baseH * scale;
         const x = coords.x * scale - w / 2;

@@ -46,7 +46,9 @@ export async function processImageDataUrl(
     }
 
     const img = new Image();
-    img.crossOrigin = 'anonymous';
+    if (!dataUrl.startsWith('data:')) {
+      img.crossOrigin = 'anonymous';
+    }
     img.onerror = () => reject(new Error('Failed to decode image data'));
     img.onload = () => {
       const nw = img.naturalWidth || 150;
