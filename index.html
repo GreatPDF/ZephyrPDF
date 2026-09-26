@@ -6,7 +6,7 @@
     <title>ZephyrPDF · The Featherlight Open-Source PDF Viewer & Editor</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'%3E%3C/path%3E%3Cpolyline points='14 2 14 8 20 8'%3E%3C/polyline%3E%3Cline x1='16' y1='13' x2='8' y2='13'%3E%3C/line%3E%3Cline x1='16' y1='17' x2='8' y2='17'%3E%3C/line%3E%3Cpolyline points='10 9 9 9 8 9'%3E%3C/polyline%3E%3C/svg%3E" />
     <link rel="manifest" href="./manifest.json" />
-    <script type="module" crossorigin src="./assets/index-uMD15iKT.js"></script>
+    <script type="module" crossorigin src="./assets/index-Ch4Bibr5.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-C0wAXF7c.css">
   </head>
   <body>
@@ -42,11 +42,14 @@
 
       <!-- Floating Page Navigation HUD -->
       <div class="floating-hud" id="floating-hud" style="display: none;">
-        <button class="icon-btn" id="hud-prev-page" title="Previous Page (k)">▲</button>
-        <input type="number" id="hud-current-page" class="page-counter-input" min="1" value="1" />
+        <button class="icon-btn" id="hud-prev-page" title="Previous Page (k)" aria-label="Previous Page">▲</button>
+        <input type="number" id="hud-current-page" class="page-counter-input" min="1" value="1" aria-label="Current Page Number" />
         <span style="font-size: 0.85rem; color: var(--text-secondary);">/</span>
         <span id="hud-total-pages" style="font-size: 0.85rem; font-weight: 600;">1</span>
-        <button class="icon-btn" id="hud-next-page" title="Next Page (j)">▼</button>
+        <button class="icon-btn" id="hud-next-page" title="Next Page (j)" aria-label="Next Page">▼</button>
+        <div style="width: 1px; height: 16px; background: var(--border-color); margin: 0 2px;"></div>
+        <button class="icon-btn" id="hud-rotate-ccw" title="Rotate Page 90° CCW (Ctrl+[)" aria-label="Rotate Page 90° Counter-Clockwise">↺</button>
+        <button class="icon-btn" id="hud-rotate-cw" title="Rotate Page 90° CW (Ctrl+])" aria-label="Rotate Page 90° Clockwise">↻</button>
       </div>
     </div>
 
