@@ -46,10 +46,13 @@ export class WatermarkDialog {
     const card = document.createElement('div');
     card.className = 'modal-card';
     card.style.maxWidth = '550px';
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('aria-modal', 'true');
+    card.setAttribute('aria-labelledby', 'wm-dialog-title');
 
     card.innerHTML = `
       <div class="modal-header">
-        <h3>Watermark & Page Numbers</h3>
+        <h3 id="wm-dialog-title" style="margin: 0; font-size: 1.15rem;">Watermark & Page Numbers</h3>
         <button class="icon-btn" id="close-wm-btn" aria-label="Close dialog" title="Close dialog">✕</button>
       </div>
 
@@ -66,20 +69,20 @@ export class WatermarkDialog {
 
           <div id="wm-options-container" style="display: ${this.watermark.enabled ? 'flex' : 'none'}; flex-direction: column; gap: 10px;">
             <div>
-              <label style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Watermark Text:</label>
+              <label for="wm-text-input" style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Watermark Text:</label>
               <input type="text" id="wm-text-input" value="${this.watermark.text}" style="width: 100%; padding: 6px 10px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-size: 0.9rem;" />
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
               <div>
-                <label style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">
+                <label for="wm-opacity-range" style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">
                   Opacity: <span id="wm-opacity-label">${Math.round(this.watermark.opacity * 100)}%</span>
                 </label>
                 <input type="range" id="wm-opacity-range" min="5" max="60" value="${Math.round(this.watermark.opacity * 100)}" style="width: 100%;" />
               </div>
 
               <div>
-                <label style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Rotation:</label>
+                <label for="wm-rotation-select" style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Rotation:</label>
                 <select id="wm-rotation-select" style="width: 100%; padding: 6px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);">
                   <option value="-45" ${this.watermark.rotationDegrees === -45 ? 'selected' : ''}>-45° (Diagonal Up)</option>
                   <option value="0" ${this.watermark.rotationDegrees === 0 ? 'selected' : ''}>0° (Horizontal)</option>
@@ -89,7 +92,7 @@ export class WatermarkDialog {
             </div>
 
             <div>
-              <label style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Color:</label>
+              <label for="wm-color-select" style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Color:</label>
               <select id="wm-color-select" style="width: 100%; padding: 6px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);">
                 <option value="#94a3b8" ${this.watermark.color === '#94a3b8' ? 'selected' : ''}>Muted Slate Gray</option>
                 <option value="#ef4444" ${this.watermark.color === '#ef4444' ? 'selected' : ''}>Warning Red</option>
@@ -112,7 +115,7 @@ export class WatermarkDialog {
 
           <div id="pn-options-container" style="display: ${this.pageNumbers.enabled ? 'grid' : 'none'}; grid-template-columns: 1fr 1fr; gap: 12px;">
             <div>
-              <label style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Format:</label>
+              <label for="pn-format-select" style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Format:</label>
               <select id="pn-format-select" style="width: 100%; padding: 6px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);">
                 <option value="Page X of Y" ${this.pageNumbers.format === 'Page X of Y' ? 'selected' : ''}>Page X of Y</option>
                 <option value="X of Y" ${this.pageNumbers.format === 'X of Y' ? 'selected' : ''}>X of Y</option>
@@ -121,7 +124,7 @@ export class WatermarkDialog {
             </div>
 
             <div>
-              <label style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Position:</label>
+              <label for="pn-position-select" style="display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Position:</label>
               <select id="pn-position-select" style="width: 100%; padding: 6px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary);">
                 <option value="bottom-center" ${this.pageNumbers.position === 'bottom-center' ? 'selected' : ''}>Bottom Center</option>
                 <option value="bottom-right" ${this.pageNumbers.position === 'bottom-right' ? 'selected' : ''}>Bottom Right</option>
@@ -156,9 +159,20 @@ export class WatermarkDialog {
     const cancelBtn = card.querySelector('#cancel-wm-btn');
     const saveBtn = card.querySelector('#save-wm-btn');
     const textInput = card.querySelector('#wm-text-input') as HTMLInputElement;
+    const wmCheck = card.querySelector('#wm-enable-check') as HTMLInputElement;
+    const wmContainer = card.querySelector('#wm-options-container') as HTMLElement;
+    const pnCheck = card.querySelector('#pn-enable-check') as HTMLInputElement;
+    const pnContainer = card.querySelector('#pn-options-container') as HTMLElement;
 
     closeBtn?.addEventListener('click', () => this.close());
     cancelBtn?.addEventListener('click', () => this.close());
+
+    if (this.watermark.enabled) {
+      textInput?.focus();
+      textInput?.select();
+    } else {
+      wmCheck?.focus();
+    }
 
     textInput?.addEventListener('keydown', (e: KeyboardEvent) => {
       if (e.key === 'Enter') {
@@ -167,8 +181,16 @@ export class WatermarkDialog {
       }
     });
 
-    const wmCheck = card.querySelector('#wm-enable-check') as HTMLInputElement;
-    const wmContainer = card.querySelector('#wm-options-container') as HTMLElement;
+    const selects = card.querySelectorAll<HTMLSelectElement>('select');
+    selects.forEach(sel => {
+      sel.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          (saveBtn as HTMLButtonElement)?.click();
+        }
+      });
+    });
+
     wmCheck?.addEventListener('change', () => {
       this.watermark.enabled = wmCheck.checked;
       wmContainer.style.display = wmCheck.checked ? 'flex' : 'none';
@@ -177,8 +199,6 @@ export class WatermarkDialog {
       }
     });
 
-    const pnCheck = card.querySelector('#pn-enable-check') as HTMLInputElement;
-    const pnContainer = card.querySelector('#pn-options-container') as HTMLElement;
     pnCheck?.addEventListener('change', () => {
       this.pageNumbers.enabled = pnCheck.checked;
       pnContainer.style.display = pnCheck.checked ? 'grid' : 'none';

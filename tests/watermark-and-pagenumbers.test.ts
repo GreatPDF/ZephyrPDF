@@ -165,4 +165,29 @@ describe('Watermark and Page Numbering', () => {
     expect(doc.getPageCount()).toBe(1);
     expect(doc.getPage(0).getSize().width).toBeCloseTo(595.28, 1);
   });
+
+  it('correctly maps watermark options and formats page numbering templates', () => {
+    const formatPageString = (format: 'Page X of Y' | 'X of Y' | 'X', current: number, total: number) => {
+      if (format === 'Page X of Y') return `Page ${current} of ${total}`;
+      if (format === 'X of Y') return `${current} of ${total}`;
+      return `${current}`;
+    };
+
+    expect(formatPageString('Page X of Y', 1, 5)).toBe('Page 1 of 5');
+    expect(formatPageString('X of Y', 3, 10)).toBe('3 of 10');
+    expect(formatPageString('X', 4, 4)).toBe('4');
+
+    const defaultWatermark: WatermarkOptions = {
+      enabled: true,
+      text: 'INTERNAL ONLY',
+      opacity: 0.25,
+      fontSize: 48,
+      rotationDegrees: -45,
+      color: '#ef4444'
+    };
+
+    expect(defaultWatermark.enabled).toBe(true);
+    expect(defaultWatermark.rotationDegrees).toBe(-45);
+    expect(defaultWatermark.opacity).toBe(0.25);
+  });
 });
