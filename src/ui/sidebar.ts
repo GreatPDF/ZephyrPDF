@@ -67,6 +67,13 @@ export class AppSidebar {
     return this.container.classList.contains('mobile-open');
   }
 
+  public isOpen(): boolean {
+    if (window.innerWidth <= 768) {
+      return this.container.classList.contains('mobile-open');
+    }
+    return !this.container.classList.contains('collapsed');
+  }
+
   public setThumbnails(thumbnails: { pageNumber: number; dataUrl: string; rotation?: number }[]): void {
     const list = this.container.querySelector('#sidebar-thumbnails-list');
     if (!list) return;
@@ -323,7 +330,7 @@ export class AppSidebar {
         <div id="tab-pane-search" style="display: none;">
           <div style="display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; gap: 6px; align-items: center;">
-              <input type="text" id="sidebar-search-input" class="search-input" placeholder="Search document..." style="flex: 1; width: 100%;" />
+              <input type="text" id="sidebar-search-input" class="search-input" placeholder="Search document..." aria-label="Search document" style="flex: 1; width: 100%;" />
               <button class="icon-btn" id="search-case-btn" title="Match Case" aria-label="Match Case" style="width: 28px; height: 28px; font-size: 0.75rem; font-weight: bold;">Aa</button>
               <button class="icon-btn" id="search-word-btn" title="Match Whole Words" aria-label="Match Whole Words" style="width: 28px; height: 28px; font-size: 0.75rem; font-family: monospace;">\\b</button>
             </div>
@@ -334,7 +341,7 @@ export class AppSidebar {
                 <button class="icon-btn" id="search-next-btn" style="width: 28px; height: 28px;" title="Next Match" aria-label="Next Match">▼</button>
               </div>
             </div>
-            <button class="btn" id="export-search-citations-btn" style="height: 28px; font-size: 0.75rem; width: 100%; margin-top: 4px; justify-content: center; gap: 6px;">
+            <button class="btn" id="export-search-citations-btn" title="Export Citations as Markdown (.md)" aria-label="Export Search Citations" style="height: 28px; font-size: 0.75rem; width: 100%; margin-top: 4px; justify-content: center; gap: 6px;">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               <span>Export Citations (.md)</span>
             </button>
@@ -387,6 +394,8 @@ export class AppSidebar {
         } else {
           this.events.onSearchNext();
         }
+      } else if (e.key === 'Escape') {
+        searchInput.blur();
       }
     });
 

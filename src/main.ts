@@ -1045,9 +1045,10 @@ class ZephyrPDFApp {
         }
       } else if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
-        const searchInput = document.getElementById('sidebar-search-input') as HTMLInputElement;
+        this.sidebar.open();
         const searchTab = document.querySelector('.sidebar-tab[data-tab="search"]') as HTMLElement;
         searchTab?.click();
+        const searchInput = document.getElementById('sidebar-search-input') as HTMLInputElement;
         searchInput?.focus();
         searchInput?.select();
       } else if (e.key === 'G' && e.shiftKey) {

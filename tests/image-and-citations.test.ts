@@ -50,4 +50,27 @@ describe('Image Annotation and Citations', () => {
     const doc = await PDFDocument.load(exportedBytes);
     expect(doc.getPageCount()).toBe(2);
   });
+
+  it('should format search citations into structured Markdown report', () => {
+    const matches = [
+      { pageIndex: 0, text: 'ZephyrPDF is designed from the ground up for speed', rects: [] },
+      { pageIndex: 1, text: 'Technical Specification & Features for ZephyrPDF', rects: [] }
+    ];
+    const query = 'ZephyrPDF';
+    const fileName = 'showcase.pdf';
+
+    let md = `# Search Citations for "${query}"\n`;
+    md += `**Document:** ${fileName}\n`;
+    md += `**Total Matches:** ${matches.length}\n\n`;
+    md += `## Occurrences\n`;
+    for (const m of matches) {
+      md += `- **Page ${m.pageIndex + 1}**: "...${m.text}..."\n`;
+    }
+
+    expect(md).toContain('# Search Citations for "ZephyrPDF"');
+    expect(md).toContain('**Document:** showcase.pdf');
+    expect(md).toContain('**Total Matches:** 2');
+    expect(md).toContain('- **Page 1**: "...ZephyrPDF is designed from the ground up for speed..."');
+    expect(md).toContain('- **Page 2**: "...Technical Specification & Features for ZephyrPDF..."');
+  });
 });
