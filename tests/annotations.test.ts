@@ -234,4 +234,45 @@ describe('AnnotationManager', () => {
     const pos4 = computePopupPosition({ top: 300, left: 1400, width: 30, bottom: 320 }, 1440);
     expect(pos4.left).toBe(1200);
   });
+
+  it('manages inline text editor attributes, text commit, and dimension scaling', () => {
+    const textAnn: TextAnnotation = {
+      id: 'txt_edit_1',
+      type: 'text',
+      pageIndex: 0,
+      x: 100,
+      y: 150,
+      width: 120,
+      height: 24,
+      text: 'Initial Draft Text',
+      fontSize: 14,
+      fontFamily: 'Helvetica',
+      color: '#1e293b',
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    manager.addAnnotation(textAnn);
+    expect((manager.getAnnotation('txt_edit_1') as TextAnnotation)?.text).toBe('Initial Draft Text');
+
+    // Commit new text
+    manager.updateAnnotation('txt_edit_1', {
+      text: 'Final Approved Contract Clause',
+      width: 220,
+      height: 28
+    });
+
+    const updated = manager.getAnnotation('txt_edit_1') as TextAnnotation;
+    expect(updated.text).toBe('Final Approved Contract Clause');
+    expect(updated.width).toBe(220);
+    expect(updated.height).toBe(28);
+
+    // Verify undo restores initial text
+    history.undo();
+    expect((manager.getAnnotation('txt_edit_1') as TextAnnotation)?.text).toBe('Initial Draft Text');
+
+    // Verify redo re-applies updated text
+    history.redo();
+    expect((manager.getAnnotation('txt_edit_1') as TextAnnotation)?.text).toBe('Final Approved Contract Clause');
+  });
 });

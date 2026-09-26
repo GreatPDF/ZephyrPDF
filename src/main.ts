@@ -29,7 +29,7 @@ import { DocumentTabBar } from './ui/tab-bar';
 import { OrganizerModal } from './ui/organizer-modal';
 import { NotificationService } from './ui/notification';
 import { createSamplePdf } from './utils/samples';
-import { MeasureUnit, ToolType, ImageAnnotation, Annotation } from './types/annotations';
+import { MeasureUnit, ToolType, ImageAnnotation, Annotation, TextAnnotation } from './types/annotations';
 import { processImageFile, ProcessedImage } from './utils/image';
 import { ThemeMode, ViewMode, WatermarkOptions, PageNumberOptions } from './types/document';
 import { PRESET_COLORS } from './utils/color';
@@ -847,6 +847,22 @@ class ZephyrPDFApp {
         this.setActiveTool('hand');
         e.preventDefault();
         return;
+      }
+
+      // Enter or F2 to edit selected text annotation
+      if ((e.key === 'Enter' || e.key === 'F2') && this.activeTool === 'select' && !e.shiftKey) {
+        const selectedId = this.annotationManager.getSelectedId();
+        if (selectedId) {
+          const ann = this.annotationManager.getAnnotation(selectedId);
+          if (ann && ann.type === 'text') {
+            const overlay = this.pageOverlays.get(ann.pageIndex);
+            if (overlay) {
+              e.preventDefault();
+              overlay.openTextEditor(ann as TextAnnotation);
+              return;
+            }
+          }
+        }
       }
 
       // Arrow keys pixel nudge for selected annotations

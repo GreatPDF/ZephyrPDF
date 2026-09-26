@@ -1148,6 +1148,8 @@ export class PageAnnotationOverlay {
         this.svgLayer.appendChild(g);
       } else if (ann.type === 'text') {
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('data-id', ann.id);
+        g.setAttribute('data-annotation-type', 'text');
         g.style.pointerEvents = 'all';
         g.style.cursor = 'pointer';
         const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -1461,6 +1463,9 @@ export class PageAnnotationOverlay {
     const editor = document.createElement('div');
     editor.className = 'pdf-text-editor';
     editor.contentEditable = 'true';
+    editor.setAttribute('role', 'textbox');
+    editor.setAttribute('aria-multiline', 'true');
+    editor.setAttribute('aria-label', 'Edit text annotation');
     editor.innerText = ann.text;
     editor.style.left = `${(ann.x - 4) * scale}px`;
     editor.style.top = `${(ann.y - 2) * scale}px`;
