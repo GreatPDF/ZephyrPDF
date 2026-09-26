@@ -959,6 +959,7 @@ export class PageAnnotationOverlay {
           r.setAttribute('width', (rect.width * scale).toString());
           r.setAttribute('height', (rect.height * scale).toString());
           r.setAttribute('fill', hexToRgbaCss(ann.color, ann.opacity));
+          r.setAttribute('data-annotation-type', 'highlight');
           r.setAttribute('style', 'pointer-events: all; cursor: pointer;');
           if (isSelected) {
             r.setAttribute('stroke', '#1976d2');

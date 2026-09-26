@@ -1002,7 +1002,11 @@ class ZephyrPDFApp {
       } else if (e.key.toLowerCase() === 'h') {
         this.setActiveTool('hand');
       } else if (e.key.toLowerCase() === 'l') {
-        this.setActiveTool('highlight');
+        if (e.shiftKey || this.activeTool === 'highlight') {
+          this.setActiveTool(this.activeTool === 'freehand_highlight' ? 'highlight' : 'freehand_highlight');
+        } else {
+          this.setActiveTool('highlight');
+        }
       } else if (e.key.toLowerCase() === 'p') {
         this.setActiveTool('freehand');
       } else if (e.key.toLowerCase() === 'e') {

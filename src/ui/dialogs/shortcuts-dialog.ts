@@ -64,7 +64,7 @@ export class ShortcutsDialog {
         <div class="shortcut-row"><span>Constrain Proportions / Ratio</span><div><span class="shortcut-kbd">Shift + Drag Handle</span></div></div>
         <div class="shortcut-row"><span>Insert Image / Logo</span><span class="shortcut-kbd">i</span></div>
         <div class="shortcut-row"><span>Paste Image from Clipboard</span><span class="shortcut-kbd">Ctrl + V</span></div>
-        <div class="shortcut-row"><span>Text Highlighter</span><span class="shortcut-kbd">l</span></div>
+        <div class="shortcut-row"><span>Highlight / Chisel</span><div><span class="shortcut-kbd">l</span> / <span class="shortcut-kbd">Shift + L</span></div></div>
         <div class="shortcut-row"><span>Freehand Pen</span><span class="shortcut-kbd">p</span></div>
         <div class="shortcut-row"><span>Eraser</span><span class="shortcut-kbd">e</span></div>
         <div class="shortcut-row"><span>Add Text Box</span><span class="shortcut-kbd">t</span></div>

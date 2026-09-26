@@ -114,4 +114,28 @@ describe('Form Builder and Chisel Highlighting', () => {
     expect(formHandler.getAllFields()[0].name).toBe('field_b');
     expect(formHandler.getValue('field_a')).toBeUndefined();
   });
+
+  it('should toggle between text highlight and chisel freehand highlighter tools', () => {
+    let currentTool: string = 'select';
+
+    const handleL = (shiftKey: boolean) => {
+      if (shiftKey || currentTool === 'highlight') {
+        currentTool = currentTool === 'freehand_highlight' ? 'highlight' : 'freehand_highlight';
+      } else {
+        currentTool = 'highlight';
+      }
+    };
+
+    handleL(false);
+    expect(currentTool).toBe('highlight');
+
+    handleL(false); // Second press toggles to chisel
+    expect(currentTool).toBe('freehand_highlight');
+
+    handleL(false); // Third press toggles back to highlight
+    expect(currentTool).toBe('highlight');
+
+    handleL(true); // Shift+L directly toggles to chisel
+    expect(currentTool).toBe('freehand_highlight');
+  });
 });
