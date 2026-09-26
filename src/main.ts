@@ -1953,6 +1953,10 @@ class ZephyrPDFApp {
   }
 
   public openOrganizer(): void {
+    if (!this.currentDoc) {
+      NotificationService.show('Open a PDF document first before organizing pages.', 3000, true);
+      return;
+    }
     new OrganizerModal(this.pageManager, this.pageThumbnails, {
       onApply: () => {
         this.renderDocument();

@@ -1,6 +1,6 @@
 {
   "name": "zephyrpdf",
-  "version": "2.12.84",
+  "version": "2.12.85",
   "description": "The featherlight, full-featured open-source PDF viewing, editing, annotation, and manipulation software.",
   "type": "module",
   "scripts": {

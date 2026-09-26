@@ -38,6 +38,8 @@ export class OrganizerModal {
       }
     };
     window.addEventListener('keydown', this.keyHandler);
+    const applyBtn = this.overlay?.querySelector('#org-apply-btn') as HTMLElement;
+    applyBtn?.focus();
   }
 
   public cancel(): void {
@@ -60,11 +62,14 @@ export class OrganizerModal {
   private render(): void {
     this.overlay = document.createElement('div');
     this.overlay.className = 'organizer-overlay';
+    this.overlay.setAttribute('role', 'dialog');
+    this.overlay.setAttribute('aria-modal', 'true');
+    this.overlay.setAttribute('aria-labelledby', 'org-modal-title');
 
     this.overlay.innerHTML = `
       <div class="organizer-header">
         <div style="display: flex; align-items: center; gap: 12px;">
-          <h2 style="font-size: 1.25rem; font-weight: 600;">Page Organizer</h2>
+          <h2 id="org-modal-title" style="font-size: 1.25rem; font-weight: 600;">Page Organizer</h2>
           <span style="font-size: 0.85rem; color: var(--text-muted);" id="org-page-count">${this.pageManager.getPageCount()} pages</span>
         </div>
         <div style="display: flex; gap: 8px;">
@@ -111,12 +116,14 @@ export class OrganizerModal {
       }
       card.setAttribute('draggable', 'true');
       card.setAttribute('data-index', index.toString());
+      card.setAttribute('role', 'group');
+      card.setAttribute('aria-label', `Page ${index + 1}${page.rotation ? `, rotated ${page.rotation} degrees` : ''}`);
 
       const thumbUrl = this.thumbnails.get(page.id) || '';
 
       card.innerHTML = `
         <div style="position: absolute; top: 10px; left: 10px; z-index: 2;">
-          <input type="checkbox" class="org-select-check" ${isSelected ? 'checked' : ''} style="cursor: pointer; width: 16px; height: 16px;" />
+          <input type="checkbox" class="org-select-check" aria-label="Select Page ${index + 1}" ${isSelected ? 'checked' : ''} style="cursor: pointer; width: 16px; height: 16px;" />
         </div>
         <div style="width: 140px; height: 180px; display: flex; align-items: center; justify-content: center; background: white; border-radius: 4px; overflow: hidden; box-shadow: var(--shadow-sm); transform: rotate(${page.rotation}deg); transition: transform 0.2s ease;">
           ${page.isBlank ? '<div style="color: #999; font-size: 0.85rem;">[Blank Page]</div>' : `<img src="${thumbUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />`}
