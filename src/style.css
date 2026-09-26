@@ -585,11 +585,17 @@ button.btn.btn-primary:hover {
 }
 
 .viewer-viewport.mode-two-page #pages-wrapper {
-  flex-direction: row !important;
-  flex-wrap: wrap !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, max-content) !important;
   justify-content: center !important;
-  align-items: flex-start !important;
+  align-items: start !important;
   gap: 20px !important;
+}
+
+@media (max-width: 768px) {
+  .viewer-viewport.mode-two-page #pages-wrapper {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 .viewer-viewport.mode-single .page-container {

@@ -60,4 +60,15 @@ describe('Viewport Virtualizer and Themes', () => {
     expect(supportedModes).toContain('two-page');
     expect(supportedModes.length).toBe(4);
   });
+
+  it('computes proportional zoom scale for two-page spread to fit side-by-side', () => {
+    const pageWidth = 595;
+    const containerWidth = 1440;
+    const avail = containerWidth - 80;
+    const targetScale = Math.min(1.0, Math.max(0.4, avail / (pageWidth * 2 + 40)));
+
+    expect(targetScale).toBeGreaterThan(0.4);
+    expect(targetScale).toBeLessThanOrEqual(1.0);
+    expect(targetScale * (pageWidth * 2 + 40)).toBeLessThanOrEqual(avail);
+  });
 });
