@@ -638,6 +638,7 @@ class ZephyrPDFApp {
         panStartY = e.clientY;
         scrollStartX = viewerContainer.scrollLeft;
         scrollStartY = viewerContainer.scrollTop;
+        viewerContainer.classList.add('panning');
         viewerContainer.style.cursor = 'grabbing';
         e.preventDefault();
       }
@@ -656,8 +657,17 @@ class ZephyrPDFApp {
       if (isPanning) {
         isPanning = false;
         if (viewerContainer) {
+          viewerContainer.classList.remove('panning');
           viewerContainer.style.cursor = this.activeTool === 'hand' ? 'grab' : '';
         }
+      }
+    });
+
+    window.addEventListener('blur', () => {
+      if (isPanning && viewerContainer) {
+        isPanning = false;
+        viewerContainer.classList.remove('panning');
+        viewerContainer.style.cursor = this.activeTool === 'hand' ? 'grab' : '';
       }
     });
 
@@ -1097,6 +1107,13 @@ class ZephyrPDFApp {
 
     window.addEventListener('keyup', (e) => {
       if (e.code === 'Space' && isSpacePressed) {
+        isSpacePressed = false;
+        this.setActiveTool(toolBeforeSpace);
+      }
+    });
+
+    window.addEventListener('blur', () => {
+      if (isSpacePressed) {
         isSpacePressed = false;
         this.setActiveTool(toolBeforeSpace);
       }
@@ -1754,7 +1771,10 @@ class ZephyrPDFApp {
     this.activeTool = tool;
     this.toolbar.setActiveTool(tool);
     const vc = document.getElementById('viewer-container');
-    if (vc) vc.style.cursor = tool === 'hand' ? 'grab' : '';
+    if (vc) {
+      vc.classList.toggle('tool-hand', tool === 'hand');
+      vc.style.cursor = tool === 'hand' ? 'grab' : '';
+    }
     this.loupe.setActive(tool === 'loupe');
     for (const overlay of this.pageOverlays.values()) {
       overlay.setTool(tool);

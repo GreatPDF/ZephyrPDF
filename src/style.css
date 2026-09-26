@@ -636,6 +636,22 @@ button.btn.btn-primary:hover {
   pointer-events: none;
 }
 
+/* Hand / Pan Tool Cursor & TextLayer Isolation */
+.viewer-viewport.tool-hand,
+.viewer-viewport.tool-hand * {
+  cursor: grab !important;
+}
+
+.viewer-viewport.tool-hand.panning,
+.viewer-viewport.tool-hand.panning * {
+  cursor: grabbing !important;
+}
+
+.viewer-viewport.tool-hand .textLayer {
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
 /* Transparent PDF.js Text Selection Layer */
 .textLayer {
   position: absolute;

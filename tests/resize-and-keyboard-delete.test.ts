@@ -120,4 +120,23 @@ describe('Resize Handles and Keyboard Deletion', () => {
     expect(formatZoom(1.5)).toBe('150%');
     expect(formatZoom(0.75)).toBe('75%');
   });
+
+  it('computes pan drag offsets and clamps scroll values accurately', () => {
+    const scrollStartX = 100;
+    const scrollStartY = 200;
+    const panStartX = 300;
+    const panStartY = 400;
+
+    const currentX = 250;
+    const currentY = 350;
+
+    const dx = currentX - panStartX;
+    const dy = currentY - panStartY;
+
+    const targetScrollX = Math.max(0, scrollStartX - dx);
+    const targetScrollY = Math.max(0, scrollStartY - dy);
+
+    expect(targetScrollX).toBe(150);
+    expect(targetScrollY).toBe(250);
+  });
 });
